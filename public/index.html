@@ -126,8 +126,8 @@
                         <i class="fa-solid fa-sliders"></i>
                     </span>
                     <div>
-                        <h3 class="font-bold text-sm text-gray-900 dark:text-white">Configuração do Servidor de IA</h3>
-                        <p class="text-[11px] text-gray-500 dark:text-gray-400">Ative provedores, configure credenciais e teste a conectividade em tempo real</p>
+                        <h3 class="font-bold text-sm text-gray-900 dark:text-white">Configurações & Conectividade</h3>
+                        <p class="text-[11px] text-gray-500 dark:text-gray-400">Gerencie o Token do GitHub e os Servidores de Inteligência Artificial</p>
                     </div>
                 </div>
                 <button onclick="closeAIConfigModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-1.5 rounded-lg">
@@ -138,6 +138,47 @@
             <!-- Formulário -->
             <div class="p-5 overflow-y-auto space-y-4 max-h-[75vh]">
                 
+                <!-- SEÇÃO 1: TOKEN DO GITHUB (SEGURO) -->
+                <div class="p-3.5 rounded-xl bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 space-y-2.5">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-brands fa-github text-gray-800 dark:text-gray-200 text-base"></i>
+                            <div>
+                                <span class="font-bold text-xs text-gray-900 dark:text-gray-100 block">Token de Acesso do GitHub</span>
+                                <span class="text-[10px] text-gray-500 dark:text-gray-400">Necessário para ler e atualizar issues e metas (PAT Classic ou Fine-grained)</span>
+                            </div>
+                        </div>
+                        <span id="github-token-badge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300">
+                            Verificando...
+                        </span>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <div class="flex items-center gap-1.5">
+                            <div class="relative flex-1">
+                                <input type="password" id="github-token-input" placeholder="ghp_... ou gho_... (cole um novo token para atualizar)" class="w-full text-xs p-2 pr-8 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 font-mono">
+                                <button type="button" onclick="toggleGithubTokenVisibility()" class="absolute right-2.5 top-2.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 text-xs" title="Ver token">
+                                    <i id="github-token-eye" class="fa-regular fa-eye"></i>
+                                </button>
+                            </div>
+                            <button type="button" onclick="saveGitHubToken()" id="btn-save-gh-token" class="px-3 py-2 rounded-lg bg-gray-900 hover:bg-black dark:bg-gray-600 dark:hover:bg-gray-500 text-white text-xs font-semibold flex items-center gap-1 transition-colors whitespace-nowrap shadow-2xs">
+                                <i class="fa-solid fa-floppy-disk text-[10px]"></i>
+                                <span>Salvar Token</span>
+                            </button>
+                        </div>
+                        <div class="flex items-center justify-between text-[10px] text-gray-500 dark:text-gray-400">
+                            <span id="github-token-current-status">Token ativo: Nenhum</span>
+                            <button type="button" onclick="testGitHubToken()" id="btn-test-gh-token" class="text-blue-600 dark:text-blue-400 hover:underline font-semibold flex items-center gap-1">
+                                <i class="fa-solid fa-vial text-[9px]"></i> Testar Token
+                            </button>
+                        </div>
+                        <div id="github-token-msg" class="text-[11px] p-2 rounded-lg" style="display: none;"></div>
+                    </div>
+                </div>
+
+                <div class="border-t border-gray-200 dark:border-gray-700"></div>
+
+                <!-- SEÇÃO 2: SERVIDOR DE IA -->
                 <!-- Interruptor Ligar/Desligar IA -->
                 <div class="flex items-center justify-between p-3 rounded-xl bg-gray-50 dark:bg-gray-700/60 border border-gray-200 dark:border-gray-600">
                     <div>
@@ -1200,12 +1241,127 @@ Commits ({commitsCount}):
             }
         }
 
-        // Modal de Configuração de IA
+        // Funções de Gerenciamento do Token do GitHub
+        let isGithubTokenVisible = false;
+
+        function toggleGithubTokenVisibility() {
+            const input = document.getElementById('github-token-input');
+            const eye = document.getElementById('github-token-eye');
+            isGithubTokenVisible = !isGithubTokenVisible;
+            input.type = isGithubTokenVisible ? 'text' : 'password';
+            eye.className = isGithubTokenVisible ? 'fa-regular fa-eye-slash' : 'fa-regular fa-eye';
+        }
+
+        async function loadGitHubConfig() {
+            const badge = document.getElementById('github-token-badge');
+            const statusText = document.getElementById('github-token-current-status');
+            const input = document.getElementById('github-token-input');
+            try {
+                const res = await fetch('/api/github/config');
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.configured) {
+                        badge.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800';
+                        badge.innerHTML = '<i class="fa-solid fa-check mr-1"></i> Configurado';
+                        statusText.innerHTML = `Token ativo: <span class="font-mono text-gray-700 dark:text-gray-300">${data.maskedToken}</span> (${data.source === 'dashboard_config' ? 'Painel' : (data.source === 'env_variable' ? '.env' : 'gh CLI')})`;
+                    } else {
+                        badge.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-800';
+                        badge.innerHTML = '<i class="fa-solid fa-triangle-exclamation mr-1"></i> Não configurado';
+                        statusText.innerText = 'Nenhum token detectado. Insira um token abaixo.';
+                    }
+                }
+            } catch (e) {
+                badge.innerText = 'Offline';
+            }
+        }
+
+        async function saveGitHubToken() {
+            const input = document.getElementById('github-token-input');
+            const btn = document.getElementById('btn-save-gh-token');
+            const msg = document.getElementById('github-token-msg');
+            const token = input.value.trim();
+
+            if (!token && !confirm('Deseja limpar o token manual e usar o fallback do ambiente?')) return;
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-[10px]"></i> Salvando...';
+            msg.style.display = 'block';
+            msg.className = 'text-[11px] p-2 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-900';
+            msg.innerText = 'Validando permissões no repositório do GitHub...';
+
+            try {
+                const res = await fetch('/api/github/config', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    msg.className = 'text-[11px] p-2 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800';
+                    msg.innerHTML = `<strong><i class="fa-solid fa-circle-check text-emerald-500 mr-1"></i> Sucesso!</strong> ${data.message}`;
+                    input.value = '';
+                    await loadGitHubConfig();
+                    loadIssues();
+                } else {
+                    msg.className = 'text-[11px] p-2 rounded-lg bg-red-50 dark:bg-red-950/60 text-red-800 dark:text-red-300 border border-red-200 dark:border-red-800';
+                    msg.innerHTML = `<strong><i class="fa-solid fa-circle-xmark text-red-500 mr-1"></i> Falha:</strong> ${data.error || 'Erro ao validar token.'}`;
+                }
+            } catch (err) {
+                msg.className = 'text-[11px] p-2 rounded-lg bg-red-50 dark:bg-red-950/60 text-red-800 dark:text-red-300 border border-red-200 dark:border-red-800';
+                msg.innerHTML = `<strong><i class="fa-solid fa-circle-xmark text-red-500 mr-1"></i> Erro de rede:</strong> ${err.message}`;
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-floppy-disk text-[10px]"></i> <span>Salvar Token</span>';
+            }
+        }
+
+        async function testGitHubToken() {
+            const input = document.getElementById('github-token-input');
+            const btn = document.getElementById('btn-test-gh-token');
+            const msg = document.getElementById('github-token-msg');
+            const token = input.value.trim();
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-[9px]"></i> Testando...';
+            msg.style.display = 'block';
+            msg.className = 'text-[11px] p-2 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-900';
+            msg.innerText = 'Consultando API do GitHub...';
+
+            try {
+                const res = await fetch('/api/github/test', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    msg.className = 'text-[11px] p-2 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800';
+                    msg.innerHTML = `<strong><i class="fa-solid fa-circle-check text-emerald-500 mr-1"></i> Conexão ativa!</strong> Usuário: <strong>@${data.user}</strong> • Repo: <strong>${data.repository}</strong> (${data.latencyMs}ms)`;
+                } else {
+                    msg.className = 'text-[11px] p-2 rounded-lg bg-red-50 dark:bg-red-950/60 text-red-800 dark:text-red-300 border border-red-200 dark:border-red-800';
+                    msg.innerHTML = `<strong><i class="fa-solid fa-circle-xmark text-red-500 mr-1"></i> Erro no teste:</strong> ${data.error}`;
+                }
+            } catch (err) {
+                msg.className = 'text-[11px] p-2 rounded-lg bg-red-50 dark:bg-red-950/60 text-red-800 dark:text-red-300 border border-red-200 dark:border-red-800';
+                msg.innerHTML = `<strong><i class="fa-solid fa-circle-xmark text-red-500 mr-1"></i> Erro:</strong> ${err.message}`;
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-vial text-[9px]"></i> Testar Token';
+            }
+        }
+
+        // Modal de Configuração de IA e GitHub
         async function openAIConfigModal() {
             const modal = document.getElementById('ai-config-modal');
             const testResult = document.getElementById('ai-test-result');
+            const ghMsg = document.getElementById('github-token-msg');
             testResult.style.display = 'none';
+            if (ghMsg) ghMsg.style.display = 'none';
             modal.style.display = 'flex';
+
+            loadGitHubConfig();
 
             try {
                 const res = await fetch('/api/ai/config');
