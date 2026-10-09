@@ -1,0 +1,26 @@
+{
+  "enabled": true,
+  "provider": "ollama",
+  "ollama": {
+    "url": "https://ollama.ambialles.com",
+    "clientName": "celic-organizer",
+    "model": "gemma3:4b",
+    "authType": "bearer",
+    "user": "",
+    "password": "",
+    "apiKey": "***REMOVED-SECRET***"
+  },
+  "gemini": {
+    "apiKey": "***REMOVED-SECRET***",
+    "model": "gemini-flash-lite-latest"
+  },
+  "opencode": {
+    "apiKey": "",
+    "baseUrl": "https://api.openai.com/v1",
+    "model": "gpt-4o-mini"
+  },
+  "prompts": {
+    "explainIssue": "Você é um analista técnico sênior e desenvolvedor. Analise a seguinte issue do GitHub e forneça EXATAMENTE UM PARÁGRAFO conciso, claro e objetivo (em português brasileiro), explicando:\n1. Do que se trata essa issue (contexto da demanda);\n2. Qual o problema a ser resolvido ou a funcionalidade proposta;\n3. Qual o resultado ou impacto esperado para os usuários ou sistema.\n4. O usuario é o gestor da empresa que usa o sistema, entao evite jargoes tecnicos. \n5. A linguagem pode ser simples e direta, como se fosse uma conversa de bar. \n6. Utilizar \"demanda\" ao inves de \"issue\". \n\nIssue #{number}: {title}\nTipo/Labels: {labels}\nDescrição da Issue:\n{body}\n\nResponda APENAS com um parágrafo de 3 a 5 frases, sem saudações e sem introduções.",
+    "estimateHours": "Você é um especialista em métricas de engenharia de software e estimativa de esforço de equipes. Avalie as atividades de desenvolvimento do repositório no último mês e faça uma estimativa das HORAS DE TRABALHO totais da equipe:\n- Total de issues no mês: {issuesCount} (Features/Melhorias: {featuresCount}, Bugs/Correções: {bugsCount})\n- Exemplos de demandas e escopo:\n{sampleIssues}\n- Volume de commits: {commitsCount} commits\n- Volume estimado de arquivos alterados: ~{totalFilesChanged} arquivos (+{totalAdditions} / -{totalDeletions} linhas de código)\n\nAvalie a complexidade do texto nas issues e o volume de arquivos/código entregue nos commits e faça a média de horas de trabalho no mês.\nResponda APENAS em formato JSON estrito:\n{\n  \"estimatedHours\": <numero_inteiro>,\n  \"issuesComponentHours\": <numero_inteiro>,\n  \"commitsComponentHours\": <numero_inteiro>,\n  \"analysis\": \"<paragrafo conciso explicando a média calculada>\"\n}"
+  }
+}

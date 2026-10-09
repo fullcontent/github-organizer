@@ -1,0 +1,107 @@
+{
+  "type:bug": {
+    "name": "Erro / Defeito",
+    "description": "Problema, falha ou comportamento incorreto no sistema que precisa de correção.",
+    "category": "Tipo",
+    "color": "e11d48",
+    "icon": "fa-bug"
+  },
+  "type:feature": {
+    "name": "Nova Funcionalidade",
+    "description": "Recurso inédito ou funcionalidade inovadora a ser adicionada na plataforma.",
+    "category": "Tipo",
+    "color": "2563eb",
+    "icon": "fa-sparkles"
+  },
+  "type:enhancement": {
+    "name": "Melhoria",
+    "description": "Aprimoramento ou otimização de uma funcionalidade já existente.",
+    "category": "Tipo",
+    "color": "0284c7",
+    "icon": "fa-arrow-up-right-dots"
+  },
+  "enhancement": {
+    "name": "Melhoria",
+    "description": "Aprimoramento ou otimização de uma funcionalidade já existente.",
+    "category": "Tipo",
+    "color": "0284c7",
+    "icon": "fa-arrow-up-right-dots"
+  },
+  "priority:p0-critical": {
+    "name": "Urgente / Crítica (P0)",
+    "description": "Impeditivo total ou alta criticidade. Demanda que deve ser resolvida imediatamente.",
+    "category": "Prioridade",
+    "color": "b91c1c",
+    "icon": "fa-fire"
+  },
+  "priority:p1-high": {
+    "name": "Alta Prioridade (P1)",
+    "description": "Impacto significativo na operação ou negócio. Resolver nesta sprint.",
+    "category": "Prioridade",
+    "color": "ea580c",
+    "icon": "fa-angles-up"
+  },
+  "priority:p2-medium": {
+    "name": "Média Prioridade (P2)",
+    "description": "Importante para o fluxo normal de desenvolvimento, sem bloqueios imediatos.",
+    "category": "Prioridade",
+    "color": "d97706",
+    "icon": "fa-angle-up"
+  },
+  "priority:p3-low": {
+    "name": "Baixa Prioridade (P3)",
+    "description": "Melhoria secundária ou ajuste pontual que pode aguardar janelas oportunas.",
+    "category": "Prioridade",
+    "color": "16a34a",
+    "icon": "fa-angle-down"
+  },
+  "domain:financeiro": {
+    "name": "Financeiro",
+    "description": "Módulo de faturamento, pagamentos, notas fiscais, contas e conciliação bancária.",
+    "category": "Domínio",
+    "color": "059669",
+    "icon": "fa-wallet"
+  },
+  "domain:comercial": {
+    "name": "Comercial / Vendas",
+    "description": "Gestão de leads, propostas, clientes, contratos e esteira comercial.",
+    "category": "Domínio",
+    "color": "d97706",
+    "icon": "fa-briefcase"
+  },
+  "domain:operacional": {
+    "name": "Operações / Processos",
+    "description": "Fluxos de trabalho diários, rotinas de triagem, execução de serviços e atendimento.",
+    "category": "Domínio",
+    "color": "4f46e5",
+    "icon": "fa-gears"
+  },
+  "domain:ia": {
+    "name": "Inteligência Artificial",
+    "description": "Modelos preditivos, resumos automatizados, integrações com LLMs e agentes cognitivos.",
+    "category": "Domínio",
+    "color": "9333ea",
+    "icon": "fa-microchip"
+  },
+  "domain:infra": {
+    "name": "Infraestrutura & DevOps",
+    "description": "Servidores, banco de dados, pipelines CI/CD, segurança, DNS e redes.",
+    "category": "Domínio",
+    "color": "475569",
+    "icon": "fa-server"
+  },
+  "domain:ux-ui": {
+    "name": "Design & Usabilidade (UX/UI)",
+    "description": "Interface visual, experiência do usuário, layout responsivo e acessibilidade.",
+    "category": "Domínio",
+    "color": "db2777",
+    "icon": "fa-palette"
+  },
+  "status:in-progress": {
+    "name": "Em Andamento",
+    "description": "Desenvolvimento ou tarefa atualmente em execução pela equipe técnica.",
+    "category": "Status",
+    "color": "0284c7",
+    "icon": "fa-spinner"
+  }
+}

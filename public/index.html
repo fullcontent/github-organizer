@@ -1,0 +1,1433 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Organizador de Issues - Lista</title>
+    <script>
+        tailwind = {
+            config: {
+                darkMode: 'class'
+            }
+        }
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        html.dark {
+            color-scheme: dark;
+        }
+        html.dark body {
+            background-color: #0b1120;
+            color: #f1f5f9;
+        }
+        html.dark input, html.dark select, html.dark textarea {
+            background-color: #1e293b;
+            color: #f8fafc;
+            border-color: #334155;
+        }
+        html.dark option {
+            background-color: #1e293b;
+            color: #f8fafc;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-100 font-sans min-h-screen flex flex-col transition-colors duration-200">
+    <!-- Navbar -->
+    <nav class="bg-blue-600 dark:bg-gray-800 text-white p-4 shadow-md mb-4 flex-shrink-0 transition-colors">
+        <div class="container mx-auto flex flex-wrap justify-between items-center max-w-[98%] gap-4">
+            <div class="flex items-center space-x-2">
+                <span class="text-2xl">🚀</span>
+                <span class="font-bold text-xl tracking-tight">Celic Organizer</span>
+            </div>
+            <div class="flex flex-wrap items-center gap-4 text-sm md:text-base">
+                <a href="/" class="font-bold underline decoration-2 underline-offset-4 text-white">Lista</a>
+                <a href="/kanban.html" class="hover:text-blue-200 dark:hover:text-blue-400 transition-colors">Kanban (Prioridades)</a>
+                <a href="/milestones.html" class="hover:text-blue-200 dark:hover:text-blue-400 transition-colors">Metas</a>
+                <a href="/dashboard.html" class="hover:text-blue-200 dark:hover:text-blue-400 transition-colors">Dashboard Gestor</a>
+                <a href="/analytics.html" class="hover:text-blue-200 dark:hover:text-blue-400 transition-colors">Gráficos & Métricas</a>
+
+                <!-- Botão Configuração IA -->
+                <button onclick="openAIConfigModal()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-700 dark:bg-gray-700 hover:bg-blue-800 dark:hover:bg-gray-600 text-white text-xs font-semibold shadow-xs transition-all focus:outline-none" title="Configurar Servidor de IA & Chaves">
+                    <span id="nav-ai-status-dot" class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <i class="fa-solid fa-sliders"></i>
+                    <span>Configuração IA</span>
+                </button>
+                
+                <!-- Toggle Dark Mode -->
+                <button id="theme-toggle" onclick="toggleDarkMode()" class="p-2 rounded-lg bg-blue-700 dark:bg-gray-700 hover:bg-blue-800 dark:hover:bg-gray-600 text-yellow-300 dark:text-yellow-400 transition-all text-sm focus:outline-none" title="Alternar Modo Escuro">
+                    <i id="theme-icon" class="fa-solid fa-moon"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Conteúdo da Página com largura expandida -->
+    <div class="container mx-auto px-4 max-w-[98%] flex-1 pb-10">
+        <!-- Barra Superior com Contadores, Filtros e Opções de IA -->
+        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-4 gap-3 bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 transition-colors">
+            <div>
+                <h1 class="text-xl font-extrabold text-gray-900 dark:text-white flex items-center gap-2">
+                    <i class="fa-solid fa-list-check text-blue-600 dark:text-blue-400"></i>
+                    Organização Geral de Issues
+                </h1>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                    Altere prioridades e milestones em linha única. Clique na issue para ver a explicação em 1 parágrafo com IA e a descrição do GitHub.
+                </p>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+
+                <!-- Campo de Busca -->
+                <div class="relative flex-1 sm:flex-initial">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-gray-400 text-xs"></i>
+                    <input type="text" id="search-input" oninput="filterIssues()" placeholder="Filtrar por título, # ou label..." class="pl-8 pr-3 py-1.5 text-xs bg-gray-50 dark:bg-gray-700 dark:text-white border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 w-full sm:w-64">
+                </div>
+
+                <span id="issues-counter" class="text-xs font-semibold px-2.5 py-1 rounded-md bg-blue-50 dark:bg-gray-700 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-gray-600 whitespace-nowrap">
+                    0 issues
+                </span>
+            </div>
+        </div>
+
+        <div id="loading" class="text-blue-600 dark:text-blue-400 font-semibold mb-4 flex items-center gap-2">
+            <i class="fa-solid fa-spinner fa-spin"></i>
+            <span>Carregando issues e milestones do GitHub...</span>
+        </div>
+        
+        <!-- Tabela Compacta em Linha Única -->
+        <div class="bg-white dark:bg-gray-800 shadow-sm rounded-xl overflow-x-auto border border-gray-200 dark:border-gray-700 transition-colors">
+            <table class="w-full text-left text-xs divide-y divide-gray-200 dark:divide-gray-700" id="issuesTable" style="display: none;">
+                <thead class="bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 uppercase font-bold tracking-wider">
+                    <tr>
+                        <th class="py-2.5 px-3 w-16">#</th>
+                        <th class="py-2.5 px-3 min-w-[340px]">Título da Demanda</th>
+                        <th class="py-2.5 px-3 w-32">Tipo / Labels</th>
+                        <th class="py-2.5 px-3 w-36 text-center">Prioridade Atual</th>
+                        <th class="py-2.5 px-3 w-44">Alterar Prioridade</th>
+                        <th class="py-2.5 px-3 w-52">Milestone</th>
+                        <th class="py-2.5 px-3 w-28 text-right">Ações</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 dark:divide-gray-700/60" id="issuesBody">
+                    <!-- Gerado via JS -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- MODAL DE CONFIGURAÇÃO DE IA & TESTE DE CHAVES -->
+    <div id="ai-config-modal" class="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4" style="display: none;">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 max-w-xl w-full flex flex-col overflow-hidden transition-all">
+            <!-- Header -->
+            <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-gray-700">
+                <div class="flex items-center gap-2">
+                    <span class="p-2 rounded-lg bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 text-sm">
+                        <i class="fa-solid fa-sliders"></i>
+                    </span>
+                    <div>
+                        <h3 class="font-bold text-sm text-gray-900 dark:text-white">Configuração do Servidor de IA</h3>
+                        <p class="text-[11px] text-gray-500 dark:text-gray-400">Ative provedores, configure credenciais e teste a conectividade em tempo real</p>
+                    </div>
+                </div>
+                <button onclick="closeAIConfigModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-1.5 rounded-lg">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Formulário -->
+            <div class="p-5 overflow-y-auto space-y-4 max-h-[75vh]">
+                
+                <!-- Interruptor Ligar/Desligar IA -->
+                <div class="flex items-center justify-between p-3 rounded-xl bg-gray-50 dark:bg-gray-700/60 border border-gray-200 dark:border-gray-600">
+                    <div>
+                        <span class="font-bold text-xs text-gray-800 dark:text-gray-200 block">Inteligência Artificial Ativa</span>
+                        <span class="text-[11px] text-gray-500 dark:text-gray-400">Habilita explicação de issues e títulos sugeridos</span>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="ai-enabled-toggle" class="sr-only peer" checked>
+                        <div class="w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                    </label>
+                </div>
+
+                <!-- Seleção do Provedor -->
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">Provedor Ativo</label>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button type="button" onclick="selectAIProvider('ollama')" id="btn-prov-ollama" class="p-2.5 rounded-xl border text-xs font-bold flex flex-col items-center gap-1 transition-all">
+                            <span class="text-base">🦙</span>
+                            <span>Ollama</span>
+                            <span class="text-[10px] font-normal text-gray-400">Ambialles / Local</span>
+                        </button>
+                        <button type="button" onclick="selectAIProvider('gemini')" id="btn-prov-gemini" class="p-2.5 rounded-xl border text-xs font-bold flex flex-col items-center gap-1 transition-all">
+                            <span class="text-base">🌟</span>
+                            <span>Gemini</span>
+                            <span class="text-[10px] font-normal text-gray-400">Google AI Studio</span>
+                        </button>
+                        <button type="button" onclick="selectAIProvider('opencode')" id="btn-prov-opencode" class="p-2.5 rounded-xl border text-xs font-bold flex flex-col items-center gap-1 transition-all">
+                            <span class="text-base">⚡</span>
+                            <span>OpenCode</span>
+                            <span class="text-[10px] font-normal text-gray-400">OpenAI Compatible</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Campos Específicos do Ollama -->
+                <div id="ai-fields-ollama" class="space-y-3 p-3.5 rounded-xl bg-gray-50 dark:bg-gray-700/40 border border-gray-200 dark:border-gray-600">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                        <div class="sm:col-span-2">
+                            <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">URL do Servidor Ollama / Proxy</label>
+                            <input type="text" id="ai-ollama-url" placeholder="https://ollama.ambialles.com ou http://100.70.63.0:11435" class="w-full text-xs p-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1" title="Nome do cliente/projeto enviado no header X-Client-Name para o painel de monitoramento">
+                                Nome do Cliente / Projeto
+                            </label>
+                            <input type="text" id="ai-ollama-client-name" placeholder="meu-projeto" value="meu-projeto" class="w-full text-xs p-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <div class="flex items-center justify-between mb-1">
+                                <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300">Modelo</label>
+                                <button type="button" onclick="fetchServerModels('ollama')" id="btn-fetch-ollama" class="text-[10px] text-blue-600 dark:text-blue-400 hover:underline font-semibold flex items-center gap-1">
+                                    <i id="icon-fetch-ollama" class="fa-solid fa-arrows-rotate text-[9px]"></i>
+                                    <span>Buscar Modelos</span>
+                                </button>
+                            </div>
+                            <div class="flex items-center gap-1">
+                                <select id="ai-ollama-model-select" onchange="onModelSelectChanged('ollama', this.value)" class="flex-1 text-xs p-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100">
+                                    <option value="gemma3:12b">gemma3:12b</option>
+                                </select>
+                                <input type="text" id="ai-ollama-model" style="display: none;" placeholder="gemma3:12b" class="flex-1 text-xs p-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100">
+                                <button type="button" onclick="toggleCustomModelInput('ollama')" id="btn-toggle-custom-ollama" class="p-2 text-xs border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600" title="Digitar nome personalizado de modelo">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </button>
+                            </div>
+                            <span id="ollama-models-status" class="block text-[10px] text-gray-500 dark:text-gray-400 mt-1">Carregando lista...</span>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Tipo de Autenticação</label>
+                            <select id="ai-ollama-auth-type" onchange="onOllamaAuthTypeChange()" class="w-full text-xs p-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700">
+                                <option value="bearer">Token (X-Ollama-Token / Bearer)</option>
+                                <option value="basic">Basic Auth (Nginx Usuário/Senha)</option>
+                                <option value="none">Sem Autenticação</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="ollama-basic-auth-fields" class="grid grid-cols-2 gap-2" style="display: none;">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Usuário Nginx</label>
+                            <input type="text" id="ai-ollama-user" placeholder="usuario" class="w-full text-xs p-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Senha Nginx</label>
+                            <input type="password" id="ai-ollama-password" placeholder="••••••••" class="w-full text-xs p-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700">
+                        </div>
+                    </div>
+                    <div id="ollama-bearer-auth-field">
+                        <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Token de Acesso (X-Ollama-Token / Bearer)</label>
+                        <input type="password" id="ai-ollama-apikey" placeholder="cb0a91d7cfab..." class="w-full text-xs p-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700">
+                    </div>
+                </div>
+
+                <!-- Campos Específicos do Gemini -->
+                <div id="ai-fields-gemini" class="space-y-3 p-3.5 rounded-xl bg-gray-50 dark:bg-gray-700/40 border border-gray-200 dark:border-gray-600" style="display: none;">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Google Gemini API Key</label>
+                        <input type="password" id="ai-gemini-key" placeholder="AIzaSy..." class="w-full text-xs p-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700">
+                    </div>
+                    <div>
+                        <div class="flex items-center justify-between mb-1">
+                            <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300">Modelo</label>
+                            <button type="button" onclick="fetchServerModels('gemini')" id="btn-fetch-gemini" class="text-[10px] text-blue-600 dark:text-blue-400 hover:underline font-semibold flex items-center gap-1">
+                                <i id="icon-fetch-gemini" class="fa-solid fa-arrows-rotate text-[9px]"></i>
+                                <span>Buscar Modelos</span>
+                            </button>
+                        </div>
+                        <div class="flex items-center gap-1">
+                            <select id="ai-gemini-model-select" onchange="onModelSelectChanged('gemini', this.value)" class="flex-1 text-xs p-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100">
+                                <option value="gemini-1.5-flash">gemini-1.5-flash</option>
+                                <option value="gemini-1.5-pro">gemini-1.5-pro</option>
+                                <option value="gemini-2.0-flash">gemini-2.0-flash</option>
+                            </select>
+                            <input type="text" id="ai-gemini-model" style="display: none;" placeholder="gemini-1.5-flash" class="flex-1 text-xs p-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100">
+                            <button type="button" onclick="toggleCustomModelInput('gemini')" id="btn-toggle-custom-gemini" class="p-2 text-xs border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </button>
+                        </div>
+                        <span id="gemini-models-status" class="block text-[10px] text-gray-500 dark:text-gray-400 mt-1"></span>
+                    </div>
+                </div>
+
+                <!-- Campos Específicos do OpenCode / OpenAI -->
+                <div id="ai-fields-opencode" class="space-y-3 p-3.5 rounded-xl bg-gray-50 dark:bg-gray-700/40 border border-gray-200 dark:border-gray-600" style="display: none;">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Base URL</label>
+                        <input type="text" id="ai-opencode-url" placeholder="https://api.openai.com/v1" class="w-full text-xs p-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700">
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">API Key</label>
+                            <input type="password" id="ai-opencode-key" placeholder="sk-..." class="w-full text-xs p-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700">
+                        </div>
+                        <div>
+                            <div class="flex items-center justify-between mb-1">
+                                <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300">Modelo</label>
+                                <button type="button" onclick="fetchServerModels('opencode')" id="btn-fetch-opencode" class="text-[10px] text-blue-600 dark:text-blue-400 hover:underline font-semibold flex items-center gap-1">
+                                    <i id="icon-fetch-opencode" class="fa-solid fa-arrows-rotate text-[9px]"></i>
+                                    <span>Buscar Modelos</span>
+                                </button>
+                            </div>
+                            <div class="flex items-center gap-1">
+                                <select id="ai-opencode-model-select" onchange="onModelSelectChanged('opencode', this.value)" class="flex-1 text-xs p-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100">
+                                    <option value="gpt-4o-mini">gpt-4o-mini</option>
+                                    <option value="gpt-4o">gpt-4o</option>
+                                    <option value="deepseek-chat">deepseek-chat</option>
+                                    <option value="qwen-2.5-coder-32b">qwen-2.5-coder-32b</option>
+                                </select>
+                                <input type="text" id="ai-opencode-model" style="display: none;" placeholder="gpt-4o-mini" class="flex-1 text-xs p-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100">
+                                <button type="button" onclick="toggleCustomModelInput('opencode')" id="btn-toggle-custom-opencode" class="p-2 text-xs border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </button>
+                            </div>
+                            <span id="opencode-models-status" class="block text-[10px] text-gray-500 dark:text-gray-400 mt-1"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Seção: Customização de Prompts da IA -->
+                <div class="border border-gray-200 dark:border-gray-700 rounded-xl p-3 bg-gray-50/60 dark:bg-gray-800/60 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <h4 class="text-xs font-bold text-gray-800 dark:text-gray-200 flex items-center gap-1.5 uppercase tracking-wider">
+                            <i class="fa-solid fa-code text-blue-500"></i>
+                            Prompts Personalizados da IA
+                        </h4>
+                        <button type="button" onclick="restoreDefaultPrompts()" class="text-[10px] text-blue-600 dark:text-blue-400 hover:underline font-semibold">
+                            Restaurar Padrões
+                        </button>
+                    </div>
+
+                    <!-- Prompt para Resumo / Síntese de Issue -->
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <label class="text-[11px] font-bold text-gray-700 dark:text-gray-300">Prompt: Síntese de Issue (1 Parágrafo)</label>
+                            <span class="text-[9px] text-gray-400">Variáveis: {number}, {title}, {labels}, {body}</span>
+                        </div>
+                        <textarea id="ai-prompt-explain" rows="3" class="w-full text-xs font-mono p-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100" placeholder="Instrução para a IA sintetizar a issue..."></textarea>
+                    </div>
+
+                    <!-- Prompt para Estimativa de Horas -->
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <label class="text-[11px] font-bold text-gray-700 dark:text-gray-300">Prompt: Estimativa de Horas (Dashboard)</label>
+                            <span class="text-[9px] text-gray-400">Variáveis: {issuesCount}, {commitsCount}, {issuesList}, {commitsList}</span>
+                        </div>
+                        <textarea id="ai-prompt-hours" rows="3" class="w-full text-xs font-mono p-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100" placeholder="Instrução para a IA estimar horas..."></textarea>
+                    </div>
+
+                    <!-- Botão de Regeneração em Massa -->
+                    <div class="pt-2 border-t border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <span class="text-[10px] text-gray-500 dark:text-gray-400">
+                            Limpa o cache e permite regerar com os prompts novos.
+                        </span>
+                        <button type="button" onclick="regenerateAllAI()" id="btn-regen-all" class="text-xs px-3 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-700 text-white font-semibold flex items-center gap-1.5 shadow-xs transition-colors self-end">
+                            <i id="icon-regen-all" class="fa-solid fa-arrows-rotate text-[10px]"></i>
+                            <span>Regerar Tudo com IA</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Área de Teste de Conexão -->
+                <div id="ai-test-result" class="p-3 rounded-lg text-xs leading-relaxed" style="display: none;"></div>
+
+            </div>
+
+            <!-- Footer com Botões -->
+            <div class="p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700 flex justify-between items-center gap-2">
+                <button type="button" onclick="testAIConnection()" id="btn-test-ai" class="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 text-gray-800 dark:text-gray-100 font-semibold text-xs transition-colors">
+                    <i id="test-ai-icon" class="fa-solid fa-vial"></i>
+                    <span>Testar Conexão</span>
+                </button>
+                <div class="flex items-center gap-2">
+                    <button type="button" onclick="closeAIConfigModal()" class="px-3 py-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 text-xs font-semibold">
+                        Cancelar
+                    </button>
+                    <button type="button" onclick="saveAIConfiguration()" id="btn-save-ai" class="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-xs">
+                        <i class="fa-solid fa-floppy-disk"></i>
+                        <span>Salvar</span>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- MODAL DE EXPLICAÇÃO DA ISSUE COM IA -->
+    <div id="issue-modal" class="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4" style="display: none;">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden transition-all">
+            
+            <!-- Header do Modal -->
+            <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-start gap-3 bg-gray-50 dark:bg-gray-700">
+                <div>
+                    <div class="flex items-center gap-2 mb-1">
+                        <span id="modal-number" class="font-mono font-bold text-xs px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300">#000</span>
+                        <span id="modal-priority-pill" class="text-[10px] font-bold px-2 py-0.5 rounded">--</span>
+                        <span id="modal-milestone-pill" class="text-[10px] font-semibold text-gray-600 dark:text-gray-300"></span>
+                    </div>
+                    <h3 id="modal-title" class="text-base font-bold text-gray-900 dark:text-gray-100 leading-snug">
+                        Título da Issue
+                    </h3>
+                </div>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-1 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Corpo do Modal -->
+            <div class="p-5 overflow-y-auto space-y-4 flex-1">
+                
+                <!-- Box de Resumo -->
+                <div class="bg-blue-50/70 dark:bg-blue-950/40 rounded-xl p-4 border border-blue-200 dark:border-blue-900/50">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-bold uppercase tracking-wider text-blue-800 dark:text-blue-300 flex items-center gap-1.5">
+                            <i class="fa-solid fa-align-left text-blue-600 dark:text-blue-400"></i>
+                            Resumo
+                        </span>
+                        <div class="flex items-center gap-1.5">
+                            <button type="button" onclick="regenerateModalAI()" id="btn-modal-regen" class="p-1 px-2.5 rounded-lg bg-blue-100 dark:bg-blue-900/70 hover:bg-blue-200 dark:hover:bg-blue-800 text-blue-700 dark:text-blue-300 transition-all text-xs" title="Atualizar Resumo">
+                                <i id="icon-modal-regen" class="fa-solid fa-arrows-rotate"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Loading -->
+                    <div id="modal-ai-loading" class="flex items-center gap-2 text-xs text-blue-600 dark:text-blue-400 py-3">
+                        <i class="fa-solid fa-spinner fa-spin text-sm"></i>
+                        <span>Carregando resumo...</span>
+                    </div>
+
+                    <!-- Texto do Resumo -->
+                    <div id="modal-ai-summary" class="text-xs sm:text-sm text-gray-800 dark:text-gray-200 leading-relaxed font-medium whitespace-pre-line" style="display: none;"></div>
+                </div>
+
+                <!-- Seção de Direcionamento: Meta e Prioridade -->
+                <div class="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-3.5 border border-gray-200 dark:border-gray-600 space-y-2">
+                    <div class="flex items-center justify-between">
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
+                            <i class="fa-solid fa-sliders text-blue-500"></i>
+                            Direcionamento da Demanda
+                        </h4>
+                        <span id="modal-save-indicator" class="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400" style="display: none;">
+                            <i class="fa-solid fa-check mr-0.5"></i> Salvo com sucesso!
+                        </span>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                        <div>
+                            <label class="block font-semibold text-gray-600 dark:text-gray-300 mb-1">
+                                <i class="fa-solid fa-flag text-indigo-500 mr-1"></i> Meta
+                            </label>
+                            <select id="modal-select-milestone" onchange="updateModalMilestone(this.value)" class="w-full p-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 font-medium">
+                                <option value="null">Sem Meta (Backlog)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-gray-600 dark:text-gray-300 mb-1">
+                                <i class="fa-solid fa-arrow-up-wide-short text-orange-500 mr-1"></i> Prioridade
+                            </label>
+                            <select id="modal-select-priority" onchange="updateModalPriority(this.value)" class="w-full p-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 font-medium">
+                                <option value="none">Sem Prioridade</option>
+                                <option value="priority:p0-critical">P0 - Urgente / Crítica</option>
+                                <option value="priority:p1-high">P1 - Alta Prioridade</option>
+                                <option value="priority:p2-medium">P2 - Média Prioridade</option>
+                                <option value="priority:p3-low">P3 - Baixa Prioridade</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Labels com Tradução e Significado Simples -->
+                <div>
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">
+                        Categorização & Labels
+                    </h4>
+                    <div id="modal-labels" class="space-y-1.5"></div>
+                </div>
+
+                <!-- Seção: Descrição Original do GitHub (Recolhida por Padrão) -->
+                <div class="border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden bg-gray-50/40 dark:bg-gray-800/40">
+                    <div class="w-full p-3 bg-gray-50 dark:bg-gray-700 text-left text-xs font-bold text-gray-700 dark:text-gray-300 flex justify-between items-center border-b border-gray-200 dark:border-gray-600">
+                        <span class="flex items-center gap-1.5">
+                            <i class="fa-solid fa-file-lines text-blue-500"></i>
+                            <span>Descrição Original do GitHub</span>
+                        </span>
+                        <button type="button" onclick="toggleOriginalBody()" id="btn-toggle-body" class="text-[11px] text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 flex items-center gap-1">
+                            <span id="accordion-label">Expandir</span>
+                            <i id="accordion-icon" class="fa-solid fa-chevron-down text-xs"></i>
+                        </button>
+                    </div>
+                    <div id="modal-body-container" class="p-3.5 bg-white dark:bg-gray-800 text-xs text-gray-800 dark:text-gray-200 max-h-60 overflow-y-auto whitespace-pre-wrap leading-relaxed selection:bg-blue-100" style="display: none;"></div>
+                </div>
+
+            </div>
+
+            <!-- Rodapé do Modal -->
+            <div class="p-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700 flex justify-between items-center text-xs">
+                <a id="modal-github-link" href="#" target="_blank" class="inline-flex items-center gap-1.5 text-blue-600 dark:text-blue-400 hover:underline font-semibold">
+                    <i class="fa-brands fa-github text-sm"></i> Ver Issue no GitHub <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                </a>
+                <button onclick="closeModal()" class="px-4 py-1.5 rounded-lg bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 text-gray-800 dark:text-gray-200 font-semibold transition-colors">
+                    Fechar
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // Gerenciamento de Tema Dark / Light
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            const isDark = savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches);
+            if (isDark) {
+                document.documentElement.classList.add('dark');
+                document.getElementById('theme-icon').className = 'fa-solid fa-sun text-yellow-400';
+            } else {
+                document.documentElement.classList.remove('dark');
+                document.getElementById('theme-icon').className = 'fa-solid fa-moon text-yellow-200';
+            }
+        }
+
+        function toggleDarkMode() {
+            const isDark = document.documentElement.classList.toggle('dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            document.getElementById('theme-icon').className = isDark ? 'fa-solid fa-sun text-yellow-400' : 'fa-solid fa-moon text-yellow-200';
+        }
+
+        initTheme();
+
+        const priorities = [
+            { value: 'priority:p0-critical', label: 'P0 - Critical' },
+            { value: 'priority:p1-high', label: 'P1 - High' },
+            { value: 'priority:p2-medium', label: 'P2 - Medium' },
+            { value: 'priority:p3-low', label: 'P3 - Low' },
+            { value: 'none', label: 'Sem Prioridade' }
+        ];
+
+        let availableMilestones = [];
+        let labelTranslationsMap = {};
+        let allIssuesData = [];
+        let suggestedTitlesMap = {};
+        let showSuggestedTitles = true;
+        let activeModalIssueNumber = null;
+        let selectedAIProvider = 'ollama';
+
+        function getPriorityWeight(labels) {
+            const hasLabel = (name) => labels.some(l => (typeof l === 'string' ? l : l.name) === name);
+            if (hasLabel('priority:p0-critical')) return 4;
+            if (hasLabel('priority:p1-high')) return 3;
+            if (hasLabel('priority:p2-medium')) return 2;
+            if (hasLabel('priority:p3-low')) return 1;
+            return 0;
+        }
+
+        async function loadLabelTranslations() {
+            try {
+                const res = await fetch('/api/labels/translations');
+                if (res.ok) {
+                    labelTranslationsMap = await res.json();
+                }
+            } catch (e) {}
+        }
+
+        async function loadMilestones() {
+            try {
+                const res = await fetch('/api/milestones?state=open');
+                if (res.ok) {
+                    availableMilestones = await res.json();
+                }
+            } catch (e) {
+                console.warn('Erro ao carregar milestones:', e);
+            }
+        }
+
+        async function loadIssues() {
+            try {
+                await Promise.all([
+                    loadMilestones(),
+                    loadLabelTranslations()
+                ]);
+
+                const response = await fetch('/api/issues');
+                let issues = await response.json();
+                
+                issues = issues.filter(issue => !issue.pull_request);
+
+                // Ordenação: Maior prioridade primeiro (P0 -> P1 -> P2 -> P3 -> Sem prioridade)
+                issues.sort((a, b) => {
+                    const weightA = getPriorityWeight(a.labels || []);
+                    const weightB = getPriorityWeight(b.labels || []);
+                    if (weightA !== weightB) return weightB - weightA;
+
+                    const isBugA = (a.labels || []).some(l => (typeof l === 'string' ? l : l.name) === 'type:bug') ? 1 : 0;
+                    const isBugB = (b.labels || []).some(l => (typeof l === 'string' ? l : l.name) === 'type:bug') ? 1 : 0;
+                    return isBugB - isBugA;
+                });
+
+                allIssuesData = issues;
+                document.getElementById('issues-counter').innerText = `${issues.length} issues`;
+
+                renderIssues(issues);
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('issuesTable').style.display = 'table';
+                checkAIStatusInNav();
+            } catch (error) {
+                document.getElementById('loading').innerText = 'Erro ao carregar as issues. Verifique o servidor.';
+                document.getElementById('loading').className = 'text-red-500 font-semibold mb-4';
+            }
+        }
+
+        function renderIssues(issues) {
+            const tbody = document.getElementById('issuesBody');
+            tbody.innerHTML = '';
+
+            issues.forEach(issue => {
+                const labels = issue.labels || [];
+                let currentPriorityValue = 'none';
+                const priorityLabel = labels.find(l => (typeof l === 'string' ? l : l.name).startsWith('priority:'));
+                if (priorityLabel) {
+                    currentPriorityValue = typeof priorityLabel === 'string' ? priorityLabel : priorityLabel.name;
+                }
+
+                const currentMilestoneNumber = issue.milestone ? String(issue.milestone.number) : 'none';
+
+                const typeLabel = labels.find(l => (typeof l === 'string' ? l : l.name).startsWith('type:'));
+                const typeStr = typeLabel ? (typeof typeLabel === 'string' ? typeLabel : typeLabel.name).replace('type:', '') : '';
+
+                // Título original do GitHub (nunca alterado)
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-blue-50/40 dark:hover:bg-gray-700/50 transition-colors issue-row';
+                tr.dataset.search = `${issue.number} ${issue.title} ${labels.map(l => typeof l === 'string' ? l : l.name).join(' ')} ${issue.milestone?.title || ''}`.toLowerCase();
+                
+                // Opções de Prioridade
+                const priorityOptionsHtml = priorities.map(p => 
+                    `<option value="${p.value}" ${p.value === currentPriorityValue ? 'selected' : ''}>${p.label}</option>`
+                ).join('');
+
+                // Opções de Milestone
+                let milestoneOptionsHtml = `<option value="none" ${currentMilestoneNumber === 'none' ? 'selected' : ''}>-- Sem Milestone --</option>`;
+                availableMilestones.forEach(m => {
+                    milestoneOptionsHtml += `<option value="${m.number}" ${String(m.number) === currentMilestoneNumber ? 'selected' : ''}>${escapeHtml(m.title)}</option>`;
+                });
+
+                tr.innerHTML = `
+                    <td class="py-2.5 px-3 font-mono font-bold text-blue-600 dark:text-blue-400 whitespace-nowrap">
+                        #${issue.number}
+                    </td>
+                    <td class="py-2.5 px-3">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span onclick="openIssueModal(${issue.number})" class="font-medium text-gray-900 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400 cursor-pointer hover:underline transition-colors leading-tight" title="Clique para ver resumo com IA e detalhes da issue">
+                                ${escapeHtml(issue.title)}
+                            </span>
+                        </div>
+                    </td>
+                    <td class="py-2.5 px-3 whitespace-nowrap">
+                        ${typeStr ? `<span class="inline-block px-2 py-0.5 rounded text-[11px] font-semibold bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600">${typeStr}</span>` : '<span class="text-gray-400">-</span>'}
+                    </td>
+                    <td class="py-2.5 px-3 text-center whitespace-nowrap">
+                        <span class="inline-block py-0.5 px-2.5 rounded text-[11px] font-bold ${getPriorityBadgeClass(currentPriorityValue)}">
+                            ${getPriorityLabelName(currentPriorityValue)}
+                        </span>
+                    </td>
+                    <td class="py-2.5 px-3 whitespace-nowrap">
+                        <div class="flex items-center gap-1.5">
+                            <select onchange="updatePriority(${issue.number}, this.value, this)" 
+                                    class="w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-800 dark:text-gray-200 py-1 px-2 rounded text-xs focus:ring-1 focus:ring-blue-500 focus:outline-none">
+                                ${priorityOptionsHtml}
+                            </select>
+                            <span class="status-icon text-xs w-4"></span>
+                        </div>
+                    </td>
+                    <td class="py-2.5 px-3 whitespace-nowrap">
+                        <div class="flex items-center gap-1.5">
+                            <select onchange="updateMilestone(${issue.number}, this.value, this)" 
+                                    class="w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-800 dark:text-gray-200 py-1 px-2 rounded text-xs focus:ring-1 focus:ring-blue-500 focus:outline-none">
+                                ${milestoneOptionsHtml}
+                            </select>
+                            <span class="milestone-status-icon text-xs w-4"></span>
+                        </div>
+                    </td>
+                    <td class="py-2.5 px-3 text-right whitespace-nowrap">
+                        <div class="flex items-center justify-end gap-2">
+                            <button onclick="openIssueModal(${issue.number})" title="Ver resumo IA em 1 parágrafo" class="p-1 text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 rounded hover:bg-purple-50 dark:hover:bg-purple-950/60 transition-colors">
+                                <i class="fa-solid fa-wand-magic-sparkles text-xs"></i>
+                            </button>
+                            <a href="${issue.html_url}" target="_blank" title="Abrir no GitHub" class="p-1 text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 transition-colors">
+                                <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+                            </a>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function filterIssues() {
+            const query = (document.getElementById('search-input').value || '').trim().toLowerCase();
+            const rows = document.querySelectorAll('.issue-row');
+            let visibleCount = 0;
+            rows.forEach(r => {
+                const search = r.dataset.search || '';
+                if (!query || search.includes(query)) {
+                    r.style.display = '';
+                    visibleCount++;
+                } else {
+                    r.style.display = 'none';
+                }
+            });
+            document.getElementById('issues-counter').innerText = `${visibleCount} issues`;
+        }
+
+        function getPriorityLabelName(val) {
+            const p = priorities.find(x => x.value === val);
+            return p ? p.label : 'N/A';
+        }
+
+        function getPriorityBadgeClass(val) {
+            if (val === 'priority:p0-critical') return 'bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900';
+            if (val === 'priority:p1-high') return 'bg-red-100 text-red-700 dark:bg-red-900/60 dark:text-red-300 border border-red-200 dark:border-red-800';
+            if (val === 'priority:p2-medium') return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/60 dark:text-yellow-300 border border-yellow-200 dark:border-yellow-800';
+            if (val === 'priority:p3-low') return 'bg-green-100 text-green-700 dark:bg-green-900/60 dark:text-green-300 border border-green-200 dark:border-green-800';
+            return 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400';
+        }
+
+        async function updatePriority(issueNumber, newPriority, selectElement) {
+            const statusSpan = selectElement.nextElementSibling;
+            statusSpan.innerText = '⏳';
+            selectElement.disabled = true;
+
+            try {
+                const res = await fetch(`/api/issues/${issueNumber}/priority`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ newPriority })
+                });
+
+                if (res.ok) {
+                    statusSpan.innerText = '✅';
+                    setTimeout(() => statusSpan.innerText = '', 2000);
+                    const badge = selectElement.closest('tr').querySelector('td:nth-child(4) span');
+                    if (badge) {
+                        badge.className = `inline-block py-0.5 px-2.5 rounded text-[11px] font-bold ${getPriorityBadgeClass(newPriority)}`;
+                        badge.innerText = getPriorityLabelName(newPriority);
+                    }
+                } else {
+                    statusSpan.innerText = '❌';
+                }
+            } catch (err) {
+                statusSpan.innerText = '❌';
+            } finally {
+                selectElement.disabled = false;
+            }
+        }
+
+        async function updateMilestone(issueNumber, newMilestoneNumber, selectElement) {
+            const statusSpan = selectElement.nextElementSibling;
+            statusSpan.innerText = '⏳';
+            selectElement.disabled = true;
+
+            const payload = {
+                milestone: newMilestoneNumber === 'none' ? null : parseInt(newMilestoneNumber)
+            };
+
+            try {
+                const res = await fetch(`/api/issues/${issueNumber}/milestone`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (res.ok) {
+                    statusSpan.innerText = '✅';
+                    setTimeout(() => statusSpan.innerText = '', 2000);
+                } else {
+                    statusSpan.innerText = '❌';
+                }
+            } catch (err) {
+                statusSpan.innerText = '❌';
+            } finally {
+                selectElement.disabled = false;
+            }
+        }
+
+        // Modal de Explicação da Issue
+        async function openIssueModal(issueNumber) {
+            activeModalIssueNumber = issueNumber;
+            const modal = document.getElementById('issue-modal');
+            const aiLoading = document.getElementById('modal-ai-loading');
+            const aiSummary = document.getElementById('modal-ai-summary');
+            const bodyContainer = document.getElementById('modal-body-container');
+
+            modal.style.display = 'flex';
+            aiLoading.style.display = 'flex';
+            aiSummary.style.display = 'none';
+
+            // Por padrão, a descrição original inicia RECOLHIDA conforme solicitado
+            bodyContainer.style.display = 'none';
+            const accIcon = document.getElementById('accordion-icon');
+            if (accIcon) accIcon.className = 'fa-solid fa-chevron-down text-xs';
+            const accLabel = document.getElementById('accordion-label');
+            if (accLabel) accLabel.innerText = 'Expandir';
+
+            const issueObj = allIssuesData.find(i => i.number == issueNumber);
+            if (issueObj) {
+                document.getElementById('modal-number').innerText = `#${issueObj.number}`;
+                document.getElementById('modal-title').innerText = issueObj.title;
+                document.getElementById('modal-github-link').href = issueObj.html_url;
+
+                bodyContainer.innerText = issueObj.body ? issueObj.body.trim() : 'Sem descrição fornecida no GitHub.';
+
+                const priorityLabel = (issueObj.labels || []).find(l => (typeof l === 'string' ? l : l.name).startsWith('priority:'));
+                const pVal = priorityLabel ? (typeof priorityLabel === 'string' ? priorityLabel : priorityLabel.name) : 'none';
+                const pill = document.getElementById('modal-priority-pill');
+                pill.innerText = pVal.replace('priority:', '').toUpperCase();
+                pill.className = `text-[10px] font-bold px-2 py-0.5 rounded ${getPriorityPillClass(pVal)}`;
+
+                const mPill = document.getElementById('modal-milestone-pill');
+                if (issueObj.milestone) {
+                    mPill.innerText = `🏁 ${issueObj.milestone.title}`;
+                    mPill.style.display = 'inline-block';
+                } else {
+                    mPill.style.display = 'none';
+                }
+
+                // Direcionamento da Demanda: Popular Select de Metas (Milestones)
+                const msSelect = document.getElementById('modal-select-milestone');
+                if (msSelect) {
+                    msSelect.innerHTML = '<option value="null">Sem Meta (Backlog)</option>';
+                    availableMilestones.forEach(m => {
+                        const opt = document.createElement('option');
+                        opt.value = String(m.number);
+                        opt.innerText = m.title;
+                        msSelect.appendChild(opt);
+                    });
+                    msSelect.value = issueObj.milestone ? String(issueObj.milestone.number) : 'null';
+                }
+
+                // Direcionamento da Demanda: Selecionar Prioridade
+                const pSelect = document.getElementById('modal-select-priority');
+                if (pSelect) {
+                    pSelect.value = pVal;
+                }
+
+                // Labels Traduzidas e Explicadas em Linguagem Simples
+                const labelsBox = document.getElementById('modal-labels');
+                const rawLabels = issueObj.labels || [];
+                if (rawLabels.length === 0) {
+                    labelsBox.innerHTML = '<span class="text-xs text-gray-400">Nenhuma label associada.</span>';
+                } else {
+                    labelsBox.innerHTML = rawLabels.map(l => {
+                        const rawName = typeof l === 'string' ? l : l.name;
+                        const trans = labelTranslationsMap[rawName];
+                        if (trans) {
+                            return `
+                                <div class="flex items-start gap-2.5 p-2 rounded-lg bg-white dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700 shadow-2xs">
+                                    <span class="inline-flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-0.5 rounded-full border flex-shrink-0" style="background-color: #${trans.color}15; color: #${trans.color}; border-color: #${trans.color}40;">
+                                        <i class="fa-solid ${trans.icon || 'fa-tag'} text-[10px]"></i>
+                                        <span>${escapeHtml(trans.name)}</span>
+                                    </span>
+                                    <div class="text-[11px] text-gray-600 dark:text-gray-300 leading-snug">
+                                        ${escapeHtml(trans.description)}
+                                    </div>
+                                </div>
+                            `;
+                        } else {
+                            const lColor = (typeof l === 'object' && l.color) ? l.color : '64748b';
+                            return `
+                                <div class="flex items-center gap-2 p-1.5 rounded-lg bg-white dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700">
+                                    <span class="inline-block text-[11px] font-semibold px-2 py-0.5 rounded-full border" style="background-color: #${lColor}20; color: #${lColor}; border-color: #${lColor}40;">
+                                        ${escapeHtml(rawName)}
+                                    </span>
+                                </div>
+                            `;
+                        }
+                    }).join('');
+                }
+            }
+
+            try {
+                const res = await fetch(`/api/issues/${issueNumber}/explain`);
+                if (!res.ok) throw new Error('Falha ao obter explicação: ' + res.statusText);
+                const data = await res.json();
+
+                aiSummary.innerText = data.summary;
+
+                const resolvedBody = data.body || data.issue?.body || (issueObj && issueObj.body) || '';
+                bodyContainer.innerText = resolvedBody ? resolvedBody.trim() : 'Sem descrição fornecida no GitHub.';
+
+                aiLoading.style.display = 'none';
+                aiSummary.style.display = 'block';
+
+            } catch (err) {
+                console.error(err);
+                aiLoading.style.display = 'none';
+                aiSummary.style.display = 'block';
+                aiSummary.innerText = 'Não foi possível carregar a explicação no momento.';
+            }
+        }
+
+        async function updateModalMilestone(newMilestone) {
+            if (!activeModalIssueNumber) return;
+            const ind = document.getElementById('modal-save-indicator');
+            if (ind) {
+                ind.style.display = 'inline-block';
+                ind.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-0.5"></i> Salvando Meta...';
+            }
+
+            const msValue = newMilestone === 'null' ? null : parseInt(newMilestone);
+            try {
+                const res = await fetch(`/api/issues/${activeModalIssueNumber}/milestone`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ milestone: msValue })
+                });
+                if (res.ok) {
+                    if (ind) ind.innerHTML = '<i class="fa-solid fa-check mr-0.5"></i> Meta atualizada!';
+                    const issueObj = allIssuesData.find(i => i.number == activeModalIssueNumber);
+                    if (issueObj) {
+                        const matchedMs = availableMilestones.find(m => m.number == msValue);
+                        issueObj.milestone = matchedMs ? { id: matchedMs.id, number: matchedMs.number, title: matchedMs.title } : null;
+                        
+                        const mPill = document.getElementById('modal-milestone-pill');
+                        if (issueObj.milestone) {
+                            mPill.innerText = `🏁 ${issueObj.milestone.title}`;
+                            mPill.style.display = 'inline-block';
+                        } else {
+                            mPill.style.display = 'none';
+                        }
+                        renderTable();
+                    }
+                    setTimeout(() => { if (ind) ind.style.display = 'none'; }, 2000);
+                } else {
+                    if (ind) ind.innerHTML = '<span class="text-red-500"><i class="fa-solid fa-xmark"></i> Erro ao salvar</span>';
+                }
+            } catch (e) {
+                if (ind) ind.innerHTML = '<span class="text-red-500"><i class="fa-solid fa-xmark"></i> Erro</span>';
+            }
+        }
+
+        async function updateModalPriority(newPriority) {
+            if (!activeModalIssueNumber) return;
+            const ind = document.getElementById('modal-save-indicator');
+            if (ind) {
+                ind.style.display = 'inline-block';
+                ind.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-0.5"></i> Salvando Prioridade...';
+            }
+
+            try {
+                const res = await fetch(`/api/issues/${activeModalIssueNumber}/priority`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ newPriority })
+                });
+                if (res.ok) {
+                    if (ind) ind.innerHTML = '<i class="fa-solid fa-check mr-0.5"></i> Prioridade salva!';
+                    const issueObj = allIssuesData.find(i => i.number == activeModalIssueNumber);
+                    if (issueObj) {
+                        let currentLabels = (issueObj.labels || []).filter(l => !(typeof l === 'string' ? l : l.name).startsWith('priority:'));
+                        if (newPriority && newPriority !== 'none') {
+                            currentLabels.push({ name: newPriority, color: 'e2e8f0' });
+                        }
+                        issueObj.labels = currentLabels;
+
+                        const pill = document.getElementById('modal-priority-pill');
+                        pill.innerText = newPriority.replace('priority:', '').toUpperCase();
+                        pill.className = `text-[10px] font-bold px-2 py-0.5 rounded ${getPriorityPillClass(newPriority)}`;
+
+                        renderTable();
+                    }
+                    setTimeout(() => { if (ind) ind.style.display = 'none'; }, 2000);
+                } else {
+                    if (ind) ind.innerHTML = '<span class="text-red-500"><i class="fa-solid fa-xmark"></i> Erro ao salvar</span>';
+                }
+            } catch (e) {
+                if (ind) ind.innerHTML = '<span class="text-red-500"><i class="fa-solid fa-xmark"></i> Erro</span>';
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('issue-modal').style.display = 'none';
+            activeModalIssueNumber = null;
+        }
+
+        async function regenerateModalAI() {
+            if (!activeModalIssueNumber) return;
+            const btn = document.getElementById('btn-modal-regen');
+            const icon = document.getElementById('icon-modal-regen');
+            const aiLoading = document.getElementById('modal-ai-loading');
+            const aiSummary = document.getElementById('modal-ai-summary');
+            const aiProvider = document.getElementById('modal-ai-provider');
+
+            btn.disabled = true;
+            icon.className = 'fa-solid fa-arrows-rotate fa-spin text-[9px]';
+            aiLoading.style.display = 'flex';
+            aiSummary.style.display = 'none';
+            aiProvider.innerText = 'Regerando com IA...';
+
+            try {
+                const res = await fetch(`/api/issues/${activeModalIssueNumber}/explain?force=true`);
+                if (!res.ok) throw new Error('Falha ao regerar');
+                const data = await res.json();
+
+                aiProvider.innerText = data.providerInfo || data.provider;
+                aiSummary.innerText = data.summary;
+                aiLoading.style.display = 'none';
+                aiSummary.style.display = 'block';
+            } catch (err) {
+                aiLoading.style.display = 'none';
+                aiSummary.style.display = 'block';
+                aiSummary.innerText = 'Erro ao regerar via IA: ' + err.message;
+            } finally {
+                btn.disabled = false;
+                icon.className = 'fa-solid fa-arrows-rotate text-[9px]';
+            }
+        }
+
+        function toggleOriginalBody() {
+            const body = document.getElementById('modal-body-container');
+            const icon = document.getElementById('accordion-icon');
+            const label = document.getElementById('accordion-label');
+            if (body.style.display === 'none') {
+                body.style.display = 'block';
+                if (icon) icon.className = 'fa-solid fa-chevron-up text-xs';
+                if (label) label.innerText = 'Recolher';
+            } else {
+                body.style.display = 'none';
+                if (icon) icon.className = 'fa-solid fa-chevron-down text-xs';
+                if (label) label.innerText = 'Expandir';
+            }
+        }
+
+        function getPriorityPillClass(val) {
+            if (val === 'priority:p0-critical') return 'bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900';
+            if (val === 'priority:p1-high') return 'bg-red-100 text-red-700 dark:bg-red-900/60 dark:text-red-300';
+            if (val === 'priority:p2-medium') return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/60 dark:text-yellow-300';
+            if (val === 'priority:p3-low') return 'bg-green-100 text-green-700 dark:bg-green-900/60 dark:text-green-300';
+            return 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400';
+        }
+
+        function getSelectedModel(prov) {
+            const selectEl = document.getElementById(`ai-${prov}-model-select`);
+            const customInput = document.getElementById(`ai-${prov}-model`);
+            if (customInput && customInput.style.display !== 'none' && customInput.value.trim()) {
+                return customInput.value.trim();
+            }
+            return selectEl ? selectEl.value : '';
+        }
+
+        function setSelectedModel(prov, modelName) {
+            const selectEl = document.getElementById(`ai-${prov}-model-select`);
+            const customInput = document.getElementById(`ai-${prov}-model`);
+            if (customInput) customInput.value = modelName;
+
+            if (selectEl) {
+                let opt = Array.from(selectEl.options).find(o => o.value === modelName);
+                if (!opt) {
+                    opt = document.createElement('option');
+                    opt.value = modelName;
+                    opt.innerText = modelName;
+                    selectEl.appendChild(opt);
+                }
+                selectEl.value = modelName;
+            }
+        }
+
+        function onModelSelectChanged(prov, val) {
+            const customInput = document.getElementById(`ai-${prov}-model`);
+            if (customInput) customInput.value = val;
+        }
+
+        function toggleCustomModelInput(prov) {
+            const selectEl = document.getElementById(`ai-${prov}-model-select`);
+            const customInput = document.getElementById(`ai-${prov}-model`);
+            if (!customInput) return;
+
+            if (customInput.style.display === 'none') {
+                customInput.style.display = 'block';
+                if (selectEl) selectEl.style.display = 'none';
+                customInput.focus();
+            } else {
+                customInput.style.display = 'none';
+                if (selectEl) {
+                    selectEl.style.display = 'block';
+                    if (customInput.value.trim()) {
+                        setSelectedModel(prov, customInput.value.trim());
+                    }
+                }
+            }
+        }
+
+        async function fetchServerModels(prov) {
+            const btn = document.getElementById(`btn-fetch-${prov}`);
+            const icon = document.getElementById(`icon-fetch-${prov}`);
+            const statusSpan = document.getElementById(`${prov}-models-status`);
+            const select = document.getElementById(`ai-${prov}-model-select`);
+
+            if (btn) btn.disabled = true;
+            if (icon) icon.className = 'fa-solid fa-arrows-rotate fa-spin text-[9px]';
+            if (statusSpan) {
+                statusSpan.className = 'block text-[10px] text-blue-500 font-medium mt-1';
+                statusSpan.innerText = 'Consultando modelos disponíveis...';
+            }
+
+            const payload = getFormAIConfig();
+            payload.provider = prov;
+
+            try {
+                const res = await fetch('/api/ai/models', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+
+                if (data.success && data.models && data.models.length > 0) {
+                    const currentVal = getSelectedModel(prov);
+                    select.innerHTML = '';
+
+                    data.models.forEach(m => {
+                        const opt = document.createElement('option');
+                        opt.value = m.id;
+                        let label = m.name;
+                        if (m.size && m.details) label += ` (${m.size} • ${m.details})`;
+                        else if (m.size) label += ` (${m.size})`;
+                        else if (m.details) label += ` (${m.details})`;
+                        opt.innerText = label;
+                        select.appendChild(opt);
+                    });
+
+                    if (currentVal && data.models.some(m => m.id === currentVal)) {
+                        select.value = currentVal;
+                    } else if (currentVal) {
+                        const opt = document.createElement('option');
+                        opt.value = currentVal;
+                        opt.innerText = currentVal;
+                        select.appendChild(opt);
+                        select.value = currentVal;
+                    }
+
+                    if (statusSpan) {
+                        statusSpan.className = 'block text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold mt-1';
+                        statusSpan.innerText = `✅ ${data.models.length} modelos encontrados no servidor`;
+                    }
+                } else {
+                    if (statusSpan) {
+                        statusSpan.className = 'block text-[10px] text-red-500 font-medium mt-1';
+                        statusSpan.innerText = data.error ? `Erro: ${data.error}` : 'Nenhum modelo retornado.';
+                    }
+                }
+            } catch (e) {
+                if (statusSpan) {
+                    statusSpan.className = 'block text-[10px] text-red-500 font-medium mt-1';
+                    statusSpan.innerText = 'Erro ao consultar servidor.';
+                }
+            } finally {
+                if (btn) btn.disabled = false;
+                if (icon) icon.className = 'fa-solid fa-arrows-rotate text-[9px]';
+            }
+        }
+
+        const DEFAULT_EXPLAIN_PROMPT = `Você é um analista técnico de engenharia de software sênior.
+Analise os dados abaixo da Issue #{number} do GitHub e forneça EXATAMENTE UM PARÁGRAFO conciso, direto e informativo (máximo 4 a 5 linhas).
+Explique o objetivo central da demanda, o que deve ser feito e o impacto esperado para o usuário ou sistema. Não crie listas e não adicione saudações.
+
+Dados da Issue:
+Número: #{number}
+Título: {title}
+Labels: {labels}
+Descrição / Contexto:
+{body}`;
+
+        const DEFAULT_HOURS_PROMPT = `Você é um gerente técnico de engenharia de software e estimador sênior de projetos.
+Analise a atividade mensal do repositório contendo {issuesCount} issues movimentadas e {commitsCount} commits realizados no mês.
+Com base no escopo técnico das issues e nas mensagens de commits descritas abaixo, faça uma estimativa realista do total de horas de trabalho dedicadas pela equipe no mês.
+
+Retorne SOMENTE um JSON válido no formato exato:
+{
+  "totalHours": 120,
+  "confidence": "alta",
+  "methodology": "Análise por complexidade de escopo de issues e volume de commits",
+  "summary": "Breve justificativa técnica da estimativa em 2 linhas"
+}
+
+Dados do mês:
+Issues ({issuesCount}):
+{issuesList}
+
+Commits ({commitsCount}):
+{commitsList}`;
+
+        function restoreDefaultPrompts() {
+            document.getElementById('ai-prompt-explain').value = DEFAULT_EXPLAIN_PROMPT;
+            document.getElementById('ai-prompt-hours').value = DEFAULT_HOURS_PROMPT;
+        }
+
+        async function regenerateAllAI() {
+            const btn = document.getElementById('btn-regen-all');
+            const icon = document.getElementById('icon-regen-all');
+
+            if (!confirm('Deseja limpar o cache e regerar resumos com os novos prompts?')) return;
+
+            btn.disabled = true;
+            icon.className = 'fa-solid fa-spinner fa-spin text-[10px]';
+
+            try {
+                // Salva antes de limpar para garantir prompts atualizados
+                await saveAIConfiguration(false);
+
+                const res = await fetch('/api/ai/regenerate-all', { method: 'POST' });
+                const data = await res.json();
+                if (data.success) {
+                    alert('Cache limpo com sucesso! As issues serão explicadas com os novos prompts ao serem abertas.');
+                } else {
+                    alert('Erro ao limpar cache: ' + (data.error || 'Erro desconhecido'));
+                }
+            } catch (err) {
+                alert('Erro de conexão ao regerar tudo: ' + err.message);
+            } finally {
+                btn.disabled = false;
+                icon.className = 'fa-solid fa-arrows-rotate text-[10px]';
+            }
+        }
+
+        // Modal de Configuração de IA
+        async function openAIConfigModal() {
+            const modal = document.getElementById('ai-config-modal');
+            const testResult = document.getElementById('ai-test-result');
+            testResult.style.display = 'none';
+            modal.style.display = 'flex';
+
+            try {
+                const res = await fetch('/api/ai/config');
+                if (res.ok) {
+                    const cfg = await res.json();
+                    document.getElementById('ai-enabled-toggle').checked = cfg.enabled !== false;
+                    selectAIProvider(cfg.provider || 'ollama');
+
+                    if (cfg.prompts) {
+                        document.getElementById('ai-prompt-explain').value = cfg.prompts.explainIssue || DEFAULT_EXPLAIN_PROMPT;
+                        document.getElementById('ai-prompt-hours').value = cfg.prompts.estimateHours || DEFAULT_HOURS_PROMPT;
+                    } else {
+                        restoreDefaultPrompts();
+                    }
+
+                    if (cfg.ollama) {
+                        document.getElementById('ai-ollama-url').value = cfg.ollama.url || 'https://ollama.ambialles.com';
+                        document.getElementById('ai-ollama-client-name').value = cfg.ollama.clientName || 'meu-projeto';
+                        setSelectedModel('ollama', cfg.ollama.model || 'gemma3:12b');
+                        document.getElementById('ai-ollama-auth-type').value = cfg.ollama.authType || 'bearer';
+                        document.getElementById('ai-ollama-user').value = cfg.ollama.user || '';
+                        document.getElementById('ai-ollama-password').value = cfg.ollama.password || '';
+                        document.getElementById('ai-ollama-apikey').value = cfg.ollama.apiKey || '';
+                        onOllamaAuthTypeChange();
+                        // Carrega modelos dinamicamente ao abrir
+                        fetchServerModels('ollama');
+                    }
+                    if (cfg.gemini) {
+                        document.getElementById('ai-gemini-key').value = cfg.gemini.apiKey || '';
+                        setSelectedModel('gemini', cfg.gemini.model || 'gemini-1.5-flash');
+                    }
+                    if (cfg.opencode) {
+                        document.getElementById('ai-opencode-url').value = cfg.opencode.baseUrl || 'https://api.openai.com/v1';
+                        document.getElementById('ai-opencode-key').value = cfg.opencode.apiKey || '';
+                        setSelectedModel('opencode', cfg.opencode.model || 'gpt-4o-mini');
+                    }
+                }
+            } catch (e) {
+                console.warn('Erro ao carregar configurações de IA:', e);
+            }
+        }
+
+        function closeAIConfigModal() {
+            document.getElementById('ai-config-modal').style.display = 'none';
+        }
+
+        function selectAIProvider(prov) {
+            selectedAIProvider = prov;
+            ['ollama', 'gemini', 'opencode'].forEach(p => {
+                const btn = document.getElementById(`btn-prov-${p}`);
+                const fields = document.getElementById(`ai-fields-${p}`);
+                if (p === prov) {
+                    btn.className = 'p-2.5 rounded-xl border-2 border-blue-500 bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 text-xs font-bold flex flex-col items-center gap-1 transition-all shadow-xs';
+                    if (fields) fields.style.display = 'block';
+                } else {
+                    btn.className = 'p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 text-xs font-bold flex flex-col items-center gap-1 transition-all';
+                    if (fields) fields.style.display = 'none';
+                }
+            });
+        }
+
+        function onOllamaAuthTypeChange() {
+            const authType = document.getElementById('ai-ollama-auth-type').value;
+            const basicFields = document.getElementById('ollama-basic-auth-fields');
+            const bearerField = document.getElementById('ollama-bearer-auth-field');
+
+            if (authType === 'basic') {
+                basicFields.style.display = 'grid';
+                bearerField.style.display = 'none';
+            } else if (authType === 'bearer') {
+                basicFields.style.display = 'none';
+                bearerField.style.display = 'block';
+            } else {
+                basicFields.style.display = 'none';
+                bearerField.style.display = 'none';
+            }
+        }
+
+        function getFormAIConfig() {
+            return {
+                enabled: document.getElementById('ai-enabled-toggle').checked,
+                provider: selectedAIProvider,
+                prompts: {
+                    explainIssue: document.getElementById('ai-prompt-explain').value.trim() || DEFAULT_EXPLAIN_PROMPT,
+                    estimateHours: document.getElementById('ai-prompt-hours').value.trim() || DEFAULT_HOURS_PROMPT
+                },
+                ollama: {
+                    url: document.getElementById('ai-ollama-url').value.trim(),
+                    clientName: document.getElementById('ai-ollama-client-name').value.trim() || 'meu-projeto',
+                    model: getSelectedModel('ollama') || 'gemma3:12b',
+                    authType: document.getElementById('ai-ollama-auth-type').value,
+                    user: document.getElementById('ai-ollama-user').value.trim(),
+                    password: document.getElementById('ai-ollama-password').value.trim(),
+                    apiKey: document.getElementById('ai-ollama-apikey').value.trim()
+                },
+                gemini: {
+                    apiKey: document.getElementById('ai-gemini-key').value.trim(),
+                    model: getSelectedModel('gemini') || 'gemini-1.5-flash'
+                },
+                opencode: {
+                    baseUrl: document.getElementById('ai-opencode-url').value.trim(),
+                    apiKey: document.getElementById('ai-opencode-key').value.trim(),
+                    model: getSelectedModel('opencode') || 'gpt-4o-mini'
+                }
+            };
+        }
+
+        async function testAIConnection() {
+            const btn = document.getElementById('btn-test-ai');
+            const icon = document.getElementById('test-ai-icon');
+            const resultBox = document.getElementById('ai-test-result');
+
+            btn.disabled = true;
+            icon.className = 'fa-solid fa-spinner fa-spin';
+            resultBox.style.display = 'block';
+            resultBox.className = 'p-3 rounded-lg text-xs leading-relaxed bg-blue-50 dark:bg-blue-950 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-900';
+            resultBox.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Enviando mensagem de teste para o servidor de IA...';
+
+            const payload = getFormAIConfig();
+
+            try {
+                const res = await fetch('/api/ai/test', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+
+                if (data.success || data.ok) {
+                    resultBox.className = 'p-3 rounded-lg text-xs leading-relaxed bg-emerald-50 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-200 border border-emerald-300 dark:border-emerald-800';
+                    resultBox.innerHTML = `
+                        <div class="font-bold flex items-center gap-1.5 mb-1 text-emerald-700 dark:text-emerald-300">
+                            <i class="fa-solid fa-circle-check"></i> ${escapeHtml(data.message || 'Conexão com IA Estabelecida com Sucesso!')} (${data.latencyMs}ms)
+                        </div>
+                        <div class="text-[11px] font-mono bg-white/70 dark:bg-gray-800/80 p-2 rounded border border-emerald-200 dark:border-emerald-900">
+                            <strong>Provedor:</strong> ${data.providerInfo || data.provider} | <strong>Resposta:</strong> "${escapeHtml(data.responseSample || data.response || 'OK')}"
+                        </div>
+                    `;
+                } else {
+                    resultBox.className = 'p-3 rounded-lg text-xs leading-relaxed bg-red-50 dark:bg-red-950/80 text-red-800 dark:text-red-200 border border-red-300 dark:border-red-800';
+                    resultBox.innerHTML = `
+                        <div class="font-bold flex items-center gap-1.5 mb-1 text-red-700 dark:text-red-300">
+                            <i class="fa-solid fa-circle-xmark"></i> Falha no Teste de Conexão (${data.error || 'Erro'})
+                        </div>
+                        <div class="text-[11px] leading-normal">
+                            ${escapeHtml(data.details || 'Verifique se as credenciais, URL ou chaves estão corretas.')}
+                        </div>
+                    `;
+                }
+            } catch (err) {
+                resultBox.className = 'p-3 rounded-lg text-xs leading-relaxed bg-red-50 dark:bg-red-950/80 text-red-800 dark:text-red-200 border border-red-300 dark:border-red-800';
+                resultBox.innerHTML = `<strong>Erro ao conectar:</strong> ${escapeHtml(err.message)}`;
+            } finally {
+                btn.disabled = false;
+                icon.className = 'fa-solid fa-vial';
+            }
+        }
+
+        async function saveAIConfiguration(closeOnSave = true) {
+            const btn = document.getElementById('btn-save-ai');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Salvando...';
+
+            const payload = getFormAIConfig();
+
+            try {
+                const res = await fetch('/api/ai/config', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (res.ok) {
+                    btn.innerHTML = '<i class="fa-solid fa-check"></i> Salvo!';
+                    setTimeout(() => {
+                        if (closeOnSave) closeAIConfigModal();
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Salvar';
+                        checkAIStatusInNav();
+                    }, 800);
+                } else {
+                    alert('Erro ao salvar configurações.');
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Salvar';
+                }
+            } catch (err) {
+                alert('Erro de conexão ao salvar.');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Salvar';
+            }
+        }
+
+        async function checkAIStatusInNav() {
+            try {
+                const res = await fetch('/api/ai/config');
+                if (res.ok) {
+                    const cfg = await res.json();
+                    const dot = document.getElementById('nav-ai-status-dot');
+                    if (dot) {
+                        if (cfg.enabled === false) {
+                            dot.className = 'w-2 h-2 rounded-full bg-gray-400';
+                            dot.title = 'IA Desativada';
+                        } else {
+                            dot.className = 'w-2 h-2 rounded-full bg-emerald-400 animate-pulse';
+                            dot.title = `IA Ativa (${cfg.provider})`;
+                        }
+                    }
+                }
+            } catch (e) {}
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            return text
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        loadIssues();
+    </script>
+</body>
+</html>
