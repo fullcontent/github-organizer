@@ -1,14 +1,30 @@
 {
   "name": "github-organizer",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Self-hosted, AI-powered dashboard, kanban board and milestone tracker for organizing GitHub issues.",
+  "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
+  "keywords": [
+    "github",
+    "github-api",
+    "issue-tracker",
+    "kanban",
+    "kanban-board",
+    "project-management",
+    "dashboard",
+    "milestones",
+    "developer-tools",
+    "ai",
+    "ollama",
+    "gemini",
+    "openai",
+    "self-hosted",
+    "open-source"
+  ],
   "author": "",
   "license": "ISC",
   "type": "commonjs",

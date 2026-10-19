@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Métricas & Gráficos - Celic Organizer</title>
+    <title>Métricas & Gráficos - GitHub Organizer</title>
     <script>
         tailwind = {
             config: {
@@ -39,17 +39,20 @@
         <div class="container mx-auto flex flex-wrap justify-between items-center max-w-7xl gap-4">
             <div class="flex items-center space-x-2">
                 <span class="text-2xl">🚀</span>
-                <span class="font-bold text-xl tracking-tight">Celic Organizer</span>
+                <span class="font-bold text-xl tracking-tight">GitHub Organizer</span>
             </div>
             <div class="flex flex-wrap items-center gap-4 text-sm md:text-base">
-                <a href="/" class="hover:text-blue-200 dark:hover:text-blue-400 transition-colors">Lista</a>
-                <a href="/kanban.html" class="hover:text-blue-200 dark:hover:text-blue-400 transition-colors">Kanban (Prioridades)</a>
-                <a href="/milestones.html" class="hover:text-blue-200 dark:hover:text-blue-400 transition-colors">Metas</a>
-                <a href="/dashboard.html" class="hover:text-blue-200 dark:hover:text-blue-400 transition-colors">Dashboard Gestor</a>
-                <a href="/analytics.html" class="font-bold underline decoration-2 underline-offset-4 text-white">Gráficos & Métricas</a>
+                <a href="/" class="hover:text-blue-200 dark:hover:text-blue-400 transition-colors" data-i18n="nav.list">Lista</a>
+                <a href="/kanban.html" class="hover:text-blue-200 dark:hover:text-blue-400 transition-colors" data-i18n="nav.kanban">Kanban (Prioridades)</a>
+                <a href="/milestones.html" class="hover:text-blue-200 dark:hover:text-blue-400 transition-colors" data-i18n="nav.milestones">Metas</a>
+                <a href="/dashboard.html" class="hover:text-blue-200 dark:hover:text-blue-400 transition-colors" data-i18n="nav.dashboard">Dashboard Gestor</a>
+                <a href="/analytics.html" class="font-bold underline decoration-2 underline-offset-4 text-white" data-i18n="nav.analytics">Gráficos & Métricas</a>
+
+                <!-- Seletor de Idioma -->
+                <div id="i18n-switcher" class="flex items-center gap-1 text-xs font-bold px-2 py-1 rounded-lg bg-blue-700 dark:bg-gray-700"></div>
 
                 <!-- Toggle Dark Mode -->
-                <button id="theme-toggle" onclick="toggleDarkMode()" class="ml-2 p-2 rounded-lg bg-blue-700 dark:bg-gray-700 hover:bg-blue-800 dark:hover:bg-gray-600 text-yellow-300 dark:text-yellow-400 transition-all text-sm focus:outline-none" title="Alternar Modo Escuro">
+                <button id="theme-toggle" onclick="toggleDarkMode()" class="ml-2 p-2 rounded-lg bg-blue-700 dark:bg-gray-700 hover:bg-blue-800 dark:hover:bg-gray-600 text-yellow-300 dark:text-yellow-400 transition-all text-sm focus:outline-none" data-i18n-title="nav.theme.title" title="Alternar Modo Escuro">
                     <i id="theme-icon" class="fa-solid fa-moon"></i>
                 </button>
             </div>
@@ -63,18 +66,18 @@
             <div>
                 <h1 class="text-2xl md:text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight flex items-center gap-2">
                     <i class="fa-solid fa-chart-line text-blue-600 dark:text-blue-400 text-2xl"></i>
-                    Análise Temporal do Repositório
+                    <span data-i18n="analytics.header.title">Análise Temporal do Repositório</span>
                 </h1>
                 <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">
-                    Repositório: <span class="font-semibold text-gray-700 dark:text-gray-300" id="repo-name">fullcontent/sistemacelic</span>
+                    <span data-i18n="analytics.header.repoLabel">Repositório:</span> <span class="font-semibold text-gray-700 dark:text-gray-300" id="repo-name">owner/repo</span>
                     <span class="mx-2">•</span>
-                    <span id="last-updated" class="text-xs">Sincronizado recentemente</span>
+                    <span id="last-updated" class="text-xs" data-i18n="analytics.lastUpdated.default">Sincronizado recentemente</span>
                 </p>
             </div>
             <div class="flex items-center gap-3">
                 <button id="btn-sync" onclick="loadAnalytics(true)" class="flex items-center gap-2 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 shadow-sm text-sm font-medium transition-all focus:outline-none focus:ring-2 focus:ring-blue-500">
                     <i id="sync-icon" class="fa-solid fa-arrows-rotate"></i>
-                    <span>Sincronizar Dados</span>
+                    <span data-i18n="analytics.btn.sync">Sincronizar Dados</span>
                 </button>
             </div>
         </div>
@@ -86,53 +89,53 @@
                 <!-- Filtro: Período Rápido -->
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">
-                        <i class="fa-regular fa-calendar mr-1"></i> Período
+                        <i class="fa-regular fa-calendar mr-1"></i> <span data-i18n="analytics.filter.period.label">Período</span>
                     </label>
                     <select id="filter-period" onchange="onPeriodChange()" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-800 dark:text-gray-200 text-sm rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium">
-                        <option value="7d">Últimos 7 dias</option>
-                        <option value="14d">Últimos 14 dias</option>
-                        <option value="30d" selected>Últimos 30 dias</option>
-                        <option value="90d">Últimos 90 dias (3 meses)</option>
-                        <option value="180d">Últimos 180 dias (6 meses)</option>
-                        <option value="365d">Último 1 ano (365 dias)</option>
-                        <option value="all">Todo o Histórico</option>
-                        <option value="custom">Personalizado (Escolher Datas)</option>
+                        <option value="7d" data-i18n="analytics.period.7d">Últimos 7 dias</option>
+                        <option value="14d" data-i18n="analytics.period.14d">Últimos 14 dias</option>
+                        <option value="30d" selected data-i18n="analytics.period.30d">Últimos 30 dias</option>
+                        <option value="90d" data-i18n="analytics.period.90d">Últimos 90 dias (3 meses)</option>
+                        <option value="180d" data-i18n="analytics.period.180d">Últimos 180 dias (6 meses)</option>
+                        <option value="365d" data-i18n="analytics.period.365d">Último 1 ano (365 dias)</option>
+                        <option value="all" data-i18n="analytics.period.all">Todo o Histórico</option>
+                        <option value="custom" data-i18n="analytics.period.custom">Personalizado (Escolher Datas)</option>
                     </select>
                 </div>
 
                 <!-- Filtro: Visualização / Métrica -->
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">
-                        <i class="fa-solid fa-layer-group mr-1"></i> Métrica / Visão
+                        <i class="fa-solid fa-layer-group mr-1"></i> <span data-i18n="analytics.filter.view.label">Métrica / Visão</span>
                     </label>
                     <select id="filter-view" onchange="updateChartSeries()" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-800 dark:text-gray-200 text-sm rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium">
-                        <option value="issues" selected>Issues Criadas vs Fechadas</option>
-                        <option value="commits">Commits Feitos</option>
-                        <option value="all">Visão Completa (Issues & Commits)</option>
-                        <option value="net">Saldo Líquido (Criadas - Fechadas)</option>
+                        <option value="issues" selected data-i18n="analytics.view.issues">Issues Criadas vs Fechadas</option>
+                        <option value="commits" data-i18n="analytics.view.commits">Commits Feitos</option>
+                        <option value="all" data-i18n="analytics.view.all">Visão Completa (Issues & Commits)</option>
+                        <option value="net" data-i18n="analytics.view.net">Saldo Líquido (Criadas - Fechadas)</option>
                     </select>
                 </div>
 
                 <!-- Filtro: Agrupamento Temporal -->
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">
-                        <i class="fa-solid fa-chart-simple mr-1"></i> Agrupamento
+                        <i class="fa-solid fa-chart-simple mr-1"></i> <span data-i18n="analytics.filter.groupby.label">Agrupamento</span>
                     </label>
                     <select id="filter-groupby" onchange="loadAnalytics()" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-800 dark:text-gray-200 text-sm rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium">
-                        <option value="auto" selected>Automático</option>
-                        <option value="day">Por Dia</option>
-                        <option value="week">Por Semana</option>
-                        <option value="month">Por Mês</option>
+                        <option value="auto" selected data-i18n="analytics.groupby.auto">Automático</option>
+                        <option value="day" data-i18n="analytics.groupby.day">Por Dia</option>
+                        <option value="week" data-i18n="analytics.groupby.week">Por Semana</option>
+                        <option value="month" data-i18n="analytics.groupby.month">Por Mês</option>
                     </select>
                 </div>
 
                 <!-- Filtro: Milestone -->
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">
-                        <i class="fa-solid fa-flag-checkered mr-1"></i> Milestone (Issues)
+                        <i class="fa-solid fa-flag-checkered mr-1"></i> <span data-i18n="analytics.filter.milestone.label">Milestone (Issues)</span>
                     </label>
                     <select id="filter-milestone" onchange="loadAnalytics()" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-800 dark:text-gray-200 text-sm rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium">
-                        <option value="all">Todos os Milestones</option>
+                        <option value="all" data-i18n="analytics.filter.milestone.all">Todos os Milestones</option>
                     </select>
                 </div>
             </div>
@@ -140,15 +143,15 @@
             <!-- Seletores de Data Personalizada (Aparece apenas quando 'custom' está ativo) -->
             <div id="custom-date-container" class="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700 grid grid-cols-1 sm:grid-cols-3 gap-4 items-end" style="display: none;">
                 <div>
-                    <label class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">Data Inicial</label>
+                    <label class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1" data-i18n="analytics.customDate.start">Data Inicial</label>
                     <input type="date" id="custom-start-date" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-800 dark:text-gray-200 text-sm rounded-lg p-2 focus:ring-blue-500 focus:border-blue-500">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">Data Final</label>
+                    <label class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1" data-i18n="analytics.customDate.end">Data Final</label>
                     <input type="date" id="custom-end-date" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-800 dark:text-gray-200 text-sm rounded-lg p-2 focus:ring-blue-500 focus:border-blue-500">
                 </div>
                 <div>
-                    <button onclick="loadAnalytics()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg text-sm shadow-sm transition-all">
+                    <button onclick="loadAnalytics()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg text-sm shadow-sm transition-all" data-i18n="analytics.customDate.apply">
                         Aplicar Filtro de Datas
                     </button>
                 </div>
@@ -157,20 +160,20 @@
             <!-- Controles rápidos de exibição -->
             <div class="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700 flex flex-wrap items-center justify-between gap-4">
                 <div class="flex items-center gap-2">
-                    <span class="text-xs font-bold uppercase text-gray-500 dark:text-gray-400">Tipo de Gráfico:</span>
+                    <span class="text-xs font-bold uppercase text-gray-500 dark:text-gray-400" data-i18n="analytics.chart.typeLabel">Tipo de Gráfico:</span>
                     <div class="inline-flex rounded-md shadow-sm" role="group">
                         <button type="button" id="btn-chart-bar" onclick="setChartType('bar')" class="px-3 py-1.5 text-xs font-bold rounded-l-lg border border-blue-500 bg-blue-600 text-white transition-all">
-                            <i class="fa-solid fa-chart-column mr-1"></i> Barras
+                            <i class="fa-solid fa-chart-column mr-1"></i> <span data-i18n="analytics.chart.bars">Barras</span>
                         </button>
                         <button type="button" id="btn-chart-line" onclick="setChartType('line')" class="px-3 py-1.5 text-xs font-medium rounded-r-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 transition-all">
-                            <i class="fa-solid fa-chart-area mr-1"></i> Linhas (Área)
+                            <i class="fa-solid fa-chart-area mr-1"></i> <span data-i18n="analytics.chart.lines">Linhas (Área)</span>
                         </button>
                     </div>
                 </div>
 
                 <div class="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-2">
                     <i class="fa-solid fa-circle-info text-blue-500"></i>
-                    <span>Dica: clique nas legendas do gráfico para ocultar ou exibir métricas individualmente.</span>
+                    <span data-i18n="analytics.chart.tip">Dica: clique nas legendas do gráfico para ocultar ou exibir métricas individualmente.</span>
                 </div>
             </div>
         </div>
@@ -178,8 +181,8 @@
         <!-- Indicador de Carregamento -->
         <div id="loading-indicator" class="flex flex-col items-center justify-center p-12 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 mb-6 transition-colors">
             <div class="w-12 h-12 border-4 border-blue-200 dark:border-blue-900 border-t-blue-600 rounded-full animate-spin mb-4"></div>
-            <p class="text-gray-700 dark:text-gray-300 font-semibold">Carregando métricas e histórico do GitHub...</p>
-            <p class="text-gray-400 text-xs mt-1">Calculando dados de issues e commits por período</p>
+            <p class="text-gray-700 dark:text-gray-300 font-semibold" data-i18n="analytics.loading.title">Carregando métricas e histórico do GitHub...</p>
+            <p class="text-gray-400 text-xs mt-1" data-i18n="analytics.loading.subtitle">Calculando dados de issues e commits por período</p>
         </div>
 
         <!-- Conteúdo Carregado -->
@@ -190,60 +193,60 @@
                 <!-- Issues Criadas -->
                 <div class="bg-white dark:bg-gray-800 rounded-xl p-5 border-l-4 border-blue-500 shadow-sm border border-gray-200 dark:border-gray-700 transition-colors">
                     <div class="flex items-center justify-between">
-                        <span class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Issues Criadas</span>
+                        <span class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider" data-i18n="analytics.stat.issuesCreated">Issues Criadas</span>
                         <span class="p-2 bg-blue-50 dark:bg-blue-950/70 rounded-lg text-blue-600 dark:text-blue-400"><i class="fa-regular fa-circle-dot"></i></span>
                     </div>
                     <div class="mt-2 flex items-baseline gap-2">
                         <span id="kpi-created" class="text-3xl font-extrabold text-gray-900 dark:text-white">0</span>
-                        <span class="text-xs text-gray-500 dark:text-gray-400">no período</span>
+                        <span class="text-xs text-gray-500 dark:text-gray-400" data-i18n="analytics.stat.inPeriod">no período</span>
                     </div>
                 </div>
 
                 <!-- Issues Fechadas -->
                 <div class="bg-white dark:bg-gray-800 rounded-xl p-5 border-l-4 border-green-500 shadow-sm border border-gray-200 dark:border-gray-700 transition-colors">
                     <div class="flex items-center justify-between">
-                        <span class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Issues Fechadas</span>
+                        <span class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider" data-i18n="analytics.stat.issuesClosed">Issues Fechadas</span>
                         <span class="p-2 bg-green-50 dark:bg-green-950/70 rounded-lg text-green-600 dark:text-green-400"><i class="fa-regular fa-circle-check"></i></span>
                     </div>
                     <div class="mt-2 flex items-baseline gap-2">
                         <span id="kpi-closed" class="text-3xl font-extrabold text-gray-900 dark:text-white">0</span>
-                        <span class="text-xs text-gray-500 dark:text-gray-400">concluídas</span>
+                        <span class="text-xs text-gray-500 dark:text-gray-400" data-i18n="analytics.stat.completed">concluídas</span>
                     </div>
                 </div>
 
                 <!-- Taxa de Resolução / Saldo -->
                 <div class="bg-white dark:bg-gray-800 rounded-xl p-5 border-l-4 border-amber-500 shadow-sm border border-gray-200 dark:border-gray-700 transition-colors">
                     <div class="flex items-center justify-between">
-                        <span class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Taxa de Resolução</span>
+                        <span class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider" data-i18n="analytics.stat.resolutionRate">Taxa de Resolução</span>
                         <span class="p-2 bg-amber-50 dark:bg-amber-950/70 rounded-lg text-amber-600 dark:text-amber-400"><i class="fa-solid fa-percent"></i></span>
                     </div>
                     <div class="mt-2 flex items-baseline gap-2">
                         <span id="kpi-rate" class="text-3xl font-extrabold text-gray-900 dark:text-white">0%</span>
-                        <span id="kpi-net-badge" class="text-xs font-semibold px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">Saldo: 0</span>
+                        <span id="kpi-net-badge" class="text-xs font-semibold px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300" data-i18n="analytics.stat.balanceZero">Saldo: 0</span>
                     </div>
                 </div>
 
                 <!-- Commits Feitos -->
                 <div class="bg-white dark:bg-gray-800 rounded-xl p-5 border-l-4 border-purple-500 shadow-sm border border-gray-200 dark:border-gray-700 transition-colors">
                     <div class="flex items-center justify-between">
-                        <span class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Commits Feitos</span>
+                        <span class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider" data-i18n="analytics.stat.commitsMade">Commits Feitos</span>
                         <span class="p-2 bg-purple-50 dark:bg-purple-950/70 rounded-lg text-purple-600 dark:text-purple-400"><i class="fa-solid fa-code-commit"></i></span>
                     </div>
                     <div class="mt-2 flex items-baseline gap-2">
                         <span id="kpi-commits" class="text-3xl font-extrabold text-gray-900 dark:text-white">0</span>
-                        <span class="text-xs text-gray-500 dark:text-gray-400">entregas</span>
+                        <span class="text-xs text-gray-500 dark:text-gray-400" data-i18n="analytics.stat.deliveries">entregas</span>
                     </div>
                 </div>
 
                 <!-- Tempo Médio -->
                 <div class="bg-white dark:bg-gray-800 rounded-xl p-5 border-l-4 border-indigo-500 shadow-sm border border-gray-200 dark:border-gray-700 transition-colors">
                     <div class="flex items-center justify-between">
-                        <span class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Tempo Médio</span>
+                        <span class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider" data-i18n="analytics.stat.avgTime">Tempo Médio</span>
                         <span class="p-2 bg-indigo-50 dark:bg-indigo-950/70 rounded-lg text-indigo-600 dark:text-indigo-400"><i class="fa-regular fa-clock"></i></span>
                     </div>
                     <div class="mt-2 flex items-baseline gap-2">
                         <span id="kpi-avg-days" class="text-3xl font-extrabold text-gray-900 dark:text-white">0d</span>
-                        <span class="text-xs text-gray-500 dark:text-gray-400">p/ fechar issue</span>
+                        <span class="text-xs text-gray-500 dark:text-gray-400" data-i18n="analytics.stat.toCloseIssue">p/ fechar issue</span>
                     </div>
                 </div>
             </div>
@@ -260,7 +263,6 @@
                         </p>
                     </div>
                     <div id="chart-totals-badge" class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
-                        Total de Pontos: 0
                     </div>
                 </div>
 
@@ -276,17 +278,17 @@
                 <div class="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/60 px-4 pt-3 flex flex-wrap gap-2">
                     <button id="tab-created-btn" onclick="switchTab('created')" class="tab-button px-4 py-2 text-sm font-semibold border-b-2 border-blue-600 text-blue-600 dark:text-blue-400 flex items-center gap-2">
                         <i class="fa-regular fa-circle-dot"></i>
-                        <span>Issues Criadas</span>
+                        <span data-i18n="analytics.tab.created">Issues Criadas</span>
                         <span id="tab-created-count" class="bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 text-xs px-2 py-0.5 rounded-full font-bold">0</span>
                     </button>
                     <button id="tab-closed-btn" onclick="switchTab('closed')" class="tab-button px-4 py-2 text-sm font-semibold border-b-2 border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 flex items-center gap-2">
                         <i class="fa-regular fa-circle-check"></i>
-                        <span>Issues Fechadas</span>
+                        <span data-i18n="analytics.tab.closed">Issues Fechadas</span>
                         <span id="tab-closed-count" class="bg-green-100 dark:bg-green-900/60 text-green-700 dark:text-green-300 text-xs px-2 py-0.5 rounded-full font-bold">0</span>
                     </button>
                     <button id="tab-commits-btn" onclick="switchTab('commits')" class="tab-button px-4 py-2 text-sm font-semibold border-b-2 border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 flex items-center gap-2">
                         <i class="fa-solid fa-code-commit"></i>
-                        <span>Commits</span>
+                        <span data-i18n="analytics.tab.commits">Commits</span>
                         <span id="tab-commits-count" class="bg-purple-100 dark:bg-purple-900/60 text-purple-700 dark:text-purple-300 text-xs px-2 py-0.5 rounded-full font-bold">0</span>
                     </button>
 
@@ -294,7 +296,7 @@
                     <div class="ml-auto pb-2 flex items-center">
                         <div class="relative">
                             <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-gray-400 text-xs"></i>
-                            <input type="text" id="table-search" oninput="filterCurrentTable()" placeholder="Buscar nos registros..." class="pl-8 pr-3 py-1.5 text-xs bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 w-48 sm:w-64">
+                            <input type="text" id="table-search" oninput="filterCurrentTable()" data-i18n-ph="analytics.search.placeholder" placeholder="Buscar nos registros..." class="pl-8 pr-3 py-1.5 text-xs bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 w-48 sm:w-64">
                         </div>
                     </div>
                 </div>
@@ -307,16 +309,16 @@
                         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm">
                             <thead class="bg-gray-50 dark:bg-gray-700/60 text-gray-600 dark:text-gray-300 text-xs uppercase font-semibold">
                                 <tr>
-                                    <th class="py-3 px-4 text-left">Issue</th>
-                                    <th class="py-3 px-4 text-left">Autor</th>
-                                    <th class="py-3 px-4 text-left">Labels / Milestone</th>
-                                    <th class="py-3 px-4 text-left">Data de Criação</th>
-                                    <th class="py-3 px-4 text-right">Ação</th>
+                                    <th class="py-3 px-4 text-left" data-i18n="analytics.table.issue">Issue</th>
+                                    <th class="py-3 px-4 text-left" data-i18n="analytics.table.author">Autor</th>
+                                    <th class="py-3 px-4 text-left" data-i18n="analytics.table.labelsMilestone">Labels / Milestone</th>
+                                    <th class="py-3 px-4 text-left" data-i18n="analytics.table.createdDate">Data de Criação</th>
+                                    <th class="py-3 px-4 text-right" data-i18n="analytics.table.action">Ação</th>
                                 </tr>
                             </thead>
                             <tbody id="table-created-body" class="divide-y divide-gray-100 dark:divide-gray-700/60"></tbody>
                         </table>
-                        <div id="empty-created" class="p-8 text-center text-gray-500 dark:text-gray-400 text-sm hidden">
+                        <div id="empty-created" class="p-8 text-center text-gray-500 dark:text-gray-400 text-sm hidden" data-i18n="analytics.empty.created">
                             Nenhuma issue criada no período selecionado.
                         </div>
                     </div>
@@ -326,16 +328,16 @@
                         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm">
                             <thead class="bg-gray-50 dark:bg-gray-700/60 text-gray-600 dark:text-gray-300 text-xs uppercase font-semibold">
                                 <tr>
-                                    <th class="py-3 px-4 text-left">Issue</th>
-                                    <th class="py-3 px-4 text-left">Autor</th>
-                                    <th class="py-3 px-4 text-left">Tempo p/ Fechar</th>
-                                    <th class="py-3 px-4 text-left">Data de Fechamento</th>
-                                    <th class="py-3 px-4 text-right">Ação</th>
+                                    <th class="py-3 px-4 text-left" data-i18n="analytics.table.issue">Issue</th>
+                                    <th class="py-3 px-4 text-left" data-i18n="analytics.table.author">Autor</th>
+                                    <th class="py-3 px-4 text-left" data-i18n="analytics.table.timeToClose">Tempo p/ Fechar</th>
+                                    <th class="py-3 px-4 text-left" data-i18n="analytics.table.closedDate">Data de Fechamento</th>
+                                    <th class="py-3 px-4 text-right" data-i18n="analytics.table.action">Ação</th>
                                 </tr>
                             </thead>
                             <tbody id="table-closed-body" class="divide-y divide-gray-100 dark:divide-gray-700/60"></tbody>
                         </table>
-                        <div id="empty-closed" class="p-8 text-center text-gray-500 dark:text-gray-400 text-sm hidden">
+                        <div id="empty-closed" class="p-8 text-center text-gray-500 dark:text-gray-400 text-sm hidden" data-i18n="analytics.empty.closed">
                             Nenhuma issue fechada no período selecionado.
                         </div>
                     </div>
@@ -345,16 +347,16 @@
                         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm">
                             <thead class="bg-gray-50 dark:bg-gray-700/60 text-gray-600 dark:text-gray-300 text-xs uppercase font-semibold">
                                 <tr>
-                                    <th class="py-3 px-4 text-left">Commit</th>
-                                    <th class="py-3 px-4 text-left">Mensagem</th>
-                                    <th class="py-3 px-4 text-left">Autor</th>
-                                    <th class="py-3 px-4 text-left">Data</th>
-                                    <th class="py-3 px-4 text-right">Ação</th>
+                                    <th class="py-3 px-4 text-left" data-i18n="analytics.table.commit">Commit</th>
+                                    <th class="py-3 px-4 text-left" data-i18n="analytics.table.message">Mensagem</th>
+                                    <th class="py-3 px-4 text-left" data-i18n="analytics.table.author">Autor</th>
+                                    <th class="py-3 px-4 text-left" data-i18n="analytics.table.date">Data</th>
+                                    <th class="py-3 px-4 text-right" data-i18n="analytics.table.action">Ação</th>
                                 </tr>
                             </thead>
                             <tbody id="table-commits-body" class="divide-y divide-gray-100 dark:divide-gray-700/60"></tbody>
                         </table>
-                        <div id="empty-commits" class="p-8 text-center text-gray-500 dark:text-gray-400 text-sm hidden">
+                        <div id="empty-commits" class="p-8 text-center text-gray-500 dark:text-gray-400 text-sm hidden" data-i18n="analytics.empty.commits">
                             Nenhum commit encontrado no período selecionado.
                         </div>
                     </div>
@@ -376,7 +378,7 @@
                             <span id="modal-priority-pill" class="text-[10px] font-bold px-2 py-0.5 rounded">--</span>
                             <span id="modal-milestone-pill" class="text-[10px] font-semibold text-gray-600 dark:text-gray-300"></span>
                         </div>
-                        <h3 id="modal-title" class="text-base font-bold text-gray-900 dark:text-gray-100 leading-snug">
+                        <h3 id="modal-title" class="text-base font-bold text-gray-900 dark:text-gray-100 leading-snug" data-i18n="analytics.modal.titlePlaceholder">
                             Título da Issue
                         </h3>
                     </div>
@@ -393,10 +395,10 @@
                         <div class="flex items-center justify-between mb-2">
                             <span class="text-xs font-bold uppercase tracking-wider text-blue-800 dark:text-blue-300 flex items-center gap-1.5">
                                 <i class="fa-solid fa-align-left text-blue-600 dark:text-blue-400"></i>
-                                Resumo
+                                <span data-i18n="analytics.modal.summary">Resumo</span>
                             </span>
                             <div class="flex items-center gap-1.5">
-                                <button type="button" onclick="regenerateModalAI()" id="btn-modal-regen" class="p-1 px-2.5 rounded-lg bg-blue-100 dark:bg-blue-900/70 hover:bg-blue-200 dark:hover:bg-blue-800 text-blue-700 dark:text-blue-300 transition-all text-xs" title="Atualizar Resumo">
+                                <button type="button" onclick="regenerateModalAI()" id="btn-modal-regen" class="p-1 px-2.5 rounded-lg bg-blue-100 dark:bg-blue-900/70 hover:bg-blue-200 dark:hover:bg-blue-800 text-blue-700 dark:text-blue-300 transition-all text-xs" data-i18n-title="analytics.modal.refreshSummary" title="Atualizar Resumo">
                                     <i id="icon-modal-regen" class="fa-solid fa-arrows-rotate"></i>
                                 </button>
                             </div>
@@ -405,7 +407,7 @@
                         <!-- Loading -->
                         <div id="modal-ai-loading" class="flex items-center gap-2 text-xs text-blue-600 dark:text-blue-400 py-3">
                             <i class="fa-solid fa-spinner fa-spin text-sm"></i>
-                            <span>Carregando resumo...</span>
+                            <span data-i18n="analytics.modal.loadingSummary">Carregando resumo...</span>
                         </div>
 
                         <!-- Texto do Resumo -->
@@ -417,31 +419,31 @@
                         <div class="flex items-center justify-between">
                             <h4 class="text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
                                 <i class="fa-solid fa-sliders text-blue-500"></i>
-                                Direcionamento da Demanda
+                                <span data-i18n="analytics.modal.direction">Direcionamento da Demanda</span>
                             </h4>
                             <span id="modal-save-indicator" class="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400" style="display: none;">
-                                <i class="fa-solid fa-check mr-0.5"></i> Salvo com sucesso!
+                                <i class="fa-solid fa-check mr-0.5"></i> <span data-i18n="analytics.modal.saved">Salvo com sucesso!</span>
                             </span>
                         </div>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                             <div>
                                 <label class="block font-semibold text-gray-600 dark:text-gray-300 mb-1">
-                                    <i class="fa-solid fa-flag text-indigo-500 mr-1"></i> Meta
+                                    <i class="fa-solid fa-flag text-indigo-500 mr-1"></i> <span data-i18n="analytics.modal.milestone">Meta</span>
                                 </label>
                                 <select id="modal-select-milestone" onchange="updateModalMilestone(this.value)" class="w-full p-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 font-medium">
-                                    <option value="null">Sem Meta (Backlog)</option>
+                                    <option value="null" data-i18n="analytics.modal.milestoneNone">Sem Meta (Backlog)</option>
                                 </select>
                             </div>
                             <div>
                                 <label class="block font-semibold text-gray-600 dark:text-gray-300 mb-1">
-                                    <i class="fa-solid fa-arrow-up-wide-short text-orange-500 mr-1"></i> Prioridade
+                                    <i class="fa-solid fa-arrow-up-wide-short text-orange-500 mr-1"></i> <span data-i18n="analytics.modal.priority">Prioridade</span>
                                 </label>
                                 <select id="modal-select-priority" onchange="updateModalPriority(this.value)" class="w-full p-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 font-medium">
-                                    <option value="none">Sem Prioridade</option>
-                                    <option value="priority:p0-critical">P0 - Urgente / Crítica</option>
-                                    <option value="priority:p1-high">P1 - Alta Prioridade</option>
-                                    <option value="priority:p2-medium">P2 - Média Prioridade</option>
-                                    <option value="priority:p3-low">P3 - Baixa Prioridade</option>
+                                    <option value="none" data-i18n="analytics.priority.none">Sem Prioridade</option>
+                                    <option value="priority:p0-critical" data-i18n="analytics.priority.p0">P0 - Urgente / Crítica</option>
+                                    <option value="priority:p1-high" data-i18n="analytics.priority.p1">P1 - Alta Prioridade</option>
+                                    <option value="priority:p2-medium" data-i18n="analytics.priority.p2">P2 - Média Prioridade</option>
+                                    <option value="priority:p3-low" data-i18n="analytics.priority.p3">P3 - Baixa Prioridade</option>
                                 </select>
                             </div>
                         </div>
@@ -449,7 +451,7 @@
 
                     <!-- Labels com Tradução e Significado Simples -->
                     <div>
-                        <h4 class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2" data-i18n="analytics.modal.categorization">
                             Categorização & Labels
                         </h4>
                         <div id="modal-labels" class="space-y-1.5"></div>
@@ -460,10 +462,10 @@
                         <div class="w-full p-3 bg-gray-50 dark:bg-gray-700 text-left text-xs font-bold text-gray-700 dark:text-gray-300 flex justify-between items-center border-b border-gray-200 dark:border-gray-600">
                             <span class="flex items-center gap-1.5">
                                 <i class="fa-solid fa-file-lines text-blue-500"></i>
-                                <span>Descrição Original do GitHub</span>
+                                <span data-i18n="analytics.modal.originalBody">Descrição Original do GitHub</span>
                             </span>
                             <button type="button" onclick="toggleOriginalBody()" id="btn-toggle-body" class="text-[11px] text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 flex items-center gap-1">
-                                <span id="accordion-label">Expandir</span>
+                                <span id="accordion-label" data-i18n="analytics.modal.expand">Expandir</span>
                                 <i id="accordion-icon" class="fa-solid fa-chevron-down text-xs"></i>
                             </button>
                         </div>
@@ -475,9 +477,9 @@
                 <!-- Rodapé do Modal -->
                 <div class="p-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700 flex justify-between items-center text-xs">
                     <a id="modal-github-link" href="#" target="_blank" class="inline-flex items-center gap-1.5 text-blue-600 dark:text-blue-400 hover:underline font-semibold">
-                        <i class="fa-brands fa-github text-sm"></i> Ver no GitHub <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                        <i class="fa-brands fa-github text-sm"></i> <span data-i18n="analytics.modal.viewOnGithub">Ver no GitHub</span> <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
                     </a>
-                    <button onclick="closeIssueModal()" class="px-4 py-1.5 rounded-lg bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 text-gray-800 dark:text-gray-200 font-semibold transition-colors">
+                    <button onclick="closeIssueModal()" class="px-4 py-1.5 rounded-lg bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 text-gray-800 dark:text-gray-200 font-semibold transition-colors" data-i18n="analytics.modal.close">
                         Fechar
                     </button>
                 </div>
@@ -487,9 +489,298 @@
     </main>
 
     <footer class="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 py-4 text-center text-xs text-gray-500 dark:text-gray-400 flex-shrink-0 transition-colors">
-        Celic Organizer • Análise de Produtividade do Repositório GitHub
+        GitHub Organizer <span data-i18n="footer.tagline">• Análise de Produtividade do Repositório GitHub</span>
     </footer>
 
+    <script>
+        window.PAGE_I18N = {
+            pt: {
+                'nav.list': 'Lista',
+                'nav.kanban': 'Kanban (Prioridades)',
+                'nav.milestones': 'Metas',
+                'nav.dashboard': 'Dashboard Gestor',
+                'nav.analytics': 'Gráficos & Métricas',
+                'nav.theme.title': 'Alternar Modo Escuro',
+
+                'analytics.header.title': 'Análise Temporal do Repositório',
+                'analytics.header.repoLabel': 'Repositório:',
+                'analytics.lastUpdated.default': 'Sincronizado recentemente',
+                'analytics.lastUpdated.at': 'Atualizado às {time}',
+                'analytics.btn.sync': 'Sincronizar Dados',
+
+                'analytics.filter.period.label': 'Período',
+                'analytics.period.7d': 'Últimos 7 dias',
+                'analytics.period.14d': 'Últimos 14 dias',
+                'analytics.period.30d': 'Últimos 30 dias',
+                'analytics.period.90d': 'Últimos 90 dias (3 meses)',
+                'analytics.period.180d': 'Últimos 180 dias (6 meses)',
+                'analytics.period.365d': 'Último 1 ano (365 dias)',
+                'analytics.period.all': 'Todo o Histórico',
+                'analytics.period.custom': 'Personalizado (Escolher Datas)',
+
+                'analytics.filter.view.label': 'Métrica / Visão',
+                'analytics.view.issues': 'Issues Criadas vs Fechadas',
+                'analytics.view.commits': 'Commits Feitos',
+                'analytics.view.all': 'Visão Completa (Issues & Commits)',
+                'analytics.view.net': 'Saldo Líquido (Criadas - Fechadas)',
+
+                'analytics.filter.groupby.label': 'Agrupamento',
+                'analytics.groupby.auto': 'Automático',
+                'analytics.groupby.day': 'Por Dia',
+                'analytics.groupby.week': 'Por Semana',
+                'analytics.groupby.month': 'Por Mês',
+
+                'analytics.filter.milestone.label': 'Milestone (Issues)',
+                'analytics.filter.milestone.all': 'Todos os Milestones',
+
+                'analytics.customDate.start': 'Data Inicial',
+                'analytics.customDate.end': 'Data Final',
+                'analytics.customDate.apply': 'Aplicar Filtro de Datas',
+
+                'analytics.chart.typeLabel': 'Tipo de Gráfico:',
+                'analytics.chart.bars': 'Barras',
+                'analytics.chart.lines': 'Linhas (Área)',
+                'analytics.chart.tip': 'Dica: clique nas legendas do gráfico para ocultar ou exibir métricas individualmente.',
+
+                'analytics.loading.title': 'Carregando métricas e histórico do GitHub...',
+                'analytics.loading.subtitle': 'Calculando dados de issues e commits por período',
+                'analytics.error.title': 'Erro ao carregar dados analíticos',
+                'analytics.error.retry': 'Tentar Novamente',
+
+                'analytics.stat.issuesCreated': 'Issues Criadas',
+                'analytics.stat.inPeriod': 'no período',
+                'analytics.stat.issuesClosed': 'Issues Fechadas',
+                'analytics.stat.completed': 'concluídas',
+                'analytics.stat.resolutionRate': 'Taxa de Resolução',
+                'analytics.stat.balanceZero': 'Saldo: 0',
+                'analytics.stat.balancePositive': '+{net} no backlog',
+                'analytics.stat.balanceNegative': '{net} no backlog',
+                'analytics.stat.commitsMade': 'Commits Feitos',
+                'analytics.stat.deliveries': 'entregas',
+                'analytics.stat.avgTime': 'Tempo Médio',
+                'analytics.stat.toCloseIssue': 'p/ fechar issue',
+
+                'analytics.chart.totalPoints': 'Total de Intervalos: {count}',
+                'analytics.chart.title.issues': 'Evolução Temporal: Issues Criadas x Fechadas',
+                'analytics.chart.subtitle.issues': 'Comparativo de entrada e conclusão de demandas',
+                'analytics.chart.title.commits': 'Evolução Temporal: Commits Realizados',
+                'analytics.chart.subtitle.commits': 'Volume de alterações de código entregues no período',
+                'analytics.chart.title.all': 'Visão Completa: Issues Criadas, Fechadas e Commits',
+                'analytics.chart.subtitle.all': 'Acompanhamento integrado de atividades de issue tracking e versionamento',
+                'analytics.chart.title.net': 'Saldo Líquido de Issues (Criadas - Fechadas)',
+                'analytics.chart.subtitle.net': 'Valores positivos indicam aumento de backlog; negativos indicam redução',
+                'analytics.dataset.issuesCreated': 'Issues Criadas',
+                'analytics.dataset.issuesClosed': 'Issues Fechadas',
+                'analytics.dataset.commits': 'Commits',
+                'analytics.dataset.net': 'Saldo Líquido (Novas - Concluídas)',
+
+                'analytics.tab.created': 'Issues Criadas',
+                'analytics.tab.closed': 'Issues Fechadas',
+                'analytics.tab.commits': 'Commits',
+                'analytics.search.placeholder': 'Buscar nos registros...',
+
+                'analytics.table.issue': 'Issue',
+                'analytics.table.author': 'Autor',
+                'analytics.table.labelsMilestone': 'Labels / Milestone',
+                'analytics.table.createdDate': 'Data de Criação',
+                'analytics.table.timeToClose': 'Tempo p/ Fechar',
+                'analytics.table.closedDate': 'Data de Fechamento',
+                'analytics.table.commit': 'Commit',
+                'analytics.table.message': 'Mensagem',
+                'analytics.table.date': 'Data',
+                'analytics.table.action': 'Ação',
+
+                'analytics.empty.created': 'Nenhuma issue criada no período selecionado.',
+                'analytics.empty.closed': 'Nenhuma issue fechada no período selecionado.',
+                'analytics.empty.commits': 'Nenhum commit encontrado no período selecionado.',
+
+                'analytics.row.aiSynthesis': 'Síntese da IA',
+                'analytics.row.openRegenerate': 'Abrir / Regerar',
+                'analytics.row.generateAiExplanation': 'Gerar explicação com IA',
+                'analytics.row.aiDetails': 'IA & Detalhes',
+                'analytics.row.viewOnGithub': 'Ver no GitHub',
+                'analytics.row.days': '{days} dias',
+                'analytics.row.viewCommit': 'Ver Commit',
+
+                'analytics.modal.titlePlaceholder': 'Título da Issue',
+                'analytics.modal.summary': 'Resumo',
+                'analytics.modal.refreshSummary': 'Atualizar Resumo',
+                'analytics.modal.loadingSummary': 'Carregando resumo...',
+                'analytics.modal.direction': 'Direcionamento da Demanda',
+                'analytics.modal.saved': 'Salvo com sucesso!',
+                'analytics.modal.milestone': 'Meta',
+                'analytics.modal.milestoneNone': 'Sem Meta (Backlog)',
+                'analytics.modal.priority': 'Prioridade',
+                'analytics.modal.categorization': 'Categorização & Labels',
+                'analytics.modal.noLabels': 'Nenhuma label associada.',
+                'analytics.modal.originalBody': 'Descrição Original do GitHub',
+                'analytics.modal.noBody': 'Sem descrição fornecida no GitHub.',
+                'analytics.modal.expand': 'Expandir',
+                'analytics.modal.collapse': 'Recolher',
+                'analytics.modal.viewOnGithub': 'Ver no GitHub',
+                'analytics.modal.close': 'Fechar',
+                'analytics.modal.savingMilestone': 'Salvando Meta...',
+                'analytics.modal.milestoneUpdated': 'Meta atualizada!',
+                'analytics.modal.savingPriority': 'Salvando Prioridade...',
+                'analytics.modal.priorityUpdated': 'Prioridade salva!',
+                'analytics.modal.saveError': 'Erro ao salvar',
+                'analytics.modal.genericError': 'Erro',
+                'analytics.modal.summaryUnavailable': 'Não foi possível carregar o resumo no momento.',
+                'analytics.modal.refreshFailed': 'Falha ao atualizar resumo: {msg}',
+
+                'analytics.priority.none': 'Sem Prioridade',
+                'analytics.priority.p0': 'P0 - Urgente / Crítica',
+                'analytics.priority.p1': 'P1 - Alta Prioridade',
+                'analytics.priority.p2': 'P2 - Média Prioridade',
+                'analytics.priority.p3': 'P3 - Baixa Prioridade',
+
+                'footer.tagline': '• Análise de Produtividade do Repositório GitHub'
+            },
+            en: {
+                'nav.list': 'List',
+                'nav.kanban': 'Kanban (Priorities)',
+                'nav.milestones': 'Milestones',
+                'nav.dashboard': 'Manager Dashboard',
+                'nav.analytics': 'Charts & Metrics',
+                'nav.theme.title': 'Toggle Dark Mode',
+
+                'analytics.header.title': 'Repository Time Analysis',
+                'analytics.header.repoLabel': 'Repository:',
+                'analytics.lastUpdated.default': 'Recently synced',
+                'analytics.lastUpdated.at': 'Updated at {time}',
+                'analytics.btn.sync': 'Sync Data',
+
+                'analytics.filter.period.label': 'Period',
+                'analytics.period.7d': 'Last 7 days',
+                'analytics.period.14d': 'Last 14 days',
+                'analytics.period.30d': 'Last 30 days',
+                'analytics.period.90d': 'Last 90 days (3 months)',
+                'analytics.period.180d': 'Last 180 days (6 months)',
+                'analytics.period.365d': 'Last 1 year (365 days)',
+                'analytics.period.all': 'Entire History',
+                'analytics.period.custom': 'Custom (Choose Dates)',
+
+                'analytics.filter.view.label': 'Metric / View',
+                'analytics.view.issues': 'Issues Created vs Closed',
+                'analytics.view.commits': 'Commits Made',
+                'analytics.view.all': 'Full View (Issues & Commits)',
+                'analytics.view.net': 'Net Balance (Created - Closed)',
+
+                'analytics.filter.groupby.label': 'Grouping',
+                'analytics.groupby.auto': 'Automatic',
+                'analytics.groupby.day': 'By Day',
+                'analytics.groupby.week': 'By Week',
+                'analytics.groupby.month': 'By Month',
+
+                'analytics.filter.milestone.label': 'Milestone (Issues)',
+                'analytics.filter.milestone.all': 'All Milestones',
+
+                'analytics.customDate.start': 'Start Date',
+                'analytics.customDate.end': 'End Date',
+                'analytics.customDate.apply': 'Apply Date Filter',
+
+                'analytics.chart.typeLabel': 'Chart Type:',
+                'analytics.chart.bars': 'Bars',
+                'analytics.chart.lines': 'Lines (Area)',
+                'analytics.chart.tip': 'Tip: click the chart legends to hide or show individual metrics.',
+
+                'analytics.loading.title': 'Loading metrics and history from GitHub...',
+                'analytics.loading.subtitle': 'Calculating issue and commit data for the period',
+                'analytics.error.title': 'Error loading analytics data',
+                'analytics.error.retry': 'Try Again',
+
+                'analytics.stat.issuesCreated': 'Issues Created',
+                'analytics.stat.inPeriod': 'in period',
+                'analytics.stat.issuesClosed': 'Issues Closed',
+                'analytics.stat.completed': 'completed',
+                'analytics.stat.resolutionRate': 'Resolution Rate',
+                'analytics.stat.balanceZero': 'Balance: 0',
+                'analytics.stat.balancePositive': '+{net} in backlog',
+                'analytics.stat.balanceNegative': '{net} in backlog',
+                'analytics.stat.commitsMade': 'Commits Made',
+                'analytics.stat.deliveries': 'deliveries',
+                'analytics.stat.avgTime': 'Average Time',
+                'analytics.stat.toCloseIssue': 'to close issue',
+
+                'analytics.chart.totalPoints': 'Total Data Points: {count}',
+                'analytics.chart.title.issues': 'Time Evolution: Issues Created x Closed',
+                'analytics.chart.subtitle.issues': 'Comparison of incoming and completed demands',
+                'analytics.chart.title.commits': 'Time Evolution: Commits Made',
+                'analytics.chart.subtitle.commits': 'Volume of code changes delivered in the period',
+                'analytics.chart.title.all': 'Full View: Issues Created, Closed and Commits',
+                'analytics.chart.subtitle.all': 'Integrated tracking of issue tracking and versioning activities',
+                'analytics.chart.title.net': 'Net Issue Balance (Created - Closed)',
+                'analytics.chart.subtitle.net': 'Positive values indicate backlog growth; negative values indicate reduction',
+                'analytics.dataset.issuesCreated': 'Issues Created',
+                'analytics.dataset.issuesClosed': 'Issues Closed',
+                'analytics.dataset.commits': 'Commits',
+                'analytics.dataset.net': 'Net Balance (New - Completed)',
+
+                'analytics.tab.created': 'Issues Created',
+                'analytics.tab.closed': 'Issues Closed',
+                'analytics.tab.commits': 'Commits',
+                'analytics.search.placeholder': 'Search records...',
+
+                'analytics.table.issue': 'Issue',
+                'analytics.table.author': 'Author',
+                'analytics.table.labelsMilestone': 'Labels / Milestone',
+                'analytics.table.createdDate': 'Created Date',
+                'analytics.table.timeToClose': 'Time to Close',
+                'analytics.table.closedDate': 'Closed Date',
+                'analytics.table.commit': 'Commit',
+                'analytics.table.message': 'Message',
+                'analytics.table.date': 'Date',
+                'analytics.table.action': 'Action',
+
+                'analytics.empty.created': 'No issues created in the selected period.',
+                'analytics.empty.closed': 'No issues closed in the selected period.',
+                'analytics.empty.commits': 'No commits found in the selected period.',
+
+                'analytics.row.aiSynthesis': 'AI Synthesis',
+                'analytics.row.openRegenerate': 'Open / Regenerate',
+                'analytics.row.generateAiExplanation': 'Generate AI explanation',
+                'analytics.row.aiDetails': 'AI & Details',
+                'analytics.row.viewOnGithub': 'View on GitHub',
+                'analytics.row.days': '{days} days',
+                'analytics.row.viewCommit': 'View Commit',
+
+                'analytics.modal.titlePlaceholder': 'Issue Title',
+                'analytics.modal.summary': 'Summary',
+                'analytics.modal.refreshSummary': 'Refresh Summary',
+                'analytics.modal.loadingSummary': 'Loading summary...',
+                'analytics.modal.direction': 'Demand Direction',
+                'analytics.modal.saved': 'Saved successfully!',
+                'analytics.modal.milestone': 'Milestone',
+                'analytics.modal.milestoneNone': 'No Milestone (Backlog)',
+                'analytics.modal.priority': 'Priority',
+                'analytics.modal.categorization': 'Categorization & Labels',
+                'analytics.modal.noLabels': 'No labels associated.',
+                'analytics.modal.originalBody': 'Original GitHub Description',
+                'analytics.modal.noBody': 'No description provided on GitHub.',
+                'analytics.modal.expand': 'Expand',
+                'analytics.modal.collapse': 'Collapse',
+                'analytics.modal.viewOnGithub': 'View on GitHub',
+                'analytics.modal.close': 'Close',
+                'analytics.modal.savingMilestone': 'Saving Milestone...',
+                'analytics.modal.milestoneUpdated': 'Milestone updated!',
+                'analytics.modal.savingPriority': 'Saving Priority...',
+                'analytics.modal.priorityUpdated': 'Priority saved!',
+                'analytics.modal.saveError': 'Error saving',
+                'analytics.modal.genericError': 'Error',
+                'analytics.modal.summaryUnavailable': 'Could not load the summary at this time.',
+                'analytics.modal.refreshFailed': 'Failed to refresh summary: {msg}',
+
+                'analytics.priority.none': 'No Priority',
+                'analytics.priority.p0': 'P0 - Urgent / Critical',
+                'analytics.priority.p1': 'P1 - High Priority',
+                'analytics.priority.p2': 'P2 - Medium Priority',
+                'analytics.priority.p3': 'P3 - Low Priority',
+
+                'footer.tagline': '• GitHub Repository Productivity Analysis'
+            }
+        };
+    </script>
+    <script src="/js/i18n.js"></script>
     <script>
         // Estado da Aplicação
         let currentAnalyticsData = null;
@@ -564,9 +855,14 @@
                 const res = await fetch(url);
                 if (!res.ok) throw new Error('Falha ao obter dados: ' + res.statusText);
                 const data = await res.json();
-                
+
                 currentAnalyticsData = data;
-                
+
+                if (data.repository) {
+                    const repoEl = document.getElementById('repo-name');
+                    if (repoEl) repoEl.innerText = data.repository;
+                }
+
                 populateMilestones(data.milestones);
                 updateKpis(data.summary, data.periodInfo);
                 renderChart();
@@ -577,20 +873,39 @@
 
                 if (data.periodInfo?.lastSyncedAt) {
                     const d = new Date(data.periodInfo.lastSyncedAt);
-                    document.getElementById('last-updated').innerText = `Atualizado às ${d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`;
+                    document.getElementById('last-updated').innerText = I18N.t('analytics.lastUpdated.at', { time: d.toLocaleTimeString(localeTag(), { hour: '2-digit', minute: '2-digit' }) });
                 }
             } catch (err) {
                 console.error(err);
                 loadingIndicator.innerHTML = `
                     <div class="text-center text-red-500">
                         <i class="fa-solid fa-triangle-exclamation text-3xl mb-2"></i>
-                        <p class="font-bold">Erro ao carregar dados analíticos</p>
+                        <p class="font-bold">${I18N.t('analytics.error.title')}</p>
                         <p class="text-xs text-gray-400 mt-1">${err.message}</p>
-                        <button onclick="loadAnalytics(true)" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg text-xs font-semibold">Tentar Novamente</button>
+                        <button onclick="loadAnalytics(true)" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg text-xs font-semibold">${I18N.t('analytics.error.retry')}</button>
                     </div>
                 `;
             } finally {
                 if (syncIcon) syncIcon.classList.remove('fa-spin');
+            }
+        }
+
+        function localeTag() {
+            return (window.I18N && I18N.lang === 'en') ? 'en-US' : 'pt-BR';
+        }
+
+        async function fetchRepoName() {
+            try {
+                const res = await fetch('/api/github/config');
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.repository) {
+                        const repoEl = document.getElementById('repo-name');
+                        if (repoEl) repoEl.innerText = data.repository;
+                    }
+                }
+            } catch (e) {
+                console.warn('Falha ao obter nome do repositório:', e);
             }
         }
 
@@ -621,13 +936,13 @@
             const net = summary.netIssues || 0;
             if (net > 0) {
                 netBadge.className = 'text-xs font-semibold px-2 py-0.5 rounded-full bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-300';
-                netBadge.innerText = `+${net} no backlog`;
+                netBadge.innerText = I18N.t('analytics.stat.balancePositive', { net });
             } else if (net < 0) {
                 netBadge.className = 'text-xs font-semibold px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-300';
-                netBadge.innerText = `${net} no backlog`;
+                netBadge.innerText = I18N.t('analytics.stat.balanceNegative', { net });
             } else {
                 netBadge.className = 'text-xs font-semibold px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300';
-                netBadge.innerText = 'Saldo: 0';
+                netBadge.innerText = I18N.t('analytics.stat.balanceZero');
             }
         }
 
@@ -645,24 +960,24 @@
             const gridColor = isDark ? 'rgba(75, 85, 99, 0.25)' : '#f3f4f6';
             const legendColor = isDark ? '#e2e8f0' : '#374151';
 
-            const labels = series.map(s => s.label);
+            const labels = series.map(s => I18N.translateMonthLabel(s.label));
             const createdData = series.map(s => s.issuesCreated !== undefined ? s.issuesCreated : (s.created || 0));
             const closedData = series.map(s => s.issuesClosed !== undefined ? s.issuesClosed : (s.closed || 0));
             const commitsData = series.map(s => s.commits || 0);
             const netData = series.map(s => s.net || 0);
 
-            document.getElementById('chart-totals-badge').innerText = `Total de Intervalos: ${series.length}`;
+            document.getElementById('chart-totals-badge').innerText = I18N.t('analytics.chart.totalPoints', { count: series.length });
 
             let datasets = [];
-            let title = 'Evolução Temporal';
-            let subtitle = 'Acompanhamento por período';
+            let title = I18N.t('analytics.chart.title.issues');
+            let subtitle = I18N.t('analytics.chart.subtitle.issues');
 
             if (view === 'issues') {
-                title = 'Evolução Temporal: Issues Criadas x Fechadas';
-                subtitle = 'Comparativo de entrada e conclusão de demandas';
+                title = I18N.t('analytics.chart.title.issues');
+                subtitle = I18N.t('analytics.chart.subtitle.issues');
                 datasets = [
                     {
-                        label: 'Issues Criadas',
+                        label: I18N.t('analytics.dataset.issuesCreated'),
                         data: createdData,
                         backgroundColor: activeChartType === 'bar' ? '#3b82f6' : 'rgba(59, 130, 246, 0.2)',
                         borderColor: '#3b82f6',
@@ -672,7 +987,7 @@
                         tension: 0.3
                     },
                     {
-                        label: 'Issues Fechadas',
+                        label: I18N.t('analytics.dataset.issuesClosed'),
                         data: closedData,
                         backgroundColor: activeChartType === 'bar' ? '#22c55e' : 'rgba(34, 197, 94, 0.2)',
                         borderColor: '#22c55e',
@@ -683,11 +998,11 @@
                     }
                 ];
             } else if (view === 'commits') {
-                title = 'Evolução Temporal: Commits Realizados';
-                subtitle = 'Volume de alterações de código entregues no período';
+                title = I18N.t('analytics.chart.title.commits');
+                subtitle = I18N.t('analytics.chart.subtitle.commits');
                 datasets = [
                     {
-                        label: 'Commits',
+                        label: I18N.t('analytics.dataset.commits'),
                         data: commitsData,
                         backgroundColor: activeChartType === 'bar' ? '#8b5cf6' : 'rgba(139, 92, 246, 0.25)',
                         borderColor: '#8b5cf6',
@@ -698,11 +1013,11 @@
                     }
                 ];
             } else if (view === 'all') {
-                title = 'Visão Completa: Issues Criadas, Fechadas e Commits';
-                subtitle = 'Acompanhamento integrado de atividades de issue tracking e versionamento';
+                title = I18N.t('analytics.chart.title.all');
+                subtitle = I18N.t('analytics.chart.subtitle.all');
                 datasets = [
                     {
-                        label: 'Issues Criadas',
+                        label: I18N.t('analytics.dataset.issuesCreated'),
                         data: createdData,
                         backgroundColor: activeChartType === 'bar' ? 'rgba(59, 130, 246, 0.85)' : 'rgba(59, 130, 246, 0.15)',
                         borderColor: '#3b82f6',
@@ -712,7 +1027,7 @@
                         tension: 0.3
                     },
                     {
-                        label: 'Issues Fechadas',
+                        label: I18N.t('analytics.dataset.issuesClosed'),
                         data: closedData,
                         backgroundColor: activeChartType === 'bar' ? 'rgba(34, 197, 94, 0.85)' : 'rgba(34, 197, 94, 0.15)',
                         borderColor: '#22c55e',
@@ -722,7 +1037,7 @@
                         tension: 0.3
                     },
                     {
-                        label: 'Commits',
+                        label: I18N.t('analytics.dataset.commits'),
                         data: commitsData,
                         backgroundColor: activeChartType === 'bar' ? 'rgba(139, 92, 246, 0.85)' : 'rgba(139, 92, 246, 0.15)',
                         borderColor: '#8b5cf6',
@@ -733,11 +1048,11 @@
                     }
                 ];
             } else if (view === 'net') {
-                title = 'Saldo Líquido de Issues (Criadas - Fechadas)';
-                subtitle = 'Valores positivos indicam aumento de backlog; negativos indicam redução';
+                title = I18N.t('analytics.chart.title.net');
+                subtitle = I18N.t('analytics.chart.subtitle.net');
                 datasets = [
                     {
-                        label: 'Saldo Líquido (Novas - Concluídas)',
+                        label: I18N.t('analytics.dataset.net'),
                         data: netData,
                         backgroundColor: netData.map(v => v > 0 ? 'rgba(239, 68, 68, 0.85)' : (v < 0 ? 'rgba(34, 197, 94, 0.85)' : '#9ca3af')),
                         borderColor: netData.map(v => v > 0 ? '#ef4444' : (v < 0 ? '#22c55e' : '#9ca3af')),
@@ -867,16 +1182,16 @@
                     const milestoneHtml = issue.milestone ? 
                         `<span class="inline-block text-[11px] font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded border border-gray-200 dark:border-gray-600"><i class="fa-solid fa-flag-checkered text-[10px] mr-1"></i>${escapeHtml(issue.milestone.title)}</span>` : '';
 
-                    const dateFormatted = new Date(issue.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+                    const dateFormatted = new Date(issue.created_at).toLocaleDateString(localeTag(), { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 
                     const summaryHtml = issue.summary ? `
                         <div class="mt-1.5 p-2 rounded-lg bg-blue-50/90 dark:bg-blue-950/40 border border-blue-200/70 dark:border-blue-900/50 text-[11px] text-gray-800 dark:text-gray-200 leading-relaxed">
                             <div class="flex items-center justify-between mb-1">
                                 <span class="font-bold text-blue-700 dark:text-blue-300 flex items-center gap-1 text-[10px]">
-                                    <i class="fa-solid fa-wand-magic-sparkles text-blue-500"></i> Síntese da IA
+                                    <i class="fa-solid fa-wand-magic-sparkles text-blue-500"></i> ${I18N.t('analytics.row.aiSynthesis')}
                                 </span>
                                 <button type="button" onclick="openIssueModal(${issue.number})" class="text-[10px] text-blue-600 dark:text-blue-400 hover:underline font-semibold">
-                                    Abrir / Regerar
+                                    ${I18N.t('analytics.row.openRegenerate')}
                                 </button>
                             </div>
                             <p class="line-clamp-2 text-gray-700 dark:text-gray-300">${escapeHtml(issue.summary)}</p>
@@ -884,7 +1199,7 @@
                     ` : `
                         <div class="mt-1">
                             <button type="button" onclick="openIssueModal(${issue.number})" class="text-[11px] font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 flex items-center gap-1 hover:underline">
-                                <i class="fa-solid fa-wand-magic-sparkles text-[9px]"></i> Gerar explicação com IA
+                                <i class="fa-solid fa-wand-magic-sparkles text-[9px]"></i> ${I18N.t('analytics.row.generateAiExplanation')}
                             </button>
                         </div>
                     `;
@@ -910,9 +1225,9 @@
                         <td class="py-3 px-4 whitespace-nowrap text-right">
                             <div class="flex items-center justify-end gap-2">
                                 <button type="button" onclick="openIssueModal(${issue.number})" class="text-xs font-semibold px-2.5 py-1 rounded-md bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/80 transition-colors flex items-center gap-1">
-                                    <i class="fa-solid fa-circle-info text-[10px]"></i> IA & Detalhes
+                                    <i class="fa-solid fa-circle-info text-[10px]"></i> ${I18N.t('analytics.row.aiDetails')}
                                 </button>
-                                <a href="${issue.html_url}" target="_blank" class="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 text-xs p-1" title="Ver no GitHub">
+                                <a href="${issue.html_url}" target="_blank" class="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 text-xs p-1" title="${I18N.t('analytics.row.viewOnGithub')}">
                                     <i class="fa-solid fa-arrow-up-right-from-square text-[11px]"></i>
                                 </a>
                             </div>
@@ -934,16 +1249,16 @@
                     tr.className = 'hover:bg-green-50/40 dark:hover:bg-gray-700/50 transition-colors table-row-item';
                     tr.dataset.search = `${issue.number} ${issue.title} ${issue.user.login} ${issue.summary || ''}`.toLowerCase();
                     
-                    const dateFormatted = new Date(issue.closed_at).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+                    const dateFormatted = new Date(issue.closed_at).toLocaleDateString(localeTag(), { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 
                     const summaryHtml = issue.summary ? `
                         <div class="mt-1.5 p-2 rounded-lg bg-emerald-50/90 dark:bg-emerald-950/40 border border-emerald-200/70 dark:border-emerald-900/50 text-[11px] text-gray-800 dark:text-gray-200 leading-relaxed">
                             <div class="flex items-center justify-between mb-1">
                                 <span class="font-bold text-emerald-700 dark:text-emerald-300 flex items-center gap-1 text-[10px]">
-                                    <i class="fa-solid fa-wand-magic-sparkles text-emerald-500"></i> Síntese da IA
+                                    <i class="fa-solid fa-wand-magic-sparkles text-emerald-500"></i> ${I18N.t('analytics.row.aiSynthesis')}
                                 </span>
                                 <button type="button" onclick="openIssueModal(${issue.number})" class="text-[10px] text-emerald-600 dark:text-emerald-400 hover:underline font-semibold">
-                                    Abrir / Regerar
+                                    ${I18N.t('analytics.row.openRegenerate')}
                                 </button>
                             </div>
                             <p class="line-clamp-2 text-gray-700 dark:text-gray-300">${escapeHtml(issue.summary)}</p>
@@ -951,7 +1266,7 @@
                     ` : `
                         <div class="mt-1">
                             <button type="button" onclick="openIssueModal(${issue.number})" class="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-300 flex items-center gap-1 hover:underline">
-                                <i class="fa-solid fa-wand-magic-sparkles text-[9px]"></i> Gerar explicação com IA
+                                <i class="fa-solid fa-wand-magic-sparkles text-[9px]"></i> ${I18N.t('analytics.row.generateAiExplanation')}
                             </button>
                         </div>
                     `;
@@ -969,7 +1284,7 @@
                         </td>
                         <td class="py-3 px-4 whitespace-nowrap text-xs">
                             <span class="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2.5 py-1 rounded-full font-semibold border border-gray-200 dark:border-gray-600">
-                                ⏱️ ${issue.resolutionDays} dias
+                                ⏱️ ${I18N.t('analytics.row.days', { days: issue.resolutionDays })}
                             </span>
                         </td>
                         <td class="py-3 px-4 whitespace-nowrap text-xs text-gray-500 dark:text-gray-400">
@@ -978,9 +1293,9 @@
                         <td class="py-3 px-4 whitespace-nowrap text-right">
                             <div class="flex items-center justify-end gap-2">
                                 <button type="button" onclick="openIssueModal(${issue.number})" class="text-xs font-semibold px-2.5 py-1 rounded-md bg-green-50 dark:bg-green-900/40 text-green-600 dark:text-green-300 hover:bg-green-100 dark:hover:bg-green-900/80 transition-colors flex items-center gap-1">
-                                    <i class="fa-solid fa-circle-info text-[10px]"></i> IA & Detalhes
+                                    <i class="fa-solid fa-circle-info text-[10px]"></i> ${I18N.t('analytics.row.aiDetails')}
                                 </button>
-                                <a href="${issue.html_url}" target="_blank" class="text-gray-500 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 text-xs p-1" title="Ver no GitHub">
+                                <a href="${issue.html_url}" target="_blank" class="text-gray-500 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 text-xs p-1" title="${I18N.t('analytics.row.viewOnGithub')}">
                                     <i class="fa-solid fa-arrow-up-right-from-square text-[11px]"></i>
                                 </a>
                             </div>
@@ -1002,7 +1317,7 @@
                     tr.className = 'hover:bg-purple-50/40 dark:hover:bg-gray-700/50 transition-colors table-row-item';
                     tr.dataset.search = `${commit.sha} ${commit.message} ${commit.author}`.toLowerCase();
                     
-                    const dateFormatted = new Date(commit.date).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+                    const dateFormatted = new Date(commit.date).toLocaleDateString(localeTag(), { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 
                     tr.innerHTML = `
                         <td class="py-3 px-4 whitespace-nowrap">
@@ -1019,7 +1334,7 @@
                         </td>
                         <td class="py-3 px-4 whitespace-nowrap text-right">
                             <a href="${commit.html_url}" target="_blank" class="text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 text-xs font-semibold hover:underline">
-                                Ver Commit <i class="fa-solid fa-arrow-up-right-from-square text-[10px] ml-1"></i>
+                                ${I18N.t('analytics.row.viewCommit')} <i class="fa-solid fa-arrow-up-right-from-square text-[10px] ml-1"></i>
                             </a>
                         </td>
                     `;
@@ -1135,7 +1450,7 @@
             const accIcon = document.getElementById('accordion-icon');
             if (accIcon) accIcon.className = 'fa-solid fa-chevron-down text-xs';
             const accLabel = document.getElementById('accordion-label');
-            if (accLabel) accLabel.innerText = 'Expandir';
+            if (accLabel) accLabel.innerText = I18N.t('analytics.modal.expand');
 
             const issueObj = findIssueData(issueNumber);
             if (issueObj) {
@@ -1143,7 +1458,7 @@
                 document.getElementById('modal-title').innerText = issueObj.title;
                 document.getElementById('modal-github-link').href = issueObj.html_url;
 
-                bodyContainer.innerText = issueObj.body ? issueObj.body.trim() : 'Sem descrição fornecida no GitHub.';
+                bodyContainer.innerText = issueObj.body ? issueObj.body.trim() : I18N.t('analytics.modal.noBody');
 
                 const priorityLabel = (issueObj.labels || []).find(l => (typeof l === 'string' ? l : l.name).startsWith('priority:'));
                 const pVal = priorityLabel ? (typeof priorityLabel === 'string' ? priorityLabel : priorityLabel.name) : 'none';
@@ -1164,7 +1479,7 @@
                 // Direcionamento da Demanda: Select de Metas (Milestones)
                 const msSelect = document.getElementById('modal-select-milestone');
                 if (msSelect) {
-                    msSelect.innerHTML = '<option value="null">Sem Meta (Backlog)</option>';
+                    msSelect.innerHTML = `<option value="null">${I18N.t('analytics.modal.milestoneNone')}</option>`;
                     availableMilestones.forEach(m => {
                         const opt = document.createElement('option');
                         opt.value = String(m.number);
@@ -1184,7 +1499,7 @@
                 const labelsBox = document.getElementById('modal-labels');
                 const rawLabels = issueObj.labels || [];
                 if (rawLabels.length === 0) {
-                    labelsBox.innerHTML = '<span class="text-xs text-gray-400">Nenhuma label associada.</span>';
+                    labelsBox.innerHTML = `<span class="text-xs text-gray-400">${I18N.t('analytics.modal.noLabels')}</span>`;
                 } else {
                     labelsBox.innerHTML = rawLabels.map(l => {
                         const rawName = typeof l === 'string' ? l : l.name;
@@ -1223,7 +1538,7 @@
                 aiSummary.innerText = data.summary;
 
                 const resolvedBody = data.body || data.issue?.body || (issueObj && issueObj.body) || '';
-                bodyContainer.innerText = resolvedBody ? resolvedBody.trim() : 'Sem descrição fornecida no GitHub.';
+                bodyContainer.innerText = resolvedBody ? resolvedBody.trim() : I18N.t('analytics.modal.noBody');
 
                 aiLoading.style.display = 'none';
                 aiSummary.style.display = 'block';
@@ -1237,7 +1552,7 @@
                 console.error(err);
                 aiLoading.style.display = 'none';
                 aiSummary.style.display = 'block';
-                aiSummary.innerText = 'Não foi possível carregar o resumo no momento.';
+                aiSummary.innerText = I18N.t('analytics.modal.summaryUnavailable');
             }
         }
 
@@ -1246,7 +1561,7 @@
             const ind = document.getElementById('modal-save-indicator');
             if (ind) {
                 ind.style.display = 'inline-block';
-                ind.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-0.5"></i> Salvando Meta...';
+                ind.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-0.5"></i> ${I18N.t('analytics.modal.savingMilestone')}`;
             }
 
             const msValue = newMilestone === 'null' ? null : parseInt(newMilestone);
@@ -1257,7 +1572,7 @@
                     body: JSON.stringify({ milestone: msValue })
                 });
                 if (res.ok) {
-                    if (ind) ind.innerHTML = '<i class="fa-solid fa-check mr-0.5"></i> Meta atualizada!';
+                    if (ind) ind.innerHTML = `<i class="fa-solid fa-check mr-0.5"></i> ${I18N.t('analytics.modal.milestoneUpdated')}`;
                     const issueObj = findIssueData(activeModalIssueNumber);
                     if (issueObj) {
                         const matchedMs = availableMilestones.find(m => m.number == msValue);
@@ -1274,10 +1589,10 @@
                     }
                     setTimeout(() => { if (ind) ind.style.display = 'none'; }, 2000);
                 } else {
-                    if (ind) ind.innerHTML = '<span class="text-red-500"><i class="fa-solid fa-xmark"></i> Erro ao salvar</span>';
+                    if (ind) ind.innerHTML = `<span class="text-red-500"><i class="fa-solid fa-xmark"></i> ${I18N.t('analytics.modal.saveError')}</span>`;
                 }
             } catch (e) {
-                if (ind) ind.innerHTML = '<span class="text-red-500"><i class="fa-solid fa-xmark"></i> Erro</span>';
+                if (ind) ind.innerHTML = `<span class="text-red-500"><i class="fa-solid fa-xmark"></i> ${I18N.t('analytics.modal.genericError')}</span>`;
             }
         }
 
@@ -1286,7 +1601,7 @@
             const ind = document.getElementById('modal-save-indicator');
             if (ind) {
                 ind.style.display = 'inline-block';
-                ind.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-0.5"></i> Salvando Prioridade...';
+                ind.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-0.5"></i> ${I18N.t('analytics.modal.savingPriority')}`;
             }
 
             try {
@@ -1296,7 +1611,7 @@
                     body: JSON.stringify({ newPriority })
                 });
                 if (res.ok) {
-                    if (ind) ind.innerHTML = '<i class="fa-solid fa-check mr-0.5"></i> Prioridade salva!';
+                    if (ind) ind.innerHTML = `<i class="fa-solid fa-check mr-0.5"></i> ${I18N.t('analytics.modal.priorityUpdated')}`;
                     const issueObj = findIssueData(activeModalIssueNumber);
                     if (issueObj) {
                         let currentLabels = (issueObj.labels || []).filter(l => !(typeof l === 'string' ? l : l.name).startsWith('priority:'));
@@ -1315,10 +1630,10 @@
                     }
                     setTimeout(() => { if (ind) ind.style.display = 'none'; }, 2000);
                 } else {
-                    if (ind) ind.innerHTML = '<span class="text-red-500"><i class="fa-solid fa-xmark"></i> Erro ao salvar</span>';
+                    if (ind) ind.innerHTML = `<span class="text-red-500"><i class="fa-solid fa-xmark"></i> ${I18N.t('analytics.modal.saveError')}</span>`;
                 }
             } catch (e) {
-                if (ind) ind.innerHTML = '<span class="text-red-500"><i class="fa-solid fa-xmark"></i> Erro</span>';
+                if (ind) ind.innerHTML = `<span class="text-red-500"><i class="fa-solid fa-xmark"></i> ${I18N.t('analytics.modal.genericError')}</span>`;
             }
         }
 
@@ -1351,7 +1666,7 @@
             } catch (err) {
                 aiLoading.style.display = 'none';
                 aiSummary.style.display = 'block';
-                aiSummary.innerText = 'Falha ao atualizar resumo: ' + err.message;
+                aiSummary.innerText = I18N.t('analytics.modal.refreshFailed', { msg: err.message });
             } finally {
                 btn.disabled = false;
                 if (icon) icon.className = 'fa-solid fa-arrows-rotate';
@@ -1370,11 +1685,11 @@
             if (body.style.display === 'none') {
                 body.style.display = 'block';
                 if (icon) icon.className = 'fa-solid fa-chevron-up text-xs';
-                if (label) label.innerText = 'Recolher';
+                if (label) label.innerText = I18N.t('analytics.modal.collapse');
             } else {
                 body.style.display = 'none';
                 if (icon) icon.className = 'fa-solid fa-chevron-down text-xs';
-                if (label) label.innerText = 'Expandir';
+                if (label) label.innerText = I18N.t('analytics.modal.expand');
             }
         }
 
@@ -1385,8 +1700,21 @@
         });
 
         initTheme();
+        I18N.init();
+        document.addEventListener('i18nchange', () => {
+            if (currentAnalyticsData) {
+                updateKpis(currentAnalyticsData.summary, currentAnalyticsData.periodInfo);
+                renderChart();
+                renderDetailsTables();
+                filterCurrentTable();
+            }
+            if (!currentAnalyticsData || !currentAnalyticsData.repository) {
+                fetchRepoName();
+            }
+        });
 
         document.addEventListener('DOMContentLoaded', () => {
+            fetchRepoName();
             loadLabelTranslations();
             loadAvailableMilestones();
             loadAnalytics();

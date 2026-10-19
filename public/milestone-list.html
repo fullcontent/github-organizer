@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Organizador de Issues - Lista do Milestone</title>
+    <title>GitHub Organizer - Milestone List</title>
     <script>
         tailwind = {
             config: {
@@ -36,17 +36,20 @@
     <nav class="bg-blue-600 dark:bg-gray-800 text-white p-4 shadow-md mb-6 transition-colors">
         <div class="container mx-auto flex flex-wrap justify-between items-center max-w-5xl gap-4">
             <div class="font-bold text-xl flex items-center gap-2">
-                <span>🚀</span> <span>Celic Organizer</span>
+                <span>🚀</span> <span>GitHub Organizer</span>
             </div>
             <div class="flex items-center space-x-4 text-sm md:text-base">
-                <a href="/" class="hover:text-blue-200 dark:hover:text-blue-400">Lista Geral</a>
-                <a href="/kanban.html" class="hover:text-blue-200 dark:hover:text-blue-400">Kanban (Prioridades)</a>
-                <a href="/milestones.html" class="font-bold underline decoration-2 underline-offset-4 text-white">Milestones</a>
-                <a href="/dashboard.html" class="hover:text-blue-200 dark:hover:text-blue-400">Dashboard Gestor</a>
-                <a href="/analytics.html" class="hover:text-blue-200 dark:hover:text-blue-400">Gráficos & Métricas</a>
+                <a href="/" class="hover:text-blue-200 dark:hover:text-blue-400" data-i18n="nav.list">Lista Geral</a>
+                <a href="/kanban.html" class="hover:text-blue-200 dark:hover:text-blue-400" data-i18n="nav.kanban">Kanban (Prioridades)</a>
+                <a href="/milestones.html" class="font-bold underline decoration-2 underline-offset-4 text-white" data-i18n="nav.milestones">Milestones</a>
+                <a href="/dashboard.html" class="hover:text-blue-200 dark:hover:text-blue-400" data-i18n="nav.dashboard">Dashboard Gestor</a>
+                <a href="/analytics.html" class="hover:text-blue-200 dark:hover:text-blue-400" data-i18n="nav.analytics">Gráficos & Métricas</a>
+
+                <!-- Seletor de Idioma -->
+                <div id="i18n-switcher" class="flex items-center gap-1 text-xs font-bold px-2 py-1 rounded-lg bg-blue-700 dark:bg-gray-700"></div>
 
                 <!-- Toggle Dark Mode -->
-                <button id="theme-toggle" onclick="toggleDarkMode()" class="p-2 rounded-lg bg-blue-700 dark:bg-gray-700 hover:bg-blue-800 dark:hover:bg-gray-600 text-yellow-300 dark:text-yellow-400 text-xs focus:outline-none" title="Alternar Modo Escuro">
+                <button id="theme-toggle" onclick="toggleDarkMode()" class="p-2 rounded-lg bg-blue-700 dark:bg-gray-700 hover:bg-blue-800 dark:hover:bg-gray-600 text-yellow-300 dark:text-yellow-400 text-xs focus:outline-none" data-i18n-title="nav.theme.title" title="Alternar Modo Escuro">
                     <i id="theme-icon" class="fa-solid fa-moon"></i>
                 </button>
             </div>
@@ -56,24 +59,24 @@
     <div class="container mx-auto p-4 max-w-5xl flex-1">
         <div class="mb-4">
             <a href="/milestones.html" class="text-blue-600 dark:text-blue-400 hover:underline text-xs font-semibold flex items-center gap-1">
-                <i class="fa-solid fa-arrow-left"></i> Voltar para Quadro de Milestones
+                <i class="fa-solid fa-arrow-left"></i> <span data-i18n="mslist.back">Voltar para Quadro de Milestones</span>
             </a>
         </div>
-        
-        <h1 id="milestone-title" class="text-2xl font-extrabold mb-4 text-gray-900 dark:text-white">Carregando Milestone...</h1>
+
+        <h1 id="milestone-title" class="text-2xl font-extrabold mb-4 text-gray-900 dark:text-white" data-i18n="mslist.loading.title">Carregando Milestone...</h1>
         <div id="loading" class="text-blue-600 dark:text-blue-400 font-semibold mb-4 flex items-center gap-2">
-            <i class="fa-solid fa-spinner fa-spin"></i> Buscando issues...
+            <i class="fa-solid fa-spinner fa-spin"></i> <span data-i18n="mslist.loading.issues">Buscando issues...</span>
         </div>
-        
+
         <div class="bg-white dark:bg-gray-800 shadow-sm rounded-xl overflow-x-auto border border-gray-200 dark:border-gray-700">
             <table class="min-w-full w-full table-auto text-xs" id="issuesTable" style="display: none;">
                 <thead>
                     <tr class="bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 uppercase tracking-wider font-bold">
-                        <th class="py-3 px-4 text-left w-16">Issue</th>
-                        <th class="py-3 px-4 text-left">Título</th>
-                        <th class="py-3 px-4 text-center w-28">Tipo</th>
-                        <th class="py-3 px-4 text-center w-36">Prioridade Atual</th>
-                        <th class="py-3 px-4 text-center w-48">Alterar Prioridade</th>
+                        <th class="py-3 px-4 text-left w-16" data-i18n="mslist.col.issue">Issue</th>
+                        <th class="py-3 px-4 text-left" data-i18n="mslist.col.title">Título</th>
+                        <th class="py-3 px-4 text-center w-28" data-i18n="mslist.col.type">Tipo</th>
+                        <th class="py-3 px-4 text-center w-36" data-i18n="mslist.col.priority">Prioridade Atual</th>
+                        <th class="py-3 px-4 text-center w-48" data-i18n="mslist.col.changePriority">Alterar Prioridade</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100 dark:divide-gray-700/60" id="issuesBody">
@@ -84,13 +87,74 @@
     </div>
 
     <script>
+        window.PAGE_I18N = {
+            pt: {
+                'nav.list': 'Lista Geral',
+                'nav.kanban': 'Kanban (Prioridades)',
+                'nav.milestones': 'Milestones',
+                'nav.dashboard': 'Dashboard Gestor',
+                'nav.analytics': 'Gráficos & Métricas',
+                'nav.theme.title': 'Alternar Modo Escuro',
+                'mslist.back': 'Voltar para Quadro de Milestones',
+                'mslist.loading.title': 'Carregando Milestone...',
+                'mslist.loading.issues': 'Buscando issues...',
+                'mslist.col.issue': 'Issue',
+                'mslist.col.title': 'Título',
+                'mslist.col.type': 'Tipo',
+                'mslist.col.priority': 'Prioridade Atual',
+                'mslist.col.changePriority': 'Alterar Prioridade',
+                'mslist.none.selected': 'Nenhum milestone selecionado',
+                'mslist.title.number': 'Milestone #{id}',
+                'mslist.empty': 'Nenhuma issue neste milestone.',
+                'mslist.error.loading': 'Erro ao carregar os dados.',
+                'priority.p0': 'P0 - Critical',
+                'priority.p1': 'P1 - High',
+                'priority.p2': 'P2 - Medium',
+                'priority.p3': 'P3 - Low',
+                'priority.none': 'Sem Prioridade',
+                'priority.na': 'N/A'
+            },
+            en: {
+                'nav.list': 'List',
+                'nav.kanban': 'Kanban (Priorities)',
+                'nav.milestones': 'Milestones',
+                'nav.dashboard': 'Manager Dashboard',
+                'nav.analytics': 'Charts & Metrics',
+                'nav.theme.title': 'Toggle Dark Mode',
+                'mslist.back': 'Back to Milestones Board',
+                'mslist.loading.title': 'Loading Milestone...',
+                'mslist.loading.issues': 'Fetching issues...',
+                'mslist.col.issue': 'Issue',
+                'mslist.col.title': 'Title',
+                'mslist.col.type': 'Type',
+                'mslist.col.priority': 'Current Priority',
+                'mslist.col.changePriority': 'Change Priority',
+                'mslist.none.selected': 'No milestone selected',
+                'mslist.title.number': 'Milestone #{id}',
+                'mslist.empty': 'No issues in this milestone.',
+                'mslist.error.loading': 'Error loading data.',
+                'priority.p0': 'P0 - Critical',
+                'priority.p1': 'P1 - High',
+                'priority.p2': 'P2 - Medium',
+                'priority.p3': 'P3 - Low',
+                'priority.none': 'No Priority',
+                'priority.na': 'N/A'
+            }
+        };
+    </script>
+    <script src="/js/i18n.js"></script>
+    <script>
         const priorities = [
-            { value: 'priority:p0-critical', label: 'P0 - Critical' },
-            { value: 'priority:p1-high', label: 'P1 - High' },
-            { value: 'priority:p2-medium', label: 'P2 - Medium' },
-            { value: 'priority:p3-low', label: 'P3 - Low' },
-            { value: 'none', label: 'Sem Prioridade' }
+            { value: 'priority:p0-critical', labelKey: 'priority.p0' },
+            { value: 'priority:p1-high', labelKey: 'priority.p1' },
+            { value: 'priority:p2-medium', labelKey: 'priority.p2' },
+            { value: 'priority:p3-low', labelKey: 'priority.p3' },
+            { value: 'none', labelKey: 'priority.none' }
         ];
+
+        let lastIssuesData = [];
+        let lastMsId = null;
+        let lastCurrentMs = null;
 
         function getPriorityWeight(labels) {
             const hasLabel = (name) => labels.some(l => (typeof l === 'string' ? l : l.name) === name);
@@ -104,9 +168,10 @@
         async function loadData() {
             const params = new URLSearchParams(window.location.search);
             const msId = params.get('id');
-            
+            lastMsId = msId;
+
             if (!msId) {
-                document.getElementById('milestone-title').innerText = 'Nenhum milestone selecionado';
+                document.getElementById('milestone-title').innerText = I18N.t('mslist.none.selected');
                 document.getElementById('loading').style.display = 'none';
                 return;
             }
@@ -121,10 +186,11 @@
                 let issues = await issRes.json();
                 
                 const currentMs = milestones.find(m => m.number == msId);
+                lastCurrentMs = currentMs;
                 if (currentMs) {
                     document.getElementById('milestone-title').innerText = `📦 ${currentMs.title}`;
                 } else {
-                    document.getElementById('milestone-title').innerText = `Milestone #${msId}`;
+                    document.getElementById('milestone-title').innerText = I18N.t('mslist.title.number', { id: msId });
                 }
                 
                 issues = issues.filter(issue => !issue.pull_request && issue.milestone && issue.milestone.number == msId);
@@ -139,11 +205,12 @@
                     return isBugB - isBugA;
                 });
 
+                lastIssuesData = issues;
                 renderIssues(issues);
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('issuesTable').style.display = 'table';
             } catch (error) {
-                document.getElementById('loading').innerText = 'Erro ao carregar os dados.';
+                document.getElementById('loading').innerText = I18N.t('mslist.error.loading');
                 document.getElementById('loading').className = 'text-red-500 font-semibold mb-4';
             }
         }
@@ -153,7 +220,7 @@
             tbody.innerHTML = '';
 
             if (issues.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" class="py-6 text-center font-bold text-gray-500 dark:text-gray-400">Nenhuma issue neste milestone.</td></tr>';
+                tbody.innerHTML = `<tr><td colspan="5" class="py-6 text-center font-bold text-gray-500 dark:text-gray-400">${I18N.t('mslist.empty')}</td></tr>`;
                 return;
             }
 
@@ -174,8 +241,8 @@
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-blue-50/40 dark:hover:bg-gray-700/50 transition-colors';
                 
-                let optionsHtml = priorities.map(p => 
-                    `<option value="${p.value}" ${p.value === currentPriorityValue ? 'selected' : ''}>${p.label}</option>`
+                let optionsHtml = priorities.map(p =>
+                    `<option value="${p.value}" ${p.value === currentPriorityValue ? 'selected' : ''}>${I18N.t(p.labelKey)}</option>`
                 ).join('');
 
                 tr.innerHTML = `
@@ -205,7 +272,7 @@
 
         function getPriorityLabelName(val) {
             const p = priorities.find(x => x.value === val);
-            return p ? p.label : 'N/A';
+            return p ? I18N.t(p.labelKey) : I18N.t('priority.na');
         }
 
         function getPriorityBadgeClass(val) {
@@ -278,6 +345,17 @@
         }
 
         initTheme();
+        I18N.init();
+        document.addEventListener('i18nchange', () => {
+            if (!lastMsId) {
+                document.getElementById('milestone-title').innerText = I18N.t('mslist.none.selected');
+            } else if (lastCurrentMs) {
+                document.getElementById('milestone-title').innerText = `📦 ${lastCurrentMs.title}`;
+            } else {
+                document.getElementById('milestone-title').innerText = I18N.t('mslist.title.number', { id: lastMsId });
+            }
+            renderIssues(lastIssuesData);
+        });
 
         loadData();
     </script>

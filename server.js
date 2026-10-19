@@ -9,7 +9,7 @@ const app = express();
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-const REPO = 'fullcontent/sistemacelic';
+const REPO = process.env.GITHUB_REPO || 'owner/repo';
 
 // Diretório local para persistência de dados e cache
 const DATA_DIR = path.join(__dirname, 'data');
@@ -80,7 +80,7 @@ function getAIConfig() {
             enabled: true,
             provider: process.env.GEMINI_API_KEY ? 'gemini' : (process.env.OPENAI_API_KEY ? 'opencode' : 'ollama'),
             ollama: {
-                url: process.env.OLLAMA_URL || 'https://ollama.ambialles.com',
+                url: process.env.OLLAMA_URL || 'http://localhost:11434',
                 model: process.env.OLLAMA_MODEL || 'llama3.2',
                 authType: (process.env.OLLAMA_USER && process.env.OLLAMA_PASSWORD) ? 'basic' : (process.env.OLLAMA_API_KEY ? 'bearer' : 'none'),
                 user: process.env.OLLAMA_USER || '',
@@ -253,12 +253,12 @@ async function callAI(prompt, systemInstruction = '', overrideConfig = null) {
         };
     }
 
-    // 1. Ollama (Local ou Privado - Ex: https://ollama.ambialles.com ou http://100.70.63.0:11435)
+    // 1. Ollama (Local ou Privado - Ex: http://localhost:11434 ou um proxy/Tailscale próprio)
     if (config.provider === 'ollama') {
         const ollama = config.ollama || {};
-        const url = (ollama.url || process.env.OLLAMA_URL || 'https://ollama.ambialles.com').replace(/\/+$/, '');
+        const url = (ollama.url || process.env.OLLAMA_URL || 'http://localhost:11434').replace(/\/+$/, '');
         const model = ollama.model || process.env.OLLAMA_MODEL || 'gemma3:12b';
-        const clientName = ollama.clientName || process.env.OLLAMA_CLIENT_NAME || 'celic-organizer';
+        const clientName = ollama.clientName || process.env.OLLAMA_CLIENT_NAME || 'github-organizer';
         
         let reqConfig = { 
             timeout: 120000, 
@@ -1070,12 +1070,12 @@ app.post('/api/ai/models', async (req, res) => {
     try {
         if (provider === 'ollama') {
             const ollama = config.ollama || {};
-            const url = (ollama.url || 'https://ollama.ambialles.com').replace(/\/+$/, '');
+            const url = (ollama.url || process.env.OLLAMA_URL || 'http://localhost:11434').replace(/\/+$/, '');
             const apiKey = ollama.apiKey || '';
             const user = ollama.user || '';
             const pass = ollama.password || '';
 
-            const clientName = ollama.clientName || process.env.OLLAMA_CLIENT_NAME || 'celic-organizer';
+            const clientName = ollama.clientName || process.env.OLLAMA_CLIENT_NAME || 'github-organizer';
 
             const reqConfig = { 
                 timeout: 15000, 

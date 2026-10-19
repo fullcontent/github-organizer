@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Organizador de Issues - Milestones</title>
+    <title>GitHub Organizer - Milestones</title>
     <script>
         tailwind = {
             config: {
@@ -35,17 +35,20 @@
         <div class="container mx-auto flex flex-wrap justify-between items-center max-w-7xl gap-4">
             <div class="flex items-center space-x-2">
                 <span class="text-2xl">🚀</span>
-                <span class="font-bold text-xl tracking-tight">Celic Organizer</span>
+                <span class="font-bold text-xl tracking-tight">GitHub Organizer</span>
             </div>
             <div class="flex items-center space-x-4 text-sm md:text-base">
-                <a href="/" class="hover:text-blue-200 dark:hover:text-blue-400">Lista</a>
-                <a href="/kanban.html" class="hover:text-blue-200 dark:hover:text-blue-400">Kanban (Prioridades)</a>
-                <a href="/milestones.html" class="font-bold underline decoration-2 underline-offset-4 text-white">Metas</a>
-                <a href="/dashboard.html" class="hover:text-blue-200 dark:hover:text-blue-400">Dashboard Gestor</a>
-                <a href="/analytics.html" class="hover:text-blue-200 dark:hover:text-blue-400">Gráficos & Métricas</a>
+                <a href="/" class="hover:text-blue-200 dark:hover:text-blue-400" data-i18n="nav.list">Lista</a>
+                <a href="/kanban.html" class="hover:text-blue-200 dark:hover:text-blue-400" data-i18n="nav.kanban">Kanban (Prioridades)</a>
+                <a href="/milestones.html" class="font-bold underline decoration-2 underline-offset-4 text-white" data-i18n="nav.milestones">Metas</a>
+                <a href="/dashboard.html" class="hover:text-blue-200 dark:hover:text-blue-400" data-i18n="nav.dashboard">Dashboard Gestor</a>
+                <a href="/analytics.html" class="hover:text-blue-200 dark:hover:text-blue-400" data-i18n="nav.analytics">Gráficos & Métricas</a>
+
+                <!-- Seletor de Idioma -->
+                <div id="i18n-switcher" class="flex items-center gap-1 text-xs font-bold px-2 py-1 rounded-lg bg-blue-700 dark:bg-gray-700"></div>
 
                 <!-- Toggle Dark Mode -->
-                <button id="theme-toggle" onclick="toggleDarkMode()" class="p-2 rounded-lg bg-blue-700 dark:bg-gray-700 hover:bg-blue-800 dark:hover:bg-gray-600 text-yellow-300 dark:text-yellow-400 text-xs focus:outline-none" title="Alternar Modo Escuro">
+                <button id="theme-toggle" onclick="toggleDarkMode()" class="p-2 rounded-lg bg-blue-700 dark:bg-gray-700 hover:bg-blue-800 dark:hover:bg-gray-600 text-yellow-300 dark:text-yellow-400 text-xs focus:outline-none" data-i18n-title="nav.theme.title" title="Alternar Modo Escuro">
                     <i id="theme-icon" class="fa-solid fa-moon"></i>
                 </button>
             </div>
@@ -58,9 +61,9 @@
             <div>
                 <h1 class="text-xl font-extrabold text-gray-900 dark:text-white flex items-center gap-2">
                     <i class="fa-solid fa-flag text-blue-600 dark:text-blue-400"></i>
-                    Quadro de Metas
+                    <span data-i18n="milestones.header.title">Quadro de Metas</span>
                 </h1>
-                <p class="text-xs text-gray-500 dark:text-gray-400">
+                <p class="text-xs text-gray-500 dark:text-gray-400" data-i18n="milestones.header.subtitle">
                     Arraste colunas para reordenar metas ativas e issues para reagendar entre metas.
                 </p>
             </div>
@@ -68,22 +71,22 @@
             <div class="flex items-center gap-3">
                 <label class="flex items-center gap-1.5 text-xs text-gray-600 dark:text-gray-300 cursor-pointer select-none">
                     <input type="checkbox" id="toggle-show-closed" onchange="toggleShowClosed(this.checked)" class="rounded text-blue-600 dark:bg-gray-700 border-gray-300">
-                    <span>Exibir metas concluídas</span>
+                    <span data-i18n="milestones.toggle.showclosed">Exibir metas concluídas</span>
                 </label>
 
                 <span id="order-save-status" class="text-xs font-semibold text-emerald-600 dark:text-emerald-400 transition-opacity opacity-0">
-                    <i class="fa-solid fa-check mr-1"></i> Ordem das metas salva!
+                    <i class="fa-solid fa-check mr-1"></i> <span data-i18n="milestones.order.saved">Ordem das metas salva!</span>
                 </span>
 
                 <button onclick="openCreateMilestoneModal()" class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs shadow-xs transition-colors">
                     <i class="fa-solid fa-plus text-[11px]"></i>
-                    <span>Nova Meta</span>
+                    <span data-i18n="milestones.create.btn">Nova Meta</span>
                 </button>
             </div>
         </div>
 
         <div id="loading" class="text-blue-500 dark:text-blue-400 font-semibold mb-4 flex-shrink-0 flex items-center gap-2">
-            <i class="fa-solid fa-spinner fa-spin"></i> Carregando metas e issues...
+            <i class="fa-solid fa-spinner fa-spin"></i> <span data-i18n="milestones.loading">Carregando metas e issues...</span>
         </div>
 
         <!-- Quadro de Milestones Drag & Drop -->
@@ -98,7 +101,7 @@
             <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-gray-700">
                 <h3 class="text-sm font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
                     <i class="fa-solid fa-flag text-blue-600 dark:text-blue-400"></i>
-                    Nova Milestone no GitHub
+                    <span data-i18n="milestones.create.modal.title">Nova Milestone no GitHub</span>
                 </h3>
                 <button onclick="closeCreateMilestoneModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-1">
                     <i class="fa-solid fa-xmark"></i>
@@ -106,21 +109,21 @@
             </div>
             <form onsubmit="submitCreateMilestone(event)" class="p-5 space-y-4 text-xs">
                 <div>
-                    <label class="block font-bold text-gray-700 dark:text-gray-300 mb-1">Título da Milestone *</label>
-                    <input type="text" id="create-ms-title" required placeholder="Ex: Sprint 14 - Módulo Fiscal" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 text-xs">
+                    <label class="block font-bold text-gray-700 dark:text-gray-300 mb-1" data-i18n="milestones.field.title">Título da Milestone *</label>
+                    <input type="text" id="create-ms-title" required data-i18n-ph="milestones.create.title.ph" placeholder="Ex: Sprint 14 - Novo Módulo" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 text-xs">
                 </div>
                 <div>
-                    <label class="block font-bold text-gray-700 dark:text-gray-300 mb-1">Data de Conclusão / Prazo (Opcional)</label>
+                    <label class="block font-bold text-gray-700 dark:text-gray-300 mb-1" data-i18n="milestones.field.due.optional">Data de Conclusão / Prazo (Opcional)</label>
                     <input type="date" id="create-ms-due" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 text-xs">
                 </div>
                 <div>
-                    <label class="block font-bold text-gray-700 dark:text-gray-300 mb-1">Descrição (Opcional)</label>
-                    <textarea id="create-ms-desc" rows="3" placeholder="Objetivos e escopo planejado para esta entrega..." class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 text-xs"></textarea>
+                    <label class="block font-bold text-gray-700 dark:text-gray-300 mb-1" data-i18n="milestones.field.desc.optional">Descrição (Opcional)</label>
+                    <textarea id="create-ms-desc" rows="3" data-i18n-ph="milestones.create.desc.ph" placeholder="Objetivos e escopo planejado para esta entrega..." class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 text-xs"></textarea>
                 </div>
                 <div class="pt-2 flex justify-end gap-2 border-t border-gray-200 dark:border-gray-700">
-                    <button type="button" onclick="closeCreateMilestoneModal()" class="px-3 py-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 font-semibold">Cancelar</button>
+                    <button type="button" onclick="closeCreateMilestoneModal()" class="px-3 py-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 font-semibold" data-i18n="milestones.cancel">Cancelar</button>
                     <button type="submit" id="btn-submit-create" class="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold flex items-center gap-1.5">
-                        <i class="fa-solid fa-plus text-[10px]"></i> Criar Milestone
+                        <i class="fa-solid fa-plus text-[10px]"></i> <span data-i18n="milestones.create.submit">Criar Milestone</span>
                     </button>
                 </div>
             </form>
@@ -133,7 +136,7 @@
             <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-gray-700">
                 <h3 class="text-sm font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
                     <i class="fa-solid fa-pen-to-square text-blue-600 dark:text-blue-400"></i>
-                    Editar Milestone <span id="edit-ms-number" class="text-blue-500"></span>
+                    <span data-i18n="milestones.edit.modal.title">Editar Milestone</span> <span id="edit-ms-number" class="text-blue-500"></span>
                 </h3>
                 <button onclick="closeEditMilestoneModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-1">
                     <i class="fa-solid fa-xmark"></i>
@@ -142,34 +145,143 @@
             <form onsubmit="submitEditMilestone(event)" class="p-5 space-y-4 text-xs">
                 <input type="hidden" id="edit-ms-target-number">
                 <div>
-                    <label class="block font-bold text-gray-700 dark:text-gray-300 mb-1">Título *</label>
+                    <label class="block font-bold text-gray-700 dark:text-gray-300 mb-1" data-i18n="milestones.field.title.required">Título *</label>
                     <input type="text" id="edit-ms-title" required class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 text-xs">
                 </div>
                 <div>
-                    <label class="block font-bold text-gray-700 dark:text-gray-300 mb-1">Status</label>
+                    <label class="block font-bold text-gray-700 dark:text-gray-300 mb-1" data-i18n="milestones.field.status">Status</label>
                     <select id="edit-ms-state" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 text-xs">
-                        <option value="open">Aberta (Em andamento)</option>
-                        <option value="closed">Fechada (Concluída)</option>
+                        <option value="open" data-i18n="milestones.state.open">Aberta (Em andamento)</option>
+                        <option value="closed" data-i18n="milestones.state.closed">Fechada (Concluída)</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block font-bold text-gray-700 dark:text-gray-300 mb-1">Data de Conclusão / Prazo</label>
+                    <label class="block font-bold text-gray-700 dark:text-gray-300 mb-1" data-i18n="milestones.field.due">Data de Conclusão / Prazo</label>
                     <input type="date" id="edit-ms-due" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 text-xs">
                 </div>
                 <div>
-                    <label class="block font-bold text-gray-700 dark:text-gray-300 mb-1">Descrição</label>
+                    <label class="block font-bold text-gray-700 dark:text-gray-300 mb-1" data-i18n="milestones.field.desc">Descrição</label>
                     <textarea id="edit-ms-desc" rows="3" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 text-xs"></textarea>
                 </div>
                 <div class="pt-2 flex justify-end gap-2 border-t border-gray-200 dark:border-gray-700">
-                    <button type="button" onclick="closeEditMilestoneModal()" class="px-3 py-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 font-semibold">Cancelar</button>
+                    <button type="button" onclick="closeEditMilestoneModal()" class="px-3 py-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 font-semibold" data-i18n="milestones.cancel">Cancelar</button>
                     <button type="submit" id="btn-submit-edit" class="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold flex items-center gap-1.5">
-                        <i class="fa-solid fa-floppy-disk text-[10px]"></i> Salvar Alterações
+                        <i class="fa-solid fa-floppy-disk text-[10px]"></i> <span data-i18n="milestones.edit.submit">Salvar Alterações</span>
                     </button>
                 </div>
             </form>
         </div>
     </div>
 
+    <script>
+        window.PAGE_I18N = {
+            pt: {
+                'nav.list': 'Lista',
+                'nav.kanban': 'Kanban (Prioridades)',
+                'nav.milestones': 'Metas',
+                'nav.dashboard': 'Dashboard Gestor',
+                'nav.analytics': 'Gráficos & Métricas',
+                'nav.theme.title': 'Alternar Modo Escuro',
+                'milestones.header.title': 'Quadro de Metas',
+                'milestones.header.subtitle': 'Arraste colunas para reordenar metas ativas e issues para reagendar entre metas.',
+                'milestones.toggle.showclosed': 'Exibir metas concluídas',
+                'milestones.order.saved': 'Ordem das metas salva!',
+                'milestones.order.save.error': 'Erro ao salvar ordem das milestones:',
+                'milestones.create.btn': 'Nova Meta',
+                'milestones.loading': 'Carregando metas e issues...',
+                'milestones.loading.error': 'Erro ao carregar dados.',
+                'milestones.create.modal.title': 'Nova Milestone no GitHub',
+                'milestones.edit.modal.title': 'Editar Milestone',
+                'milestones.field.title': 'Título da Milestone *',
+                'milestones.field.title.required': 'Título *',
+                'milestones.field.due.optional': 'Data de Conclusão / Prazo (Opcional)',
+                'milestones.field.desc.optional': 'Descrição (Opcional)',
+                'milestones.field.status': 'Status',
+                'milestones.field.due': 'Data de Conclusão / Prazo',
+                'milestones.field.desc': 'Descrição',
+                'milestones.create.title.ph': 'Ex: Sprint 14 - Novo Módulo',
+                'milestones.create.desc.ph': 'Objetivos e escopo planejado para esta entrega...',
+                'milestones.state.open': 'Aberta (Em andamento)',
+                'milestones.state.closed': 'Fechada (Concluída)',
+                'milestones.state.closed.badge': 'Concluída',
+                'milestones.cancel': 'Cancelar',
+                'milestones.create.submit': 'Criar Milestone',
+                'milestones.create.submitting': 'Criando...',
+                'milestones.create.error': 'Erro ao criar milestone: {msg}',
+                'milestones.create.network.error': 'Erro de rede ao criar milestone: {msg}',
+                'milestones.error.unknown': 'Erro desconhecido',
+                'milestones.edit.submit': 'Salvar Alterações',
+                'milestones.edit.submitting': 'Salvando...',
+                'milestones.edit.error': 'Erro ao atualizar milestone: {msg}',
+                'milestones.edit.network.error': 'Erro de rede ao atualizar milestone: {msg}',
+                'milestones.edit.title.attr': 'Editar Milestone',
+                'milestones.list.link': 'Lista',
+                'milestones.backlog.title': 'Backlog (Sem Milestone)',
+                'milestones.backlog.subtitle': 'Issues pendentes de planejamento de marco',
+                'milestones.due.none': 'Sem prazo',
+                'milestones.due.overdue': '(Atrasada)',
+                'milestones.progress.label': 'Progresso',
+                'milestones.progress.done': '{closed} / {total} concluídas',
+                'milestones.issue.closed': 'Fechada',
+                'milestones.card.moving': 'Movendo no GitHub... ⏳',
+                'milestones.card.moved': 'Movido! ✅',
+                'milestones.card.move.error': 'Erro ao mover ❌'
+            },
+            en: {
+                'nav.list': 'List',
+                'nav.kanban': 'Kanban (Priorities)',
+                'nav.milestones': 'Milestones',
+                'nav.dashboard': 'Manager Dashboard',
+                'nav.analytics': 'Charts & Metrics',
+                'nav.theme.title': 'Toggle Dark Mode',
+                'milestones.header.title': 'Milestones Board',
+                'milestones.header.subtitle': 'Drag columns to reorder active milestones, and issues to reschedule them between milestones.',
+                'milestones.toggle.showclosed': 'Show closed milestones',
+                'milestones.order.saved': 'Milestone order saved!',
+                'milestones.order.save.error': 'Error saving milestone order:',
+                'milestones.create.btn': 'New Milestone',
+                'milestones.loading': 'Loading milestones and issues...',
+                'milestones.loading.error': 'Error loading data.',
+                'milestones.create.modal.title': 'New GitHub Milestone',
+                'milestones.edit.modal.title': 'Edit Milestone',
+                'milestones.field.title': 'Milestone Title *',
+                'milestones.field.title.required': 'Title *',
+                'milestones.field.due.optional': 'Due Date (Optional)',
+                'milestones.field.desc.optional': 'Description (Optional)',
+                'milestones.field.status': 'Status',
+                'milestones.field.due': 'Due Date',
+                'milestones.field.desc': 'Description',
+                'milestones.create.title.ph': 'E.g.: Sprint 14 - New Module',
+                'milestones.create.desc.ph': 'Goals and planned scope for this delivery...',
+                'milestones.state.open': 'Open (In progress)',
+                'milestones.state.closed': 'Closed (Completed)',
+                'milestones.state.closed.badge': 'Completed',
+                'milestones.cancel': 'Cancel',
+                'milestones.create.submit': 'Create Milestone',
+                'milestones.create.submitting': 'Creating...',
+                'milestones.create.error': 'Error creating milestone: {msg}',
+                'milestones.create.network.error': 'Network error creating milestone: {msg}',
+                'milestones.error.unknown': 'Unknown error',
+                'milestones.edit.submit': 'Save Changes',
+                'milestones.edit.submitting': 'Saving...',
+                'milestones.edit.error': 'Error updating milestone: {msg}',
+                'milestones.edit.network.error': 'Network error updating milestone: {msg}',
+                'milestones.edit.title.attr': 'Edit Milestone',
+                'milestones.list.link': 'List',
+                'milestones.backlog.title': 'Backlog (No Milestone)',
+                'milestones.backlog.subtitle': 'Issues pending milestone planning',
+                'milestones.due.none': 'No due date',
+                'milestones.due.overdue': '(Overdue)',
+                'milestones.progress.label': 'Progress',
+                'milestones.progress.done': '{closed} / {total} closed',
+                'milestones.issue.closed': 'Closed',
+                'milestones.card.moving': 'Moving on GitHub... ⏳',
+                'milestones.card.moved': 'Moved! ✅',
+                'milestones.card.move.error': 'Error moving ❌'
+            }
+        };
+    </script>
+    <script src="/js/i18n.js"></script>
     <script>
         let milestones = [];
         let issues = [];
@@ -202,6 +314,14 @@
             renderBoard();
         }
 
+        initTheme();
+        I18N.init();
+        document.addEventListener('i18nchange', () => {
+            if (document.getElementById('milestones-board').style.display !== 'none') {
+                renderBoard();
+            }
+        });
+
         async function loadData() {
             try {
                 const [msRes, issRes] = await Promise.all([
@@ -214,7 +334,7 @@
                 issues = issues.filter(issue => !issue.pull_request);
                 renderBoard();
             } catch (error) {
-                document.getElementById('loading').innerText = 'Erro ao carregar dados.';
+                document.getElementById('loading').innerText = I18N.t('milestones.loading.error');
                 document.getElementById('loading').className = 'text-red-500 font-semibold mb-4';
             }
         }
@@ -260,11 +380,11 @@
                 <div class="bg-gray-200 dark:bg-gray-700 p-3 flex justify-between items-center cursor-move col-handle flex-shrink-0 border-b border-gray-200 dark:border-gray-600">
                     <h3 class="text-gray-900 dark:text-gray-100 font-bold text-xs uppercase tracking-wider truncate pr-2 flex items-center gap-1.5">
                         <i class="fa-solid fa-inbox text-gray-500"></i>
-                        <span>Backlog (Sem Milestone)</span>
+                        <span>${I18N.t('milestones.backlog.title')}</span>
                     </h3>
                 </div>
                 <div class="p-2.5 bg-gray-50/50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700 text-[11px] text-gray-500 dark:text-gray-400">
-                    Issues pendentes de planejamento de marco
+                    ${I18N.t('milestones.backlog.subtitle')}
                 </div>
                 <div id="col-ms-none" data-milestone="null" class="flex-1 p-2 kanban-col overflow-y-auto space-y-2"></div>
             `;
@@ -276,13 +396,14 @@
             const closedIssues = ms.closed_issues || 0;
             const pct = totalIssues > 0 ? Math.round((closedIssues / totalIssues) * 100) : 0;
 
-            let dueHtml = '<span class="text-[10px] text-gray-400">Sem prazo</span>';
+            let dueHtml = `<span class="text-[10px] text-gray-400">${I18N.t('milestones.due.none')}</span>`;
             if (ms.due_on) {
                 const dueDate = new Date(ms.due_on);
                 const isPast = dueDate < new Date() && ms.state === 'open';
-                const formattedDate = dueDate.toLocaleDateString('pt-BR');
+                const dateLocale = I18N.lang === 'pt' ? 'pt-BR' : 'en-US';
+                const formattedDate = dueDate.toLocaleDateString(dateLocale);
                 if (isPast) {
-                    dueHtml = `<span class="inline-flex items-center gap-1 text-[10px] font-bold text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-950/60 px-1.5 py-0.5 rounded"><i class="fa-solid fa-triangle-exclamation text-[9px]"></i> ${formattedDate} (Atrasada)</span>`;
+                    dueHtml = `<span class="inline-flex items-center gap-1 text-[10px] font-bold text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-950/60 px-1.5 py-0.5 rounded"><i class="fa-solid fa-triangle-exclamation text-[9px]"></i> ${formattedDate} ${I18N.t('milestones.due.overdue')}</span>`;
                 } else {
                     dueHtml = `<span class="inline-flex items-center gap-1 text-[10px] font-medium text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-1.5 py-0.5 rounded"><i class="fa-regular fa-calendar-check text-[9px]"></i> ${formattedDate}</span>`;
                 }
@@ -299,11 +420,11 @@
                         <h3 class="text-gray-900 dark:text-gray-100 font-bold text-xs uppercase tracking-wider truncate" title="${escapeHtml(ms.title)}">${escapeHtml(ms.title)}</h3>
                     </div>
                     <div class="flex items-center gap-1.5 flex-shrink-0">
-                        <button type="button" onclick="openEditMilestoneModal(${ms.number})" class="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 p-1 rounded hover:bg-white dark:hover:bg-gray-700 transition" title="Editar Milestone">
+                        <button type="button" onclick="openEditMilestoneModal(${ms.number})" class="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 p-1 rounded hover:bg-white dark:hover:bg-gray-700 transition" title="${I18N.t('milestones.edit.title.attr')}">
                             <i class="fa-solid fa-pen-to-square text-[11px]"></i>
                         </button>
                         <a href="/milestone-list.html?id=${ms.number}" class="text-[10px] font-semibold bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-300 px-2 py-0.5 rounded shadow-2xs hover:bg-gray-50 dark:hover:bg-gray-600 transition whitespace-nowrap">
-                            Lista
+                            ${I18N.t('milestones.list.link')}
                         </a>
                     </div>
                 </div>
@@ -312,11 +433,11 @@
                 <div class="p-3 bg-white/70 dark:bg-gray-800/70 border-b border-gray-200 dark:border-gray-700 space-y-2">
                     <div class="flex items-center justify-between text-[11px]">
                         <span class="font-bold text-gray-700 dark:text-gray-300 flex items-center gap-1">
-                            <span>Progresso</span>
+                            <span>${I18N.t('milestones.progress.label')}</span>
                             <span class="text-blue-600 dark:text-blue-400 font-extrabold">${pct}%</span>
                         </span>
                         <span class="text-gray-500 dark:text-gray-400 text-[10px]">
-                            ${closedIssues} / ${totalIssues} concluídas
+                            ${I18N.t('milestones.progress.done', { closed: closedIssues, total: totalIssues })}
                         </span>
                     </div>
 
@@ -327,7 +448,7 @@
 
                     <div class="flex items-center justify-between pt-0.5">
                         <div>${dueHtml}</div>
-                        ${ms.state === 'closed' ? '<span class="text-[9px] uppercase px-1.5 py-0.2 rounded font-bold bg-purple-100 dark:bg-purple-900/60 text-purple-700 dark:text-purple-300">Concluída</span>' : ''}
+                        ${ms.state === 'closed' ? `<span class="text-[9px] uppercase px-1.5 py-0.2 rounded font-bold bg-purple-100 dark:bg-purple-900/60 text-purple-700 dark:text-purple-300">${I18N.t('milestones.state.closed.badge')}</span>` : ''}
                     </div>
 
                     ${ms.description ? `
@@ -351,7 +472,7 @@
             card.innerHTML = `
                 <div class="flex justify-between items-start mb-1 pointer-events-none">
                     <span class="text-[11px] font-mono text-blue-600 dark:text-blue-400 font-bold">#${issue.number}</span>
-                    ${issue.state === 'closed' ? '<span class="text-[9px] px-1 py-0.2 rounded bg-green-100 dark:bg-green-900/60 text-green-700 dark:text-green-300 font-bold">Fechada</span>' : ''}
+                    ${issue.state === 'closed' ? `<span class="text-[9px] px-1 py-0.2 rounded bg-green-100 dark:bg-green-900/60 text-green-700 dark:text-green-300 font-bold">${I18N.t('milestones.issue.closed')}</span>` : ''}
                 </div>
                 <a href="${issue.html_url}" target="_blank" class="text-xs font-semibold text-gray-800 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 line-clamp-2 leading-tight">${escapeHtml(issue.title)}</a>
                 <div class="mt-1 text-[10px] text-gray-400 update-status pointer-events-none"></div>
@@ -379,7 +500,7 @@
                             showOrderSavedBadge();
                         }
                     } catch (e) {
-                        console.error('Erro ao salvar ordem das milestones:', e);
+                        console.error(I18N.t('milestones.order.save.error'), e);
                     }
                 }
             });
@@ -401,7 +522,7 @@
                         const statusEl = itemEl.querySelector('.update-status');
                         if (evt.from === evt.to) return; 
 
-                        statusEl.innerText = 'Movendo no GitHub... ⏳';
+                        statusEl.innerText = I18N.t('milestones.card.moving');
                         statusEl.className = 'mt-1 text-[10px] text-blue-500 font-semibold';
 
                         try {
@@ -412,15 +533,15 @@
                             });
 
                             if (res.ok) {
-                                statusEl.innerText = 'Movido! ✅';
+                                statusEl.innerText = I18N.t('milestones.card.moved');
                                 statusEl.className = 'mt-1 text-[10px] text-green-500 font-semibold';
                                 setTimeout(() => statusEl.innerText = '', 2000);
                             } else {
-                                statusEl.innerText = 'Erro ao mover ❌';
+                                statusEl.innerText = I18N.t('milestones.card.move.error');
                                 statusEl.className = 'mt-1 text-[10px] text-red-500 font-semibold';
                             }
                         } catch (err) {
-                            statusEl.innerText = 'Erro ao mover ❌';
+                            statusEl.innerText = I18N.t('milestones.card.move.error');
                             statusEl.className = 'mt-1 text-[10px] text-red-500 font-semibold';
                         }
                     }
@@ -455,7 +576,7 @@
             e.preventDefault();
             const btn = document.getElementById('btn-submit-create');
             btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Criando...';
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> ${I18N.t('milestones.create.submitting')}`;
 
             const title = document.getElementById('create-ms-title').value.trim();
             const description = document.getElementById('create-ms-desc').value.trim();
@@ -474,13 +595,13 @@
                     await loadData();
                 } else {
                     const err = await res.json();
-                    alert('Erro ao criar milestone: ' + (err.error || 'Erro desconhecido'));
+                    alert(I18N.t('milestones.create.error', { msg: err.error || I18N.t('milestones.error.unknown') }));
                 }
             } catch (err) {
-                alert('Erro de rede ao criar milestone: ' + err.message);
+                alert(I18N.t('milestones.create.network.error', { msg: err.message }));
             } finally {
                 btn.disabled = false;
-                btn.innerHTML = '<i class="fa-solid fa-plus text-[10px]"></i> Criar Milestone';
+                btn.innerHTML = `<i class="fa-solid fa-plus text-[10px]"></i> ${I18N.t('milestones.create.submit')}`;
             }
         }
 
@@ -512,7 +633,7 @@
             e.preventDefault();
             const btn = document.getElementById('btn-submit-edit');
             btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Salvando...';
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> ${I18N.t('milestones.edit.submitting')}`;
 
             const number = document.getElementById('edit-ms-target-number').value;
             const title = document.getElementById('edit-ms-title').value.trim();
@@ -533,13 +654,13 @@
                     await loadData();
                 } else {
                     const err = await res.json();
-                    alert('Erro ao atualizar milestone: ' + (err.error || 'Erro desconhecido'));
+                    alert(I18N.t('milestones.edit.error', { msg: err.error || I18N.t('milestones.error.unknown') }));
                 }
             } catch (err) {
-                alert('Erro de rede ao atualizar milestone: ' + err.message);
+                alert(I18N.t('milestones.edit.network.error', { msg: err.message }));
             } finally {
                 btn.disabled = false;
-                btn.innerHTML = '<i class="fa-solid fa-floppy-disk text-[10px]"></i> Salvar Alterações';
+                btn.innerHTML = `<i class="fa-solid fa-floppy-disk text-[10px]"></i> ${I18N.t('milestones.edit.submit')}`;
             }
         }
 

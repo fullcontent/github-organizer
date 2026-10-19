@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Gestor - Celic Organizer</title>
+    <title>Dashboard Gestor - GitHub Organizer</title>
+    <meta name="description" content="GitHub Organizer: open-source AI-powered dashboard, kanban board and milestone tracker for organizing GitHub issues.">
     <script>
         tailwind = {
             config: {
@@ -35,17 +36,20 @@
         <div class="container mx-auto flex flex-wrap justify-between items-center max-w-7xl gap-4">
             <div class="flex items-center space-x-2">
                 <span class="text-2xl">🚀</span>
-                <span class="font-bold text-xl tracking-tight">Celic Organizer</span>
+                <span class="font-bold text-xl tracking-tight">GitHub Organizer</span>
             </div>
             <div class="flex flex-wrap items-center gap-4 text-sm md:text-base">
-                <a href="/" class="hover:text-blue-200 dark:hover:text-blue-400 transition-colors">Lista</a>
-                <a href="/kanban.html" class="hover:text-blue-200 dark:hover:text-blue-400 transition-colors">Kanban (Prioridades)</a>
-                <a href="/milestones.html" class="hover:text-blue-200 dark:hover:text-blue-400 transition-colors">Metas</a>
-                <a href="/dashboard.html" class="font-bold underline decoration-2 underline-offset-4 text-white">Dashboard Gestor</a>
-                <a href="/analytics.html" class="hover:text-blue-200 dark:hover:text-blue-400 transition-colors">Gráficos & Métricas</a>
+                <a href="/" class="hover:text-blue-200 dark:hover:text-blue-400 transition-colors" data-i18n="nav.list">Lista</a>
+                <a href="/kanban.html" class="hover:text-blue-200 dark:hover:text-blue-400 transition-colors" data-i18n="nav.kanban">Kanban (Prioridades)</a>
+                <a href="/milestones.html" class="hover:text-blue-200 dark:hover:text-blue-400 transition-colors" data-i18n="nav.milestones">Metas</a>
+                <a href="/dashboard.html" class="font-bold underline decoration-2 underline-offset-4 text-white" data-i18n="nav.dashboard">Dashboard Gestor</a>
+                <a href="/analytics.html" class="hover:text-blue-200 dark:hover:text-blue-400 transition-colors" data-i18n="nav.analytics">Gráficos & Métricas</a>
+
+                <!-- Seletor de Idioma -->
+                <div id="i18n-switcher" class="flex items-center gap-1 text-xs font-bold px-2 py-1 rounded-lg bg-blue-700 dark:bg-gray-700"></div>
 
                 <!-- Toggle Dark Mode -->
-                <button id="theme-toggle" onclick="toggleDarkMode()" class="ml-2 p-2 rounded-lg bg-blue-700 dark:bg-gray-700 hover:bg-blue-800 dark:hover:bg-gray-600 text-yellow-300 dark:text-yellow-400 transition-all text-sm focus:outline-none" title="Alternar Modo Escuro">
+                <button id="theme-toggle" onclick="toggleDarkMode()" class="ml-2 p-2 rounded-lg bg-blue-700 dark:bg-gray-700 hover:bg-blue-800 dark:hover:bg-gray-600 text-yellow-300 dark:text-yellow-400 transition-all text-sm focus:outline-none" data-i18n-title="nav.theme.title" title="Alternar Modo Escuro">
                     <i id="theme-icon" class="fa-solid fa-moon"></i>
                 </button>
             </div>
@@ -59,13 +63,13 @@
             <div>
                 <h1 class="text-2xl md:text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight flex items-center gap-2">
                     <i class="fa-solid fa-gauge-high text-blue-600 dark:text-blue-400 text-2xl"></i>
-                    Visão Executiva & Estimativa de Esforço
+                    <span data-i18n="dashboard.header.title">Visão Executiva & Estimativa de Esforço</span>
                 </h1>
                 <p class="text-gray-500 dark:text-gray-400 text-xs sm:text-sm mt-1 flex flex-wrap items-center gap-2">
-                    <span>Repositório: <strong class="text-gray-700 dark:text-gray-300">fullcontent/sistemacelic</strong></span>
+                    <span><span data-i18n="dashboard.repo.label">Repositório:</span> <strong class="text-gray-700 dark:text-gray-300"><span id="repo-name">owner/repo</span></strong></span>
                     <span>•</span>
                     <span id="sync-status" class="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium">
-                        <i class="fa-solid fa-hard-drive"></i> Carregado do cache local
+                        <i class="fa-solid fa-hard-drive"></i> <span data-i18n="dashboard.sync.cached">Carregado do cache local</span>
                     </span>
                     <span>•</span>
                     <span id="last-updated" class="text-xs">--</span>
@@ -74,11 +78,11 @@
             <div class="flex flex-wrap items-center gap-3">
                 <a href="/analytics.html" class="inline-flex items-center gap-2 bg-blue-50 dark:bg-gray-800 hover:bg-blue-100 dark:hover:bg-gray-700 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-gray-700 px-4 py-2 rounded-lg text-sm font-semibold transition-all shadow-xs">
                     <i class="fa-solid fa-chart-line"></i>
-                    <span>Análise Temporal Avançada &rarr;</span>
+                    <span data-i18n="dashboard.link.analytics">Análise Temporal Avançada →</span>
                 </a>
                 <button id="btn-sync" onclick="syncDashboard()" class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow-sm text-sm font-medium transition-all focus:outline-none focus:ring-2 focus:ring-blue-500">
                     <i id="sync-icon" class="fa-solid fa-arrows-rotate"></i>
-                    <span>Sincronizar Dados (IA)</span>
+                    <span data-i18n="dashboard.sync.btn">Sincronizar Dados (IA)</span>
                 </button>
             </div>
         </div>
@@ -86,7 +90,7 @@
         <!-- Indicador de Carregamento -->
         <div id="loading" class="flex flex-col items-center justify-center p-12 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 mb-6">
             <div class="w-10 h-10 border-4 border-blue-200 dark:border-blue-900 border-t-blue-600 rounded-full animate-spin mb-3"></div>
-            <p id="loading-text" class="text-gray-700 dark:text-gray-300 font-semibold text-sm">Carregando dados salvos localmente...</p>
+            <p id="loading-text" class="text-gray-700 dark:text-gray-300 font-semibold text-sm" data-i18n="dashboard.loading.cached">Carregando dados salvos localmente...</p>
         </div>
 
         <!-- Painel de Dados -->
@@ -97,33 +101,33 @@
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3 pb-2.5 border-b border-gray-200/70 dark:border-gray-700/80 gap-2">
                     <div class="flex items-center gap-2">
                         <span class="p-1.5 rounded-lg bg-blue-600 text-white text-xs"><i class="fa-solid fa-clock-rotate-left"></i></span>
-                        <h2 class="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider">Histórico Geral Acumulado (Desde a Criação)</h2>
+                        <h2 class="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider" data-i18n="dashboard.hist.title">Histórico Geral Acumulado (Desde a Criação)</h2>
                     </div>
-                    <span class="text-[11px] text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-700/80 px-2.5 py-0.5 rounded-full border border-gray-200 dark:border-gray-600">
+                    <span class="text-[11px] text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-700/80 px-2.5 py-0.5 rounded-full border border-gray-200 dark:border-gray-600" data-i18n="dashboard.hist.badge">
                         Visão global consolidada de todo o repositório
                     </span>
                 </div>
-                
+
                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
                     <div class="p-3 bg-white dark:bg-gray-800 rounded-xl border border-gray-200/80 dark:border-gray-700">
-                        <span class="block text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase">Issues Criadas</span>
+                        <span class="block text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase" data-i18n="dashboard.hist.issuesCreated.label">Issues Criadas</span>
                         <span id="hist-total-issues" class="text-xl sm:text-2xl font-black text-gray-900 dark:text-white mt-1 block">--</span>
-                        <span class="text-[10px] text-gray-400">total acumulado</span>
+                        <span class="text-[10px] text-gray-400" data-i18n="dashboard.hist.issuesCreated.sub">total acumulado</span>
                     </div>
                     <div class="p-3 bg-white dark:bg-gray-800 rounded-xl border border-gray-200/80 dark:border-gray-700">
-                        <span class="block text-[11px] font-bold text-blue-600 dark:text-blue-400 uppercase">Abertas no Backlog</span>
+                        <span class="block text-[11px] font-bold text-blue-600 dark:text-blue-400 uppercase" data-i18n="dashboard.hist.openBacklog.label">Abertas no Backlog</span>
                         <span id="hist-open-issues" class="text-xl sm:text-2xl font-black text-blue-600 dark:text-blue-400 mt-1 block">--</span>
                         <span id="hist-open-pct" class="text-[10px] text-gray-400">--% do total</span>
                     </div>
                     <div class="p-3 bg-white dark:bg-gray-800 rounded-xl border border-gray-200/80 dark:border-gray-700">
-                        <span class="block text-[11px] font-bold text-green-600 dark:text-green-400 uppercase">Demandas Concluídas</span>
+                        <span class="block text-[11px] font-bold text-green-600 dark:text-green-400 uppercase" data-i18n="dashboard.hist.closed.label">Demandas Concluídas</span>
                         <span id="hist-closed-issues" class="text-xl sm:text-2xl font-black text-green-600 dark:text-green-400 mt-1 block">--</span>
-                        <span id="hist-closed-pct" class="text-[10px] text-gray-400">--% de entrega</span>
+                        <span id="hist-closed-pct" class="text-[10px] text-gray-400">--% concluídas</span>
                     </div>
                     <div class="p-3 bg-white dark:bg-gray-800 rounded-xl border border-gray-200/80 dark:border-gray-700">
-                        <span class="block text-[11px] font-bold text-purple-600 dark:text-purple-400 uppercase">Commits Realizados</span>
+                        <span class="block text-[11px] font-bold text-purple-600 dark:text-purple-400 uppercase" data-i18n="dashboard.hist.commits.label">Commits Realizados</span>
                         <span id="hist-commits" class="text-xl sm:text-2xl font-black text-purple-600 dark:text-purple-400 mt-1 block">--</span>
-                        <span class="text-[10px] text-gray-400">entregas no repositório</span>
+                        <span class="text-[10px] text-gray-400" data-i18n="dashboard.hist.commits.sub">entregas no repositório</span>
                     </div>
                 </div>
             </div>
@@ -137,22 +141,22 @@
                         <div class="flex items-center justify-between">
                             <span class="text-xs font-bold text-indigo-900 dark:text-indigo-300 uppercase tracking-wider flex items-center gap-1.5">
                                 <i class="fa-solid fa-wand-magic-sparkles text-indigo-600 dark:text-indigo-400"></i>
-                                Horas Estimadas no Mês (IA)
+                                <span data-i18n="dashboard.stat.hoursTitle">Horas Estimadas no Mês (IA)</span>
                             </span>
-                            <span id="ai-provider-badge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-900/80 text-indigo-800 dark:text-indigo-200">
+                            <span id="ai-provider-badge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-900/80 text-indigo-800 dark:text-indigo-200" data-i18n="dashboard.stat.aiBadgeDefault">
                                 IA
                             </span>
                         </div>
                         <div class="mt-2 flex items-baseline gap-3">
                             <span id="estimated-hours-val" class="text-3xl sm:text-4xl font-extrabold text-indigo-950 dark:text-white">--</span>
                             <div class="text-xs font-semibold text-indigo-700 dark:text-indigo-300">
-                                <span>horas de trabalho</span>
-                                <div class="text-[11px] text-gray-500 dark:text-gray-400 font-normal mt-0.5">Média ponderada issues x commits</div>
+                                <span data-i18n="dashboard.stat.hoursUnit">horas de trabalho</span>
+                                <div class="text-[11px] text-gray-500 dark:text-gray-400 font-normal mt-0.5" data-i18n="dashboard.stat.hoursFormula">Média ponderada issues x commits</div>
                             </div>
                         </div>
                     </div>
                     <div class="mt-3 pt-3 border-t border-indigo-100 dark:border-indigo-900/60">
-                        <p id="estimated-hours-analysis" class="text-xs text-gray-600 dark:text-gray-300 leading-relaxed font-medium">
+                        <p id="estimated-hours-analysis" class="text-xs text-gray-600 dark:text-gray-300 leading-relaxed font-medium" data-i18n="dashboard.stat.hoursAnalyzing">
                             Avaliando volume e complexidade...
                         </p>
                         <div class="mt-2 flex flex-wrap gap-2 text-[10px] text-gray-500 dark:text-gray-400">
@@ -166,7 +170,7 @@
                 <div class="bg-white dark:bg-gray-800 rounded-xl p-4.5 border-l-4 border-blue-500 shadow-sm border border-gray-200 dark:border-gray-700 flex flex-col justify-between">
                     <div>
                         <div class="flex items-center justify-between">
-                            <span class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Issues Abertas</span>
+                            <span class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider" data-i18n="dashboard.stat.openIssues">Issues Abertas</span>
                             <span class="p-1.5 bg-blue-50 dark:bg-blue-900/40 rounded-lg text-blue-600 dark:text-blue-400"><i class="fa-regular fa-folder-open text-xs"></i></span>
                         </div>
                         <div class="mt-2 flex items-baseline justify-between">
@@ -174,14 +178,14 @@
                             <span id="open-pct" class="text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">--%</span>
                         </div>
                     </div>
-                    <p class="text-[11px] text-gray-400 mt-2">Demandas em andamento</p>
+                    <p class="text-[11px] text-gray-400 mt-2" data-i18n="dashboard.stat.openIssues.sub">Demandas em andamento</p>
                 </div>
 
                 <!-- 3. Issues Fechadas -->
                 <div class="bg-white dark:bg-gray-800 rounded-xl p-4.5 border-l-4 border-green-500 shadow-sm border border-gray-200 dark:border-gray-700 flex flex-col justify-between">
                     <div>
                         <div class="flex items-center justify-between">
-                            <span class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Issues Fechadas</span>
+                            <span class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider" data-i18n="dashboard.stat.closedIssues">Issues Fechadas</span>
                             <span class="p-1.5 bg-green-50 dark:bg-green-900/40 rounded-lg text-green-600 dark:text-green-400"><i class="fa-regular fa-circle-check text-xs"></i></span>
                         </div>
                         <div class="mt-2 flex items-baseline justify-between">
@@ -189,14 +193,14 @@
                             <span id="closed-pct" class="text-xs font-semibold px-2 py-0.5 rounded-full bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300 border border-green-200 dark:border-green-800">--%</span>
                         </div>
                     </div>
-                    <p class="text-[11px] text-gray-400 mt-2">Entregas concluídas</p>
+                    <p class="text-[11px] text-gray-400 mt-2" data-i18n="dashboard.stat.closedIssues.sub">Entregas concluídas</p>
                 </div>
 
                 <!-- 4. Taxa Geral & Commits -->
                 <div class="bg-white dark:bg-gray-800 rounded-xl p-4.5 border-l-4 border-amber-500 shadow-sm border border-gray-200 dark:border-gray-700 flex flex-col justify-between">
                     <div>
                         <div class="flex items-center justify-between">
-                            <span class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Taxa Resolução</span>
+                            <span class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider" data-i18n="dashboard.stat.resolutionRate">Taxa Resolução</span>
                             <span class="p-1.5 bg-amber-50 dark:bg-amber-900/40 rounded-lg text-amber-600 dark:text-amber-400"><i class="fa-solid fa-percent text-xs"></i></span>
                         </div>
                         <div class="mt-2 flex items-baseline justify-between">
@@ -204,7 +208,7 @@
                             <span id="total-commits-badge" class="text-xs font-semibold px-2 py-0.5 rounded-full bg-purple-50 dark:bg-purple-950 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800">-- commits</span>
                         </div>
                     </div>
-                    <p id="recent-details" class="text-[11px] text-gray-500 dark:text-gray-400 mt-2 truncate">Atividade recente...</p>
+                    <p id="recent-details" class="text-[11px] text-gray-500 dark:text-gray-400 mt-2 truncate" data-i18n="dashboard.recent.details">Atividade recente...</p>
                 </div>
 
             </div>
@@ -213,16 +217,16 @@
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 mb-6 flex flex-wrap items-center justify-between gap-4">
                 <div class="flex items-center gap-3">
                     <span class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                        <i class="fa-regular fa-calendar mr-1"></i> Período nos Gráficos:
+                        <i class="fa-regular fa-calendar mr-1"></i> <span data-i18n="dashboard.filter.label">Período nos Gráficos:</span>
                     </span>
                     <div class="inline-flex rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-0.5 bg-gray-50 dark:bg-gray-700">
-                        <button type="button" onclick="setDashboardRange(3)" id="btn-range-3" class="px-3 py-1.5 text-xs font-medium rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all">
+                        <button type="button" onclick="setDashboardRange(3)" id="btn-range-3" class="px-3 py-1.5 text-xs font-medium rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all" data-i18n="dashboard.filter.3m">
                             Últimos 3 meses
                         </button>
-                        <button type="button" onclick="setDashboardRange(6)" id="btn-range-6" class="px-3 py-1.5 text-xs font-medium rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all">
+                        <button type="button" onclick="setDashboardRange(6)" id="btn-range-6" class="px-3 py-1.5 text-xs font-medium rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all" data-i18n="dashboard.filter.6m">
                             Últimos 6 meses
                         </button>
-                        <button type="button" onclick="setDashboardRange(12)" id="btn-range-12" class="px-3 py-1.5 text-xs font-bold rounded-md bg-blue-600 text-white shadow-sm transition-all">
+                        <button type="button" onclick="setDashboardRange(12)" id="btn-range-12" class="px-3 py-1.5 text-xs font-bold rounded-md bg-blue-600 text-white shadow-sm transition-all" data-i18n="dashboard.filter.12m">
                             Últimos 12 meses
                         </button>
                     </div>
@@ -230,7 +234,7 @@
 
                 <div class="flex items-center gap-2">
                     <span class="text-xs text-gray-400 dark:text-gray-500">
-                        <i class="fa-solid fa-shield-halved text-green-500 mr-1"></i> Armazenamento local persistido
+                        <i class="fa-solid fa-shield-halved text-green-500 mr-1"></i> <span data-i18n="dashboard.filter.localstorage">Armazenamento local persistido</span>
                     </span>
                 </div>
             </div>
@@ -244,9 +248,9 @@
                         <div>
                             <h3 class="text-base font-bold text-gray-800 dark:text-gray-200 flex items-center gap-2">
                                 <i class="fa-solid fa-chart-column text-purple-600 dark:text-purple-400"></i>
-                                Volume de Commits por Mês
+                                <span data-i18n="dashboard.chart.commits.title">Volume de Commits por Mês</span>
                             </h3>
-                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Histórico cronológico de entregas e commits</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5" data-i18n="dashboard.chart.commits.subtitle">Histórico cronológico de entregas e commits</p>
                         </div>
                         <span id="commits-range-badge" class="text-xs font-semibold px-2.5 py-1 rounded-md bg-purple-50 dark:bg-purple-950 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
                             12 meses
@@ -263,24 +267,24 @@
                         <div class="flex items-center justify-between">
                             <h3 class="text-base font-bold text-gray-800 dark:text-gray-200 flex items-center gap-2">
                                 <i class="fa-solid fa-chart-pie text-blue-600 dark:text-blue-400"></i>
-                                Proporção de Issues
+                                <span data-i18n="dashboard.chart.issues.title">Proporção de Issues</span>
                             </h3>
                             <span id="issues-range-badge" class="text-xs font-semibold px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
                                 12 meses
                             </span>
                         </div>
-                        <p id="issues-chart-subtitle" class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Criadas vs Fechadas no período selecionado</p>
+                        <p id="issues-chart-subtitle" class="text-xs text-gray-500 dark:text-gray-400 mt-0.5" data-i18n="dashboard.chart.issues.subtitle">Criadas vs Fechadas no período selecionado</p>
                     </div>
                     <div class="relative w-full flex-1 flex items-center justify-center min-h-[220px]">
                         <canvas id="issuesChart"></canvas>
                     </div>
                     <div class="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700 grid grid-cols-2 text-center text-xs">
                         <div>
-                            <span class="block text-gray-400">Criadas no Período</span>
+                            <span class="block text-gray-400" data-i18n="dashboard.legend.createdPeriod">Criadas no Período</span>
                             <span id="legend-open" class="font-bold text-blue-600 dark:text-blue-400 text-sm">--</span>
                         </div>
                         <div>
-                            <span class="block text-gray-400">Fechadas no Período</span>
+                            <span class="block text-gray-400" data-i18n="dashboard.legend.closedPeriod">Fechadas no Período</span>
                             <span id="legend-closed" class="font-bold text-green-600 dark:text-green-400 text-sm">--</span>
                         </div>
                     </div>
@@ -292,13 +296,13 @@
                         <div>
                             <h3 class="text-base font-bold text-gray-800 dark:text-gray-200 flex items-center gap-2">
                                 <i class="fa-solid fa-arrows-split-up-and-left text-blue-600 dark:text-blue-400"></i>
-                                Fluxo de Demandas: Issues Criadas vs Issues Fechadas
+                                <span data-i18n="dashboard.chart.flow.title">Fluxo de Demandas: Issues Criadas vs Issues Fechadas</span>
                             </h3>
-                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Comparativo mensal de novas demandas x conclusão</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5" data-i18n="dashboard.chart.flow.subtitle">Comparativo mensal de novas demandas x conclusão</p>
                         </div>
                         <div class="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-3">
-                            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-sm bg-blue-500 inline-block"></span> Criadas</span>
-                            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-sm bg-green-500 inline-block"></span> Fechadas</span>
+                            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-sm bg-blue-500 inline-block"></span> <span data-i18n="dashboard.flow.legend.created">Criadas</span></span>
+                            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-sm bg-green-500 inline-block"></span> <span data-i18n="dashboard.flow.legend.closed">Fechadas</span></span>
                         </div>
                     </div>
                     <div class="relative w-full h-[280px]">
@@ -311,9 +315,152 @@
     </main>
 
     <footer class="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 py-4 text-center text-xs text-gray-500 dark:text-gray-400 flex-shrink-0">
-        Celic Organizer • Visão Executiva & Métricas de Engenharia
+        GitHub Organizer • <span data-i18n="dashboard.footer.tagline">Visão Executiva & Métricas de Engenharia</span>
     </footer>
 
+    <script>
+        window.PAGE_I18N = {
+            pt: {
+                'nav.list': 'Lista',
+                'nav.kanban': 'Kanban (Prioridades)',
+                'nav.milestones': 'Metas',
+                'nav.dashboard': 'Dashboard Gestor',
+                'nav.analytics': 'Gráficos & Métricas',
+                'nav.theme.title': 'Alternar Modo Escuro',
+                'dashboard.header.title': 'Visão Executiva & Estimativa de Esforço',
+                'dashboard.repo.label': 'Repositório:',
+                'dashboard.sync.cached': 'Carregado do cache local',
+                'dashboard.sync.saved': 'Salvo localmente',
+                'dashboard.lastupdated.synced': 'Sincronizado em {date} às {time}',
+                'dashboard.link.analytics': 'Análise Temporal Avançada →',
+                'dashboard.sync.btn': 'Sincronizar Dados (IA)',
+                'dashboard.loading.cached': 'Carregando dados salvos localmente...',
+                'dashboard.loading.syncing': 'Sincronizando com GitHub e calculando estimativas com IA...',
+                'dashboard.error.title': 'Erro ao carregar dados do Dashboard',
+                'dashboard.error.fetchFail': 'Falha ao obter estatísticas: {status}',
+                'dashboard.error.retry': 'Tentar Sincronizar Agora',
+                'dashboard.hist.title': 'Histórico Geral Acumulado (Desde a Criação)',
+                'dashboard.hist.badge': 'Visão global consolidada de todo o repositório',
+                'dashboard.hist.issuesCreated.label': 'Issues Criadas',
+                'dashboard.hist.issuesCreated.sub': 'total acumulado',
+                'dashboard.hist.openBacklog.label': 'Abertas no Backlog',
+                'dashboard.hist.openPct': '{pct}% do total',
+                'dashboard.hist.closed.label': 'Demandas Concluídas',
+                'dashboard.hist.closedPct': '{pct}% concluídas',
+                'dashboard.hist.commits.label': 'Commits Realizados',
+                'dashboard.hist.commits.sub': 'entregas no repositório',
+                'dashboard.stat.hoursTitle': 'Horas Estimadas no Mês (IA)',
+                'dashboard.stat.aiBadgeDefault': 'IA',
+                'dashboard.stat.hoursUnit': 'horas de trabalho',
+                'dashboard.stat.hoursFormula': 'Média ponderada issues x commits',
+                'dashboard.stat.hoursAnalyzing': 'Avaliando volume e complexidade...',
+                'dashboard.stat.hoursDefaultAnalysis': 'Cálculo de esforço realizado com sucesso.',
+                'dashboard.stat.aiProviderDefault': 'IA Integrada',
+                'dashboard.badge.issuesHours': '~{hours}h escopo issues',
+                'dashboard.badge.commitsHours': '~{hours}h commits/arquivos',
+                'dashboard.stat.openIssues': 'Issues Abertas',
+                'dashboard.stat.openIssues.sub': 'Demandas em andamento',
+                'dashboard.stat.closedIssues': 'Issues Fechadas',
+                'dashboard.stat.closedIssues.sub': 'Entregas concluídas',
+                'dashboard.stat.resolutionRate': 'Taxa Resolução',
+                'dashboard.badge.commitsYear': '{count} commits/ano',
+                'dashboard.recent.details': 'Atividade recente...',
+                'dashboard.recent.details.value': '{closed} fechadas e {created} abertas em 30d',
+                'dashboard.filter.label': 'Período nos Gráficos:',
+                'dashboard.filter.3m': 'Últimos 3 meses',
+                'dashboard.filter.6m': 'Últimos 6 meses',
+                'dashboard.filter.12m': 'Últimos 12 meses',
+                'dashboard.filter.localstorage': 'Armazenamento local persistido',
+                'dashboard.chart.commits.title': 'Volume de Commits por Mês',
+                'dashboard.chart.commits.subtitle': 'Histórico cronológico de entregas e commits',
+                'dashboard.chart.months': '{months} meses',
+                'dashboard.dataset.commits': 'Commits Realizados',
+                'dashboard.tooltip.commits': ' {count} commits realizados',
+                'dashboard.chart.issues.title': 'Proporção de Issues',
+                'dashboard.chart.issues.subtitle': 'Criadas vs Fechadas no período selecionado',
+                'dashboard.legend.createdPeriod': 'Criadas no Período',
+                'dashboard.legend.closedPeriod': 'Fechadas no Período',
+                'dashboard.legend.countPct': '{count} ({pct}%)',
+                'dashboard.chart.flow.title': 'Fluxo de Demandas: Issues Criadas vs Issues Fechadas',
+                'dashboard.chart.flow.subtitle': 'Comparativo mensal de novas demandas x conclusão',
+                'dashboard.flow.legend.created': 'Criadas',
+                'dashboard.flow.legend.closed': 'Fechadas',
+                'dashboard.dataset.issuesCreated': 'Issues Criadas',
+                'dashboard.dataset.issuesClosed': 'Issues Fechadas',
+                'dashboard.footer.tagline': 'Visão Executiva & Métricas de Engenharia'
+            },
+            en: {
+                'nav.list': 'List',
+                'nav.kanban': 'Kanban (Priorities)',
+                'nav.milestones': 'Milestones',
+                'nav.dashboard': 'Manager Dashboard',
+                'nav.analytics': 'Charts & Metrics',
+                'nav.theme.title': 'Toggle Dark Mode',
+                'dashboard.header.title': 'Executive Overview & Effort Estimate',
+                'dashboard.repo.label': 'Repository:',
+                'dashboard.sync.cached': 'Loaded from local cache',
+                'dashboard.sync.saved': 'Saved locally',
+                'dashboard.lastupdated.synced': 'Synced on {date} at {time}',
+                'dashboard.link.analytics': 'Advanced Time Analysis →',
+                'dashboard.sync.btn': 'Sync Data (AI)',
+                'dashboard.loading.cached': 'Loading locally saved data...',
+                'dashboard.loading.syncing': 'Syncing with GitHub and calculating AI estimates...',
+                'dashboard.error.title': 'Error loading Dashboard data',
+                'dashboard.error.fetchFail': 'Failed to fetch statistics: {status}',
+                'dashboard.error.retry': 'Try Syncing Now',
+                'dashboard.hist.title': 'Overall Accumulated History (Since Creation)',
+                'dashboard.hist.badge': 'Consolidated global view of the entire repository',
+                'dashboard.hist.issuesCreated.label': 'Issues Created',
+                'dashboard.hist.issuesCreated.sub': 'accumulated total',
+                'dashboard.hist.openBacklog.label': 'Open in Backlog',
+                'dashboard.hist.openPct': '{pct}% of total',
+                'dashboard.hist.closed.label': 'Completed Demands',
+                'dashboard.hist.closedPct': '{pct}% completed',
+                'dashboard.hist.commits.label': 'Commits Made',
+                'dashboard.hist.commits.sub': 'deliveries in the repository',
+                'dashboard.stat.hoursTitle': 'Estimated Hours This Month (AI)',
+                'dashboard.stat.aiBadgeDefault': 'AI',
+                'dashboard.stat.hoursUnit': 'hours of work',
+                'dashboard.stat.hoursFormula': 'Weighted average of issues x commits',
+                'dashboard.stat.hoursAnalyzing': 'Evaluating volume and complexity...',
+                'dashboard.stat.hoursDefaultAnalysis': 'Effort calculation completed successfully.',
+                'dashboard.stat.aiProviderDefault': 'Integrated AI',
+                'dashboard.badge.issuesHours': '~{hours}h issues scope',
+                'dashboard.badge.commitsHours': '~{hours}h commits/files',
+                'dashboard.stat.openIssues': 'Open Issues',
+                'dashboard.stat.openIssues.sub': 'Demands in progress',
+                'dashboard.stat.closedIssues': 'Closed Issues',
+                'dashboard.stat.closedIssues.sub': 'Completed deliveries',
+                'dashboard.stat.resolutionRate': 'Resolution Rate',
+                'dashboard.badge.commitsYear': '{count} commits/year',
+                'dashboard.recent.details': 'Recent activity...',
+                'dashboard.recent.details.value': '{closed} closed and {created} opened in 30d',
+                'dashboard.filter.label': 'Chart Period:',
+                'dashboard.filter.3m': 'Last 3 months',
+                'dashboard.filter.6m': 'Last 6 months',
+                'dashboard.filter.12m': 'Last 12 months',
+                'dashboard.filter.localstorage': 'Persisted local storage',
+                'dashboard.chart.commits.title': 'Monthly Commit Volume',
+                'dashboard.chart.commits.subtitle': 'Chronological history of deliveries and commits',
+                'dashboard.chart.months': '{months} months',
+                'dashboard.dataset.commits': 'Commits Made',
+                'dashboard.tooltip.commits': ' {count} commits made',
+                'dashboard.chart.issues.title': 'Issue Proportion',
+                'dashboard.chart.issues.subtitle': 'Created vs Closed in the selected period',
+                'dashboard.legend.createdPeriod': 'Created in Period',
+                'dashboard.legend.closedPeriod': 'Closed in Period',
+                'dashboard.legend.countPct': '{count} ({pct}%)',
+                'dashboard.chart.flow.title': 'Demand Flow: Issues Created vs Issues Closed',
+                'dashboard.chart.flow.subtitle': 'Monthly comparison of new demands x completion',
+                'dashboard.flow.legend.created': 'Created',
+                'dashboard.flow.legend.closed': 'Closed',
+                'dashboard.dataset.issuesCreated': 'Issues Created',
+                'dashboard.dataset.issuesClosed': 'Issues Closed',
+                'dashboard.footer.tagline': 'Executive Overview & Engineering Metrics'
+            }
+        };
+    </script>
+    <script src="/js/i18n.js"></script>
     <script>
         // Tema Dark / Light
         function initTheme() {
@@ -336,6 +483,24 @@
         }
 
         initTheme();
+        I18N.init();
+        document.addEventListener('i18nchange', () => {
+            document.getElementById('commits-range-badge').innerText = I18N.t('dashboard.chart.months', { months: selectedRangeMonths });
+            document.getElementById('issues-range-badge').innerText = I18N.t('dashboard.chart.months', { months: selectedRangeMonths });
+            renderCharts();
+        });
+
+        async function loadRepoName() {
+            try {
+                const res = await fetch('/api/github/config');
+                if (res.ok) {
+                    const cfg = await res.json();
+                    const el = document.getElementById('repo-name');
+                    if (el && cfg.repository) el.innerText = cfg.repository;
+                }
+            } catch (e) {}
+        }
+        loadRepoName();
 
         // Estado do Dashboard
         let globalStatsData = null;
@@ -357,7 +522,7 @@
                 }
             });
 
-            document.getElementById('commits-range-badge').innerText = `${months} meses`;
+            document.getElementById('commits-range-badge').innerText = I18N.t('dashboard.chart.months', { months });
             renderCharts();
         }
 
@@ -370,10 +535,10 @@
             loading.style.display = 'flex';
             content.style.display = 'none';
             if (forceSync) {
-                loadingText.innerText = 'Sincronizando com GitHub e calculando estimativas com IA...';
+                loadingText.innerText = I18N.t('dashboard.loading.syncing');
                 if (syncIcon) syncIcon.classList.add('fa-spin');
             } else {
-                loadingText.innerText = 'Carregando dados salvos localmente...';
+                loadingText.innerText = I18N.t('dashboard.loading.cached');
             }
 
             try {
@@ -381,17 +546,17 @@
                 if (forceSync) url += '?sync=true';
 
                 const response = await fetch(url);
-                if (!response.ok) throw new Error('Falha ao obter estatísticas: ' + response.statusText);
+                if (!response.ok) throw new Error(I18N.t('dashboard.error.fetchFail', { status: response.statusText }));
                 const data = await response.json();
                 globalStatsData = data;
 
-                // Preencher Indicador de Horas com IA
+                // Preencher Indicador de Horas com IA (análise é conteúdo gerado pela IA, não traduzido)
                 const hoursInfo = data.estimatedHours || {};
                 document.getElementById('estimated-hours-val').innerText = `${hoursInfo.estimatedHours || '--'}h`;
-                document.getElementById('estimated-hours-analysis').innerText = hoursInfo.analysis || 'Cálculo de esforço realizado com sucesso.';
-                document.getElementById('ai-provider-badge').innerText = hoursInfo.providerInfo || hoursInfo.provider || 'IA Integrada';
-                document.getElementById('badge-issues-hours').innerText = `~${hoursInfo.issuesComponentHours || 0}h escopo issues`;
-                document.getElementById('badge-commits-hours').innerText = `~${hoursInfo.commitsComponentHours || 0}h commits/arquivos`;
+                document.getElementById('estimated-hours-analysis').innerText = hoursInfo.analysis || I18N.t('dashboard.stat.hoursDefaultAnalysis');
+                document.getElementById('ai-provider-badge').innerText = hoursInfo.providerInfo || hoursInfo.provider || I18N.t('dashboard.stat.aiProviderDefault');
+                document.getElementById('badge-issues-hours').innerText = I18N.t('dashboard.badge.issuesHours', { hours: hoursInfo.issuesComponentHours || 0 });
+                document.getElementById('badge-commits-hours').innerText = I18N.t('dashboard.badge.commitsHours', { hours: hoursInfo.commitsComponentHours || 0 });
 
                 // Preencher Histórico Geral Acumulado (Desde o Começo)
                 const histOpen = data.openIssues || 0;
@@ -406,11 +571,11 @@
                 const elHistOpen = document.getElementById('hist-open-issues');
                 if (elHistOpen) elHistOpen.innerText = histOpen;
                 const elHistOpenPct = document.getElementById('hist-open-pct');
-                if (elHistOpenPct) elHistOpenPct.innerText = `${histOpenPct}% do total`;
+                if (elHistOpenPct) elHistOpenPct.innerText = I18N.t('dashboard.hist.openPct', { pct: histOpenPct });
                 const elHistClosed = document.getElementById('hist-closed-issues');
                 if (elHistClosed) elHistClosed.innerText = histClosed;
                 const elHistClosedPct = document.getElementById('hist-closed-pct');
-                if (elHistClosedPct) elHistClosedPct.innerText = `${histClosedPct}% concluídas`;
+                if (elHistClosedPct) elHistClosedPct.innerText = I18N.t('dashboard.hist.closedPct', { pct: histClosedPct });
                 const elHistCommits = document.getElementById('hist-commits');
                 if (elHistCommits) elHistCommits.innerText = histCommits;
 
@@ -431,18 +596,22 @@
 
                 // Commits
                 let totalCommits = data.totalCommits || 0;
-                document.getElementById('total-commits-badge').innerText = `${totalCommits} commits/ano`;
+                document.getElementById('total-commits-badge').innerText = I18N.t('dashboard.badge.commitsYear', { count: totalCommits });
 
                 // Atividade recente
                 if (data.recent30Days) {
-                    document.getElementById('recent-details').innerText = `${data.recent30Days.closed} fechadas e ${data.recent30Days.created} abertas em 30d`;
+                    document.getElementById('recent-details').innerText = I18N.t('dashboard.recent.details.value', { closed: data.recent30Days.closed, created: data.recent30Days.created });
                 }
 
                 // Status de sincronização
                 if (data.lastSyncedAt) {
                     const syncDate = new Date(data.lastSyncedAt);
-                    document.getElementById('last-updated').innerText = `Sincronizado em ${syncDate.toLocaleDateString('pt-BR')} às ${syncDate.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`;
-                    document.getElementById('sync-status').innerHTML = '<i class="fa-solid fa-hard-drive text-emerald-500"></i> Salvo localmente';
+                    const dateLocale = I18N.lang === 'pt' ? 'pt-BR' : 'en-US';
+                    document.getElementById('last-updated').innerText = I18N.t('dashboard.lastupdated.synced', {
+                        date: syncDate.toLocaleDateString(dateLocale),
+                        time: syncDate.toLocaleTimeString(dateLocale, { hour: '2-digit', minute: '2-digit' })
+                    });
+                    document.getElementById('sync-status').innerHTML = `<i class="fa-solid fa-hard-drive text-emerald-500"></i> ${I18N.t('dashboard.sync.saved')}`;
                 }
 
                 // Renderiza Gráficos
@@ -456,9 +625,9 @@
                 loading.innerHTML = `
                     <div class="text-red-500 text-center">
                         <i class="fa-solid fa-triangle-exclamation text-3xl mb-2"></i>
-                        <p class="font-bold text-gray-800 dark:text-gray-200">Erro ao carregar dados do Dashboard</p>
+                        <p class="font-bold text-gray-800 dark:text-gray-200">${I18N.t('dashboard.error.title')}</p>
                         <p class="text-xs text-gray-500 mt-1">${error.message}</p>
-                        <button onclick="loadDashboard(true)" class="mt-4 bg-blue-600 text-white text-xs px-4 py-2 rounded-lg font-medium">Tentar Sincronizar Agora</button>
+                        <button onclick="loadDashboard(true)" class="mt-4 bg-blue-600 text-white text-xs px-4 py-2 rounded-lg font-medium">${I18N.t('dashboard.error.retry')}</button>
                     </div>
                 `;
             } finally {
@@ -488,7 +657,7 @@
             const sliceStart = Math.max(0, allMonths.length - selectedRangeMonths);
             const visibleMonths = allMonths.slice(sliceStart);
 
-            const labels = visibleMonths.map(m => m.label);
+            const labels = visibleMonths.map(m => I18N.translateMonthLabel(m.label));
             const commitsValues = visibleMonths.map(m => m.commits);
             const createdValues = visibleMonths.map(m => m.issuesCreated);
             const closedValues = visibleMonths.map(m => m.issuesClosed);
@@ -501,7 +670,7 @@
                 data: {
                     labels: labels,
                     datasets: [{
-                        label: 'Commits Realizados',
+                        label: I18N.t('dashboard.dataset.commits'),
                         data: commitsValues,
                         backgroundColor: '#8b5cf6',
                         hoverBackgroundColor: '#7c3aed',
@@ -518,7 +687,7 @@
                             padding: 10,
                             cornerRadius: 8,
                             callbacks: {
-                                label: (c) => ` ${c.parsed.y} commits realizados`
+                                label: (c) => I18N.t('dashboard.tooltip.commits', { count: c.parsed.y })
                             }
                         }
                     },
@@ -544,19 +713,19 @@
             const periodClosedPct = periodTotal > 0 ? Math.round((periodClosed / periodTotal) * 100) : 0;
 
             const elLegendOpen = document.getElementById('legend-open');
-            if (elLegendOpen) elLegendOpen.innerText = `${periodCreated} (${periodCreatedPct}%)`;
+            if (elLegendOpen) elLegendOpen.innerText = I18N.t('dashboard.legend.countPct', { count: periodCreated, pct: periodCreatedPct });
             const elLegendClosed = document.getElementById('legend-closed');
-            if (elLegendClosed) elLegendClosed.innerText = `${periodClosed} (${periodClosedPct}%)`;
+            if (elLegendClosed) elLegendClosed.innerText = I18N.t('dashboard.legend.countPct', { count: periodClosed, pct: periodClosedPct });
 
             const elRangeBadge = document.getElementById('issues-range-badge');
-            if (elRangeBadge) elRangeBadge.innerText = `${selectedRangeMonths} meses`;
+            if (elRangeBadge) elRangeBadge.innerText = I18N.t('dashboard.chart.months', { months: selectedRangeMonths });
 
             destroyChart('issues');
             const ctxIssues = document.getElementById('issuesChart').getContext('2d');
             chartInstances.issues = new Chart(ctxIssues, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Criadas no Período', 'Fechadas no Período'],
+                    labels: [I18N.t('dashboard.legend.createdPeriod'), I18N.t('dashboard.legend.closedPeriod')],
                     datasets: [{
                         data: [periodCreated, periodClosed],
                         backgroundColor: ['#3b82f6', '#22c55e'],
@@ -606,14 +775,14 @@
                     labels: labels,
                     datasets: [
                         {
-                            label: 'Issues Criadas',
+                            label: I18N.t('dashboard.dataset.issuesCreated'),
                             data: createdValues,
                             backgroundColor: 'rgba(59, 130, 246, 0.85)',
                             hoverBackgroundColor: '#2563eb',
                             borderRadius: 4
                         },
                         {
-                            label: 'Issues Fechadas',
+                            label: I18N.t('dashboard.dataset.issuesClosed'),
                             data: closedValues,
                             backgroundColor: 'rgba(34, 197, 94, 0.85)',
                             hoverBackgroundColor: '#16a34a',

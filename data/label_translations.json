@@ -55,21 +55,21 @@
     "color": "16a34a",
     "icon": "fa-angle-down"
   },
-  "domain:financeiro": {
-    "name": "Financeiro",
-    "description": "Módulo de faturamento, pagamentos, notas fiscais, contas e conciliação bancária.",
+  "domain:backend": {
+    "name": "Backend",
+    "description": "API, regras de negócio, banco de dados e integrações server-side.",
     "category": "Domínio",
     "color": "059669",
-    "icon": "fa-wallet"
+    "icon": "fa-server"
   },
-  "domain:comercial": {
-    "name": "Comercial / Vendas",
-    "description": "Gestão de leads, propostas, clientes, contratos e esteira comercial.",
+  "domain:frontend": {
+    "name": "Frontend",
+    "description": "Interface, componentes visuais e experiência do usuário no cliente.",
     "category": "Domínio",
     "color": "d97706",
-    "icon": "fa-briefcase"
+    "icon": "fa-display"
   },
-  "domain:operacional": {
+  "domain:operations": {
     "name": "Operações / Processos",
     "description": "Fluxos de trabalho diários, rotinas de triagem, execução de serviços e atendimento.",
     "category": "Domínio",

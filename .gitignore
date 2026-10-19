@@ -5,3 +5,8 @@ node_modules/
 .vercel/
 *.log
 data/github_config.json
+data/ai_config.json
+data/dashboard_cache.json
+data/issue_summaries.json
+data/suggested_titles.json
+data/milestones_order.json

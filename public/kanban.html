@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Organizador de Issues - Kanban</title>
+    <title>GitHub Organizer - Kanban</title>
     <script>
         tailwind = {
             config: {
@@ -35,24 +35,27 @@
         <div class="container mx-auto flex flex-wrap justify-between items-center max-w-[99%] gap-3">
             <div class="flex items-center space-x-2">
                 <span class="text-xl">🚀</span>
-                <span class="font-bold text-lg tracking-tight">Celic Organizer</span>
+                <span class="font-bold text-lg tracking-tight">GitHub Organizer</span>
             </div>
             <div class="flex flex-wrap items-center gap-3 text-sm">
-                <a href="/" class="hover:text-blue-200 dark:hover:text-blue-400 transition-colors">Lista</a>
-                <a href="/kanban.html" class="font-bold underline decoration-2 underline-offset-4 text-white">Kanban (Prioridades)</a>
-                <a href="/milestones.html" class="hover:text-blue-200 dark:hover:text-blue-400 transition-colors">Metas</a>
-                <a href="/dashboard.html" class="hover:text-blue-200 dark:hover:text-blue-400 transition-colors">Dashboard Gestor</a>
-                <a href="/analytics.html" class="hover:text-blue-200 dark:hover:text-blue-400 transition-colors">Gráficos & Métricas</a>
+                <a href="/" class="hover:text-blue-200 dark:hover:text-blue-400 transition-colors" data-i18n="nav.list">Lista</a>
+                <a href="/kanban.html" class="font-bold underline decoration-2 underline-offset-4 text-white" data-i18n="nav.kanban">Kanban (Prioridades)</a>
+                <a href="/milestones.html" class="hover:text-blue-200 dark:hover:text-blue-400 transition-colors" data-i18n="nav.milestones">Metas</a>
+                <a href="/dashboard.html" class="hover:text-blue-200 dark:hover:text-blue-400 transition-colors" data-i18n="nav.dashboard">Dashboard Gestor</a>
+                <a href="/analytics.html" class="hover:text-blue-200 dark:hover:text-blue-400 transition-colors" data-i18n="nav.analytics">Gráficos & Métricas</a>
 
                 <!-- Botão de Configuração de IA -->
-                <button onclick="openAIConfigModal()" class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-700 dark:bg-gray-700 hover:bg-blue-800 dark:hover:bg-gray-600 text-white text-xs font-semibold shadow-xs transition-all focus:outline-none" title="Configurar Servidor de IA & Chaves">
+                <button onclick="openAIConfigModal()" class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-700 dark:bg-gray-700 hover:bg-blue-800 dark:hover:bg-gray-600 text-white text-xs font-semibold shadow-xs transition-all focus:outline-none" data-i18n-title="nav.aiconfig.title" title="Configurar Servidor de IA & Chaves">
                     <span id="nav-ai-status-dot" class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                     <i class="fa-solid fa-sliders"></i>
-                    <span>Configuração IA</span>
+                    <span data-i18n="nav.aiconfig">Configuração IA</span>
                 </button>
 
+                <!-- Seletor de Idioma -->
+                <div id="i18n-switcher" class="flex items-center gap-1 text-xs font-bold px-2 py-1 rounded-lg bg-blue-700 dark:bg-gray-700"></div>
+
                 <!-- Toggle Dark Mode -->
-                <button id="theme-toggle" onclick="toggleDarkMode()" class="p-1.5 rounded-lg bg-blue-700 dark:bg-gray-700 hover:bg-blue-800 dark:hover:bg-gray-600 text-yellow-300 dark:text-yellow-400 transition-all text-xs focus:outline-none" title="Alternar Modo Escuro">
+                <button id="theme-toggle" onclick="toggleDarkMode()" class="p-1.5 rounded-lg bg-blue-700 dark:bg-gray-700 hover:bg-blue-800 dark:hover:bg-gray-600 text-yellow-300 dark:text-yellow-400 transition-all text-xs focus:outline-none" data-i18n-title="nav.theme.title" title="Alternar Modo Escuro">
                     <i id="theme-icon" class="fa-solid fa-moon"></i>
                 </button>
             </div>
@@ -64,36 +67,39 @@
         <div class="flex items-center gap-3">
             <span class="text-gray-500 dark:text-gray-400 font-medium flex items-center gap-1.5">
                 <i class="fa-solid fa-arrow-down-short-wide text-blue-500"></i>
-                <span>Ordem das Prioridades: <strong>P0 (Crítica) &rarr; P1 &rarr; P2 &rarr; P3 (Baixa)</strong></span>
+                <span>
+                    <span data-i18n="kanban.toolbar.order.label">Ordem das Prioridades:</span>
+                    <strong data-i18n="kanban.toolbar.order.sequence">P0 (Crítica) &rarr; P1 &rarr; P2 &rarr; P3 (Baixa)</strong>
+                </span>
             </span>
             <span class="text-gray-300 dark:text-gray-600">|</span>
             <label class="inline-flex items-center gap-1.5 cursor-pointer text-gray-700 dark:text-gray-300 font-semibold select-none">
                 <input type="checkbox" id="toggle-suggested-titles" onchange="toggleSuggestedTitlesView()" checked class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
-                <span>Exibir Títulos Sugeridos (IA)</span>
+                <span data-i18n="kanban.toggle.suggestedtitles">Exibir Títulos Sugeridos (IA)</span>
             </label>
         </div>
 
         <div class="flex items-center gap-2">
             <button onclick="syncSuggestedTitles()" id="btn-sync-titles" class="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-indigo-900 border border-indigo-200 dark:border-indigo-800 font-semibold transition-all">
                 <i id="sync-titles-icon" class="fa-solid fa-wand-magic-sparkles"></i>
-                <span>Sincronizar Títulos IA</span>
+                <span data-i18n="kanban.sync.btn">Sincronizar Títulos IA</span>
             </button>
-            <span id="titles-sync-badge" class="text-[11px] text-gray-400 dark:text-gray-500 hidden sm:inline">Salvo localmente</span>
+            <span id="titles-sync-badge" class="text-[11px] text-gray-400 dark:text-gray-500 hidden sm:inline" data-i18n="kanban.sync.badge.default">Salvo localmente</span>
         </div>
     </div>
 
     <!-- Layout Principal: Lateral Esquerda (Sem Prioridade) + Direita (P0, P1, P2, P3 Ascendente) -->
     <div class="p-3 max-w-[99%] w-full flex-1 flex gap-3 overflow-hidden">
-        
+
         <!-- Indicador de Carregamento -->
         <div id="loading" class="text-blue-600 dark:text-blue-400 font-semibold p-4 flex items-center gap-2">
             <i class="fa-solid fa-spinner fa-spin"></i>
-            <span>Carregando quadro kanban...</span>
+            <span data-i18n="kanban.loading">Carregando quadro kanban...</span>
         </div>
 
         <!-- Conteúdo do Kanban -->
         <div id="kanban-wrapper" class="flex gap-3 w-full h-full overflow-hidden" style="display: none;">
-            
+
             <!-- COLUNA DA ESQUERDA: Issues Sem Prioridade (Backlog) -->
             <div class="w-80 sm:w-88 md:w-96 flex-shrink-0 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 flex flex-col h-full overflow-hidden transition-colors">
                 <!-- Cabeçalho -->
@@ -101,7 +107,7 @@
                     <div class="flex items-center justify-between mb-2">
                         <div class="flex items-center gap-2">
                             <span class="w-2.5 h-2.5 rounded-full bg-gray-400"></span>
-                            <h2 class="font-bold text-xs uppercase tracking-wider text-gray-700 dark:text-gray-300">
+                            <h2 class="font-bold text-xs uppercase tracking-wider text-gray-700 dark:text-gray-300" data-i18n="kanban.backlog.title">
                                 Sem Prioridade
                             </h2>
                         </div>
@@ -112,7 +118,7 @@
                     <!-- Campo de busca rápida no backlog -->
                     <div class="relative">
                         <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-2 text-gray-400 text-[10px]"></i>
-                        <input type="text" id="search-none" oninput="filterNoneCol()" placeholder="Buscar por título ou #..." class="w-full pl-7 pr-2 py-1 text-xs bg-white dark:bg-gray-600 dark:text-white border border-gray-200 dark:border-gray-500 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500">
+                        <input type="text" id="search-none" oninput="filterNoneCol()" data-i18n-ph="kanban.backlog.search.placeholder" placeholder="Buscar por título ou #..." class="w-full pl-7 pr-2 py-1 text-xs bg-white dark:bg-gray-600 dark:text-white border border-gray-200 dark:border-gray-500 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500">
                     </div>
                 </div>
 
@@ -126,13 +132,13 @@
             <div class="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
                 <!-- Grid das 4 Colunas de Prioridade: P0 -> P1 -> P2 -> P3 -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-2.5 flex-1 overflow-hidden h-full">
-                    
+
                     <!-- 1. P0 - Critical (Mais Urgente / Alta) -->
                     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-300 dark:border-gray-700 flex flex-col h-full overflow-hidden">
                         <div class="p-2.5 bg-gray-900 dark:bg-gray-950 text-white flex justify-between items-center flex-shrink-0">
                             <span class="font-bold text-xs uppercase tracking-wider text-gray-100 flex items-center gap-1.5">
                                 <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
-                                P0 - Critical
+                                <span data-i18n="priority.p0">P0 - Critical</span>
                             </span>
                             <span id="count-p0" class="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-gray-700 text-gray-200">0</span>
                         </div>
@@ -144,7 +150,7 @@
                         <div class="p-2.5 bg-red-50 dark:bg-red-950/60 border-b border-red-100 dark:border-red-900/50 flex justify-between items-center flex-shrink-0">
                             <span class="font-bold text-xs uppercase tracking-wider text-red-800 dark:text-red-300 flex items-center gap-1.5">
                                 <span class="w-2 h-2 rounded-full bg-red-500"></span>
-                                P1 - High
+                                <span data-i18n="priority.p1">P1 - High</span>
                             </span>
                             <span id="count-p1" class="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300">0</span>
                         </div>
@@ -156,7 +162,7 @@
                         <div class="p-2.5 bg-yellow-50 dark:bg-yellow-950/60 border-b border-yellow-100 dark:border-yellow-900/50 flex justify-between items-center flex-shrink-0">
                             <span class="font-bold text-xs uppercase tracking-wider text-yellow-800 dark:text-yellow-300 flex items-center gap-1.5">
                                 <span class="w-2 h-2 rounded-full bg-yellow-500"></span>
-                                P2 - Medium
+                                <span data-i18n="priority.p2">P2 - Medium</span>
                             </span>
                             <span id="count-p2" class="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300">0</span>
                         </div>
@@ -168,7 +174,7 @@
                         <div class="p-2.5 bg-green-50 dark:bg-green-950/60 border-b border-green-100 dark:border-green-900/50 flex justify-between items-center flex-shrink-0">
                             <span class="font-bold text-xs uppercase tracking-wider text-green-800 dark:text-green-300 flex items-center gap-1.5">
                                 <span class="w-2 h-2 rounded-full bg-green-500"></span>
-                                P3 - Low
+                                <span data-i18n="priority.p3">P3 - Low</span>
                             </span>
                             <span id="count-p3" class="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300">0</span>
                         </div>
@@ -191,8 +197,8 @@
                         <i class="fa-solid fa-sliders"></i>
                     </span>
                     <div>
-                        <h3 class="font-bold text-sm text-gray-900 dark:text-white">Configurações & Conectividade</h3>
-                        <p class="text-[11px] text-gray-500 dark:text-gray-400">Gerencie o Token do GitHub e os Servidores de Inteligência Artificial</p>
+                        <h3 class="font-bold text-sm text-gray-900 dark:text-white" data-i18n="modal.aiconfig.title">Configurações & Conectividade</h3>
+                        <p class="text-[11px] text-gray-500 dark:text-gray-400" data-i18n="modal.aiconfig.subtitle">Gerencie o Token do GitHub e os Servidores de Inteligência Artificial</p>
                     </div>
                 </div>
                 <button onclick="closeAIConfigModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-1.5 rounded-lg">
@@ -202,18 +208,18 @@
 
             <!-- Formulário -->
             <div class="p-5 overflow-y-auto space-y-5 max-h-[75vh]">
-                
+
                 <!-- SEÇÃO 1: TOKEN DO GITHUB (SEGURO) -->
                 <div class="p-3.5 rounded-xl bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 space-y-2.5">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-2">
                             <i class="fa-brands fa-github text-gray-800 dark:text-gray-200 text-base"></i>
                             <div>
-                                <span class="font-bold text-xs text-gray-900 dark:text-gray-100 block">Token de Acesso do GitHub</span>
-                                <span class="text-[10px] text-gray-500 dark:text-gray-400">Necessário para ler e atualizar issues e metas (PAT Classic ou Fine-grained)</span>
+                                <span class="font-bold text-xs text-gray-900 dark:text-gray-100 block" data-i18n="github.token.label">Token de Acesso do GitHub</span>
+                                <span class="text-[10px] text-gray-500 dark:text-gray-400" data-i18n="github.token.desc">Necessário para ler e atualizar issues e metas (PAT Classic ou Fine-grained)</span>
                             </div>
                         </div>
-                        <span id="github-token-badge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300">
+                        <span id="github-token-badge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300" data-i18n="github.token.checking">
                             Verificando...
                         </span>
                     </div>
@@ -221,20 +227,20 @@
                     <div class="space-y-1.5">
                         <div class="flex items-center gap-1.5">
                             <div class="relative flex-1">
-                                <input type="password" id="github-token-input" placeholder="ghp_... ou gho_... (cole um novo token para atualizar)" class="w-full text-xs p-2 pr-8 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 font-mono">
+                                <input type="password" id="github-token-input" data-i18n-ph="github.token.placeholder" placeholder="ghp_... ou gho_... (cole um novo token para atualizar)" class="w-full text-xs p-2 pr-8 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 font-mono">
                                 <button type="button" onclick="toggleGithubTokenVisibility()" class="absolute right-2.5 top-2.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 text-xs" title="Ver token">
                                     <i id="github-token-eye" class="fa-regular fa-eye"></i>
                                 </button>
                             </div>
                             <button type="button" onclick="saveGitHubToken()" id="btn-save-gh-token" class="px-3 py-2 rounded-lg bg-gray-900 hover:bg-black dark:bg-gray-600 dark:hover:bg-gray-500 text-white text-xs font-semibold flex items-center gap-1 transition-colors whitespace-nowrap shadow-2xs">
                                 <i class="fa-solid fa-floppy-disk text-[10px]"></i>
-                                <span>Salvar Token</span>
+                                <span data-i18n="github.token.save">Salvar Token</span>
                             </button>
                         </div>
                         <div class="flex items-center justify-between text-[10px] text-gray-500 dark:text-gray-400">
-                            <span id="github-token-current-status">Token ativo: Nenhum</span>
+                            <span id="github-token-current-status" data-i18n="github.token.active.none">Token ativo: Nenhum</span>
                             <button type="button" onclick="testGitHubToken()" id="btn-test-gh-token" class="text-blue-600 dark:text-blue-400 hover:underline font-semibold flex items-center gap-1">
-                                <i class="fa-solid fa-vial text-[9px]"></i> Testar Token
+                                <i class="fa-solid fa-vial text-[9px]"></i> <span data-i18n="github.token.test">Testar Token</span>
                             </button>
                         </div>
                         <div id="github-token-msg" class="text-[11px] p-2 rounded-lg" style="display: none;"></div>
@@ -247,8 +253,8 @@
                 <!-- Interruptor Ligar/Desligar IA -->
                 <div class="flex items-center justify-between p-3 rounded-xl bg-gray-50 dark:bg-gray-700/60 border border-gray-200 dark:border-gray-600">
                     <div>
-                        <span class="font-bold text-xs text-gray-800 dark:text-gray-200 block">Inteligência Artificial Ativa</span>
-                        <span class="text-[11px] text-gray-500 dark:text-gray-400">Habilita explicação de issues e títulos sugeridos</span>
+                        <span class="font-bold text-xs text-gray-800 dark:text-gray-200 block" data-i18n="ai.active.label">Inteligência Artificial Ativa</span>
+                        <span class="text-[11px] text-gray-500 dark:text-gray-400" data-i18n="ai.active.desc">Habilita explicação de issues e títulos sugeridos</span>
                     </div>
                     <label class="relative inline-flex items-center cursor-pointer">
                         <input type="checkbox" id="ai-enabled-toggle" class="sr-only peer" checked>
@@ -258,12 +264,12 @@
 
                 <!-- Seleção do Provedor -->
                 <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">Provedor Ativo</label>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2" data-i18n="ai.provider.label">Provedor Ativo</label>
                     <div class="grid grid-cols-3 gap-2">
                         <button type="button" onclick="selectAIProvider('ollama')" id="btn-prov-ollama" class="p-2.5 rounded-xl border text-xs font-bold flex flex-col items-center gap-1 transition-all">
                             <span class="text-base">🦙</span>
                             <span>Ollama</span>
-                            <span class="text-[10px] font-normal text-gray-400">Ambialles / Local</span>
+                            <span class="text-[10px] font-normal text-gray-400" data-i18n="ai.provider.ollama.sub">Privado / Local</span>
                         </button>
                         <button type="button" onclick="selectAIProvider('gemini')" id="btn-prov-gemini" class="p-2.5 rounded-xl border text-xs font-bold flex flex-col items-center gap-1 transition-all">
                             <span class="text-base">🌟</span>
@@ -273,7 +279,7 @@
                         <button type="button" onclick="selectAIProvider('opencode')" id="btn-prov-opencode" class="p-2.5 rounded-xl border text-xs font-bold flex flex-col items-center gap-1 transition-all">
                             <span class="text-base">⚡</span>
                             <span>OpenCode</span>
-                            <span class="text-[10px] font-normal text-gray-400">OpenAI Compatible</span>
+                            <span class="text-[10px] font-normal text-gray-400" data-i18n="ai.provider.opencode.sub">OpenAI Compatible</span>
                         </button>
                     </div>
                 </div>
@@ -282,23 +288,23 @@
                 <div id="ai-fields-ollama" class="space-y-3 p-3.5 rounded-xl bg-gray-50 dark:bg-gray-700/40 border border-gray-200 dark:border-gray-600">
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
                         <div class="sm:col-span-2">
-                            <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">URL do Servidor Ollama / Proxy</label>
-                            <input type="text" id="ai-ollama-url" placeholder="https://ollama.ambialles.com ou http://100.70.63.0:11435" class="w-full text-xs p-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700">
+                            <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1" data-i18n="ai.ollama.url.label">URL do Servidor Ollama / Proxy</label>
+                            <input type="text" id="ai-ollama-url" data-i18n-ph="ai.ollama.url.placeholder" placeholder="http://localhost:11434 ou a URL do seu servidor privado" class="w-full text-xs p-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1" title="Nome do cliente/projeto enviado no header X-Client-Name para o painel de monitoramento">
-                                Nome do Cliente / Projeto
+                            <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1" data-i18n-title="ai.ollama.clientname.title" title="Nome do cliente/projeto enviado no header X-Client-Name para o painel de monitoramento">
+                                <span data-i18n="ai.ollama.clientname.label">Nome do Cliente / Projeto</span>
                             </label>
-                            <input type="text" id="ai-ollama-client-name" placeholder="meu-projeto" value="meu-projeto" class="w-full text-xs p-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700">
+                            <input type="text" id="ai-ollama-client-name" data-i18n-ph="ai.ollama.clientname.placeholder" placeholder="meu-projeto" value="my-project" class="w-full text-xs p-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700">
                         </div>
                     </div>
                     <div class="grid grid-cols-2 gap-2">
                         <div>
                             <div class="flex items-center justify-between mb-1">
-                                <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300">Modelo</label>
+                                <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300" data-i18n="ai.model.label">Modelo</label>
                                 <button type="button" onclick="fetchServerModels('ollama')" id="btn-fetch-ollama" class="text-[10px] text-blue-600 dark:text-blue-400 hover:underline font-semibold flex items-center gap-1">
                                     <i id="icon-fetch-ollama" class="fa-solid fa-arrows-rotate text-[9px]"></i>
-                                    <span>Buscar Modelos</span>
+                                    <span data-i18n="ai.fetchmodels">Buscar Modelos</span>
                                 </button>
                             </div>
                             <div class="flex items-center gap-1">
@@ -306,49 +312,49 @@
                                     <option value="gemma3:12b">gemma3:12b</option>
                                 </select>
                                 <input type="text" id="ai-ollama-model" style="display: none;" placeholder="gemma3:12b" class="flex-1 text-xs p-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100">
-                                <button type="button" onclick="toggleCustomModelInput('ollama')" id="btn-toggle-custom-ollama" class="p-2 text-xs border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600" title="Digitar nome personalizado de modelo">
+                                <button type="button" onclick="toggleCustomModelInput('ollama')" id="btn-toggle-custom-ollama" class="p-2 text-xs border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600" data-i18n-title="ai.customModel.title" title="Digitar nome personalizado de modelo">
                                     <i class="fa-solid fa-pen-to-square"></i>
                                 </button>
                             </div>
-                            <span id="ollama-models-status" class="block text-[10px] text-gray-500 dark:text-gray-400 mt-1">Carregando lista...</span>
+                            <span id="ollama-models-status" class="block text-[10px] text-gray-500 dark:text-gray-400 mt-1" data-i18n="ai.ollama.models.loading">Carregando lista...</span>
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Tipo de Autenticação</label>
+                            <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1" data-i18n="ai.authtype.label">Tipo de Autenticação</label>
                             <select id="ai-ollama-auth-type" onchange="onOllamaAuthTypeChange()" class="w-full text-xs p-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700">
-                                <option value="bearer">Token (X-Ollama-Token / Bearer)</option>
-                                <option value="basic">Basic Auth (Nginx Usuário/Senha)</option>
-                                <option value="none">Sem Autenticação</option>
+                                <option value="bearer" data-i18n="ai.authtype.bearer">Token (X-Ollama-Token / Bearer)</option>
+                                <option value="basic" data-i18n="ai.authtype.basic">Basic Auth (Nginx Usuário/Senha)</option>
+                                <option value="none" data-i18n="ai.authtype.none">Sem Autenticação</option>
                             </select>
                         </div>
                     </div>
                     <div id="ollama-basic-auth-fields" class="grid grid-cols-2 gap-2" style="display: none;">
                         <div>
-                            <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Usuário Nginx</label>
+                            <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1" data-i18n="ai.nginx.user.label">Usuário Nginx</label>
                             <input type="text" id="ai-ollama-user" placeholder="usuario" class="w-full text-xs p-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Senha Nginx</label>
+                            <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1" data-i18n="ai.nginx.pass.label">Senha Nginx</label>
                             <input type="password" id="ai-ollama-password" placeholder="••••••••" class="w-full text-xs p-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700">
                         </div>
                     </div>
                     <div id="ollama-bearer-auth-field">
-                        <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Token de Acesso (X-Ollama-Token / Bearer)</label>
-                        <input type="password" id="ai-ollama-apikey" placeholder="cb0a91d7cfab..." class="w-full text-xs p-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700">
+                        <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1" data-i18n="ai.bearer.token.label">Token de Acesso (X-Ollama-Token / Bearer)</label>
+                        <input type="password" id="ai-ollama-apikey" placeholder="your-api-key..." class="w-full text-xs p-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700">
                     </div>
                 </div>
 
                 <!-- Campos Específicos do Gemini -->
                 <div id="ai-fields-gemini" class="space-y-3 p-3.5 rounded-xl bg-gray-50 dark:bg-gray-700/40 border border-gray-200 dark:border-gray-600" style="display: none;">
                     <div>
-                        <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Google Gemini API Key</label>
+                        <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1" data-i18n="ai.gemini.key.label">Google Gemini API Key</label>
                         <input type="password" id="ai-gemini-key" placeholder="AIzaSy..." class="w-full text-xs p-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700">
                     </div>
                     <div>
                         <div class="flex items-center justify-between mb-1">
-                            <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300">Modelo</label>
+                            <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300" data-i18n="ai.model.label">Modelo</label>
                             <button type="button" onclick="fetchServerModels('gemini')" id="btn-fetch-gemini" class="text-[10px] text-blue-600 dark:text-blue-400 hover:underline font-semibold flex items-center gap-1">
                                 <i id="icon-fetch-gemini" class="fa-solid fa-arrows-rotate text-[9px]"></i>
-                                <span>Buscar Modelos</span>
+                                <span data-i18n="ai.fetchmodels">Buscar Modelos</span>
                             </button>
                         </div>
                         <div class="flex items-center gap-1">
@@ -369,20 +375,20 @@
                 <!-- Campos Específicos do OpenCode / OpenAI -->
                 <div id="ai-fields-opencode" class="space-y-3 p-3.5 rounded-xl bg-gray-50 dark:bg-gray-700/40 border border-gray-200 dark:border-gray-600" style="display: none;">
                     <div>
-                        <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Base URL</label>
+                        <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1" data-i18n="ai.opencode.baseurl.label">Base URL</label>
                         <input type="text" id="ai-opencode-url" placeholder="https://api.openai.com/v1" class="w-full text-xs p-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700">
                     </div>
                     <div class="grid grid-cols-2 gap-2">
                         <div>
-                            <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">API Key</label>
+                            <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1" data-i18n="ai.opencode.key.label">API Key</label>
                             <input type="password" id="ai-opencode-key" placeholder="sk-..." class="w-full text-xs p-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700">
                         </div>
                         <div>
                             <div class="flex items-center justify-between mb-1">
-                                <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300">Modelo</label>
+                                <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300" data-i18n="ai.model.label">Modelo</label>
                                 <button type="button" onclick="fetchServerModels('opencode')" id="btn-fetch-opencode" class="text-[10px] text-blue-600 dark:text-blue-400 hover:underline font-semibold flex items-center gap-1">
                                     <i id="icon-fetch-opencode" class="fa-solid fa-arrows-rotate text-[9px]"></i>
-                                    <span>Buscar Modelos</span>
+                                    <span data-i18n="ai.fetchmodels">Buscar Modelos</span>
                                 </button>
                             </div>
                             <div class="flex items-center gap-1">
@@ -405,9 +411,9 @@
                     <div class="flex items-center justify-between">
                         <h4 class="text-xs font-bold text-gray-800 dark:text-gray-200 flex items-center gap-1.5 uppercase tracking-wider">
                             <i class="fa-solid fa-code text-blue-500"></i>
-                            Prompts Personalizados da IA
+                            <span data-i18n="ai.prompts.title">Prompts Personalizados da IA</span>
                         </h4>
-                        <button type="button" onclick="restoreDefaultPrompts()" class="text-[10px] text-blue-600 dark:text-blue-400 hover:underline font-semibold">
+                        <button type="button" onclick="restoreDefaultPrompts()" class="text-[10px] text-blue-600 dark:text-blue-400 hover:underline font-semibold" data-i18n="ai.prompts.restore">
                             Restaurar Padrões
                         </button>
                     </div>
@@ -415,29 +421,29 @@
                     <!-- Prompt para Resumo / Síntese de Issue -->
                     <div>
                         <div class="flex justify-between items-center mb-1">
-                            <label class="text-[11px] font-bold text-gray-700 dark:text-gray-300">Prompt: Síntese de Issue (1 Parágrafo)</label>
+                            <label class="text-[11px] font-bold text-gray-700 dark:text-gray-300" data-i18n="ai.prompts.explain.label">Prompt: Síntese de Issue (1 Parágrafo)</label>
                             <span class="text-[9px] text-gray-400">Variáveis: {number}, {title}, {labels}, {body}</span>
                         </div>
-                        <textarea id="ai-prompt-explain" rows="3" class="w-full text-xs font-mono p-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100" placeholder="Instrução para a IA sintetizar a issue..."></textarea>
+                        <textarea id="ai-prompt-explain" rows="3" class="w-full text-xs font-mono p-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100" data-i18n-ph="ai.prompts.explain.placeholder" placeholder="Instrução para a IA sintetizar a issue..."></textarea>
                     </div>
 
                     <!-- Prompt para Estimativa de Horas -->
                     <div>
                         <div class="flex justify-between items-center mb-1">
-                            <label class="text-[11px] font-bold text-gray-700 dark:text-gray-300">Prompt: Estimativa de Horas (Dashboard)</label>
+                            <label class="text-[11px] font-bold text-gray-700 dark:text-gray-300" data-i18n="ai.prompts.hours.label">Prompt: Estimativa de Horas (Dashboard)</label>
                             <span class="text-[9px] text-gray-400">Variáveis: {issuesCount}, {commitsCount}, {issuesList}, {commitsList}</span>
                         </div>
-                        <textarea id="ai-prompt-hours" rows="3" class="w-full text-xs font-mono p-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100" placeholder="Instrução para a IA estimar horas..."></textarea>
+                        <textarea id="ai-prompt-hours" rows="3" class="w-full text-xs font-mono p-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100" data-i18n-ph="ai.prompts.hours.placeholder" placeholder="Instrução para a IA estimar horas..."></textarea>
                     </div>
 
                     <!-- Botão de Regeneração em Massa -->
                     <div class="pt-2 border-t border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                        <span class="text-[10px] text-gray-500 dark:text-gray-400">
+                        <span class="text-[10px] text-gray-500 dark:text-gray-400" data-i18n="ai.regen.desc">
                             Limpa o cache e permite regerar com os prompts novos.
                         </span>
                         <button type="button" onclick="regenerateAllAI()" id="btn-regen-all" class="text-xs px-3 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-700 text-white font-semibold flex items-center gap-1.5 shadow-xs transition-colors self-end">
                             <i id="icon-regen-all" class="fa-solid fa-arrows-rotate text-[10px]"></i>
-                            <span>Regerar Tudo com IA</span>
+                            <span data-i18n="ai.regen.btn">Regerar Tudo com IA</span>
                         </button>
                     </div>
                 </div>
@@ -451,15 +457,15 @@
             <div class="p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700 flex justify-between items-center gap-2">
                 <button type="button" onclick="testAIConnection()" id="btn-test-ai" class="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 text-gray-800 dark:text-gray-100 font-semibold text-xs transition-colors">
                     <i id="test-ai-icon" class="fa-solid fa-vial"></i>
-                    <span>Testar Conexão</span>
+                    <span data-i18n="footer.testconn">Testar Conexão</span>
                 </button>
                 <div class="flex items-center gap-2">
-                    <button type="button" onclick="closeAIConfigModal()" class="px-3 py-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 text-xs font-semibold">
+                    <button type="button" onclick="closeAIConfigModal()" class="px-3 py-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 text-xs font-semibold" data-i18n="footer.cancel">
                         Cancelar
                     </button>
                     <button type="button" onclick="saveAIConfiguration()" id="btn-save-ai" class="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-xs">
                         <i class="fa-solid fa-floppy-disk"></i>
-                        <span>Salvar</span>
+                        <span data-i18n="footer.save">Salvar</span>
                     </button>
                 </div>
             </div>
@@ -470,7 +476,7 @@
     <!-- MODAL DE EXPLICAÇÃO DA ISSUE COM IA -->
     <div id="issue-modal" class="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4" style="display: none;">
         <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden transition-all">
-            
+
             <!-- Header do Modal -->
             <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-start gap-3 bg-gray-50 dark:bg-gray-700">
                 <div>
@@ -479,7 +485,7 @@
                         <span id="modal-priority-pill" class="text-[10px] font-bold px-2 py-0.5 rounded">--</span>
                         <span id="modal-milestone-pill" class="text-[10px] font-semibold text-gray-600 dark:text-gray-300"></span>
                     </div>
-                    <h3 id="modal-title" class="text-base font-bold text-gray-900 dark:text-gray-100 leading-snug">
+                    <h3 id="modal-title" class="text-base font-bold text-gray-900 dark:text-gray-100 leading-snug" data-i18n="issuemodal.title.placeholder">
                         Título da Issue
                     </h3>
                 </div>
@@ -490,16 +496,16 @@
 
             <!-- Corpo do Modal -->
             <div class="p-5 overflow-y-auto space-y-4 flex-1">
-                
+
                 <!-- Box de Resumo -->
                 <div class="bg-blue-50/70 dark:bg-blue-950/40 rounded-xl p-4 border border-blue-200 dark:border-blue-900/50">
                     <div class="flex items-center justify-between mb-2">
                         <span class="text-xs font-bold uppercase tracking-wider text-blue-800 dark:text-blue-300 flex items-center gap-1.5">
                             <i class="fa-solid fa-align-left text-blue-600 dark:text-blue-400"></i>
-                            Resumo
+                            <span data-i18n="issuemodal.summary.label">Resumo</span>
                         </span>
                         <div class="flex items-center gap-1.5">
-                            <button type="button" onclick="regenerateModalAI()" id="btn-modal-regen" class="p-1 px-2.5 rounded-lg bg-blue-100 dark:bg-blue-900/70 hover:bg-blue-200 dark:hover:bg-blue-800 text-blue-700 dark:text-blue-300 transition-all text-xs" title="Atualizar Resumo">
+                            <button type="button" onclick="regenerateModalAI()" id="btn-modal-regen" class="p-1 px-2.5 rounded-lg bg-blue-100 dark:bg-blue-900/70 hover:bg-blue-200 dark:hover:bg-blue-800 text-blue-700 dark:text-blue-300 transition-all text-xs" data-i18n-title="issuemodal.summary.regen.title" title="Atualizar Resumo">
                                 <i id="icon-modal-regen" class="fa-solid fa-arrows-rotate"></i>
                             </button>
                         </div>
@@ -508,7 +514,7 @@
                     <!-- Loading -->
                     <div id="modal-ai-loading" class="flex items-center gap-2 text-xs text-blue-600 dark:text-blue-400 py-3">
                         <i class="fa-solid fa-spinner fa-spin text-sm"></i>
-                        <span>Carregando resumo...</span>
+                        <span data-i18n="issuemodal.summary.loading">Carregando resumo...</span>
                     </div>
 
                     <!-- Texto do Resumo -->
@@ -520,31 +526,31 @@
                     <div class="flex items-center justify-between">
                         <h4 class="text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
                             <i class="fa-solid fa-sliders text-blue-500"></i>
-                            Direcionamento da Demanda
+                            <span data-i18n="issuemodal.direction.title">Direcionamento da Demanda</span>
                         </h4>
                         <span id="modal-save-indicator" class="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400" style="display: none;">
-                            <i class="fa-solid fa-check mr-0.5"></i> Salvo com sucesso!
+                            <i class="fa-solid fa-check mr-0.5"></i> <span data-i18n="issuemodal.saved">Salvo com sucesso!</span>
                         </span>
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                         <div>
                             <label class="block font-semibold text-gray-600 dark:text-gray-300 mb-1">
-                                <i class="fa-solid fa-flag text-indigo-500 mr-1"></i> Meta
+                                <i class="fa-solid fa-flag text-indigo-500 mr-1"></i> <span data-i18n="issuemodal.milestone.label">Meta</span>
                             </label>
                             <select id="modal-select-milestone" onchange="updateModalMilestone(this.value)" class="w-full p-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 font-medium">
-                                <option value="null">Sem Meta (Backlog)</option>
+                                <option value="null" data-i18n="issuemodal.milestone.none">Sem Meta (Backlog)</option>
                             </select>
                         </div>
                         <div>
                             <label class="block font-semibold text-gray-600 dark:text-gray-300 mb-1">
-                                <i class="fa-solid fa-arrow-up-wide-short text-orange-500 mr-1"></i> Prioridade
+                                <i class="fa-solid fa-arrow-up-wide-short text-orange-500 mr-1"></i> <span data-i18n="issuemodal.priority.label">Prioridade</span>
                             </label>
                             <select id="modal-select-priority" onchange="updateModalPriority(this.value)" class="w-full p-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 font-medium">
-                                <option value="none">Sem Prioridade</option>
-                                <option value="priority:p0-critical">P0 - Urgente / Crítica</option>
-                                <option value="priority:p1-high">P1 - Alta Prioridade</option>
-                                <option value="priority:p2-medium">P2 - Média Prioridade</option>
-                                <option value="priority:p3-low">P3 - Baixa Prioridade</option>
+                                <option value="none" data-i18n="priority.none">Sem Prioridade</option>
+                                <option value="priority:p0-critical" data-i18n="priority.p0.full">P0 - Urgente / Crítica</option>
+                                <option value="priority:p1-high" data-i18n="priority.p1.full">P1 - Alta Prioridade</option>
+                                <option value="priority:p2-medium" data-i18n="priority.p2.full">P2 - Média Prioridade</option>
+                                <option value="priority:p3-low" data-i18n="priority.p3.full">P3 - Baixa Prioridade</option>
                             </select>
                         </div>
                     </div>
@@ -552,7 +558,7 @@
 
                 <!-- Labels com Tradução e Significado Simples -->
                 <div>
-                    <h4 class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2" data-i18n="issuemodal.labels.title">
                         Categorização & Labels
                     </h4>
                     <div id="modal-labels" class="space-y-1.5"></div>
@@ -563,10 +569,10 @@
                     <div class="w-full p-3 bg-gray-50 dark:bg-gray-700 text-left text-xs font-bold text-gray-700 dark:text-gray-300 flex justify-between items-center border-b border-gray-200 dark:border-gray-600">
                         <span class="flex items-center gap-1.5">
                             <i class="fa-solid fa-file-lines text-blue-500"></i>
-                            <span>Descrição Original do GitHub</span>
+                            <span data-i18n="issuemodal.body.title">Descrição Original do GitHub</span>
                         </span>
                         <button type="button" onclick="toggleOriginalBody()" id="btn-toggle-body" class="text-[11px] text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 flex items-center gap-1">
-                            <span id="accordion-label">Expandir</span>
+                            <span id="accordion-label" data-i18n="issuemodal.body.expand">Expandir</span>
                             <i id="accordion-icon" class="fa-solid fa-chevron-down text-xs"></i>
                         </button>
                     </div>
@@ -578,9 +584,9 @@
             <!-- Rodapé do Modal -->
             <div class="p-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700 flex justify-between items-center text-xs">
                 <a id="modal-github-link" href="#" target="_blank" class="inline-flex items-center gap-1.5 text-blue-600 dark:text-blue-400 hover:underline font-semibold">
-                    <i class="fa-brands fa-github text-sm"></i> Ver Issue no GitHub <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                    <i class="fa-brands fa-github text-sm"></i> <span data-i18n="issuemodal.viewgithub">Ver Issue no GitHub</span> <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
                 </a>
-                <button onclick="closeModal()" class="px-4 py-1.5 rounded-lg bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 text-gray-800 dark:text-gray-200 font-semibold transition-colors">
+                <button onclick="closeModal()" class="px-4 py-1.5 rounded-lg bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 text-gray-800 dark:text-gray-200 font-semibold transition-colors" data-i18n="issuemodal.close">
                     Fechar
                 </button>
             </div>
@@ -588,6 +594,299 @@
         </div>
     </div>
 
+    <script>
+        window.PAGE_I18N = {
+            pt: {
+                'nav.list': 'Lista',
+                'nav.kanban': 'Kanban (Prioridades)',
+                'nav.milestones': 'Metas',
+                'nav.dashboard': 'Dashboard Gestor',
+                'nav.analytics': 'Gráficos & Métricas',
+                'nav.aiconfig': 'Configuração IA',
+                'nav.aiconfig.title': 'Configurar Servidor de IA & Chaves',
+                'nav.theme.title': 'Alternar Modo Escuro',
+                'kanban.toolbar.order.label': 'Ordem das Prioridades:',
+                'kanban.toolbar.order.sequence': 'P0 (Crítica) → P1 → P2 → P3 (Baixa)',
+                'kanban.toggle.suggestedtitles': 'Exibir Títulos Sugeridos (IA)',
+                'kanban.sync.btn': 'Sincronizar Títulos IA',
+                'kanban.sync.badge.default': 'Salvo localmente',
+                'kanban.sync.badge.generating': 'Gerando títulos com IA...',
+                'kanban.sync.badge.saved': 'Salvo! ({count} títulos)',
+                'kanban.sync.badge.fail': 'Falha ao sincronizar',
+                'kanban.sync.badge.connerror': 'Erro de conexão',
+                'kanban.backlog.title': 'Sem Prioridade',
+                'kanban.backlog.search.placeholder': 'Buscar por título ou #...',
+                'kanban.loading': 'Carregando quadro kanban...',
+                'kanban.loading.error': 'Erro ao carregar issues.',
+                'kanban.card.ai.title.tooltip': 'Título otimizado pela IA',
+                'kanban.card.info.tooltip': 'Clique para detalhes e direcionamento',
+                'kanban.card.milestone.tooltip': 'Meta: {title}',
+                'kanban.drag.saving': 'Salvando... ⏳',
+                'kanban.drag.saved': 'Salvo! ✅',
+                'kanban.drag.error': 'Erro ❌',
+                'priority.p0': 'P0 - Critical',
+                'priority.p1': 'P1 - High',
+                'priority.p2': 'P2 - Medium',
+                'priority.p3': 'P3 - Low',
+                'priority.p0.full': 'P0 - Urgente / Crítica',
+                'priority.p1.full': 'P1 - Alta Prioridade',
+                'priority.p2.full': 'P2 - Média Prioridade',
+                'priority.p3.full': 'P3 - Baixa Prioridade',
+                'priority.none': 'Sem Prioridade',
+                'modal.aiconfig.title': 'Configurações & Conectividade',
+                'modal.aiconfig.subtitle': 'Gerencie o Token do GitHub e os Servidores de Inteligência Artificial',
+                'github.token.label': 'Token de Acesso do GitHub',
+                'github.token.desc': 'Necessário para ler e atualizar issues e metas (PAT Classic ou Fine-grained)',
+                'github.token.checking': 'Verificando...',
+                'github.token.placeholder': 'ghp_... ou gho_... (cole um novo token para atualizar)',
+                'github.token.save': 'Salvar Token',
+                'github.token.active.none': 'Token ativo: Nenhum',
+                'github.token.test': 'Testar Token',
+                'ai.active.label': 'Inteligência Artificial Ativa',
+                'ai.active.desc': 'Habilita explicação de issues e títulos sugeridos',
+                'ai.provider.label': 'Provedor Ativo',
+                'ai.provider.ollama.sub': 'Privado / Local',
+                'ai.provider.opencode.sub': 'OpenAI Compatible',
+                'ai.ollama.url.label': 'URL do Servidor Ollama / Proxy',
+                'ai.ollama.url.placeholder': 'http://localhost:11434 ou a URL do seu servidor privado',
+                'ai.ollama.clientname.title': 'Nome do cliente/projeto enviado no header X-Client-Name para o painel de monitoramento',
+                'ai.ollama.clientname.label': 'Nome do Cliente / Projeto',
+                'ai.ollama.clientname.placeholder': 'meu-projeto',
+                'ai.model.label': 'Modelo',
+                'ai.fetchmodels': 'Buscar Modelos',
+                'ai.ollama.models.loading': 'Carregando lista...',
+                'ai.customModel.title': 'Digitar nome personalizado de modelo',
+                'ai.authtype.label': 'Tipo de Autenticação',
+                'ai.authtype.bearer': 'Token (X-Ollama-Token / Bearer)',
+                'ai.authtype.basic': 'Basic Auth (Nginx Usuário/Senha)',
+                'ai.authtype.none': 'Sem Autenticação',
+                'ai.nginx.user.label': 'Usuário Nginx',
+                'ai.nginx.pass.label': 'Senha Nginx',
+                'ai.bearer.token.label': 'Token de Acesso (X-Ollama-Token / Bearer)',
+                'ai.gemini.key.label': 'Google Gemini API Key',
+                'ai.opencode.baseurl.label': 'Base URL',
+                'ai.opencode.key.label': 'API Key',
+                'ai.prompts.title': 'Prompts Personalizados da IA',
+                'ai.prompts.restore': 'Restaurar Padrões',
+                'ai.prompts.explain.label': 'Prompt: Síntese de Issue (1 Parágrafo)',
+                'ai.prompts.explain.placeholder': 'Instrução para a IA sintetizar a issue...',
+                'ai.prompts.hours.label': 'Prompt: Estimativa de Horas (Dashboard)',
+                'ai.prompts.hours.placeholder': 'Instrução para a IA estimar horas...',
+                'ai.regen.desc': 'Limpa o cache e permite regerar com os prompts novos.',
+                'ai.regen.btn': 'Regerar Tudo com IA',
+                'footer.testconn': 'Testar Conexão',
+                'footer.cancel': 'Cancelar',
+                'footer.save': 'Salvar',
+                'issuemodal.title.placeholder': 'Título da Issue',
+                'issuemodal.summary.label': 'Resumo',
+                'issuemodal.summary.loading': 'Carregando resumo...',
+                'issuemodal.summary.regen.title': 'Atualizar Resumo',
+                'issuemodal.direction.title': 'Direcionamento da Demanda',
+                'issuemodal.saved': 'Salvo com sucesso!',
+                'issuemodal.milestone.label': 'Meta',
+                'issuemodal.milestone.none': 'Sem Meta (Backlog)',
+                'issuemodal.priority.label': 'Prioridade',
+                'issuemodal.labels.title': 'Categorização & Labels',
+                'issuemodal.labels.none': 'Nenhuma label associada.',
+                'issuemodal.body.title': 'Descrição Original do GitHub',
+                'issuemodal.body.expand': 'Expandir',
+                'issuemodal.body.collapse': 'Recolher',
+                'issuemodal.body.none': 'Sem descrição fornecida no GitHub.',
+                'issuemodal.viewgithub': 'Ver Issue no GitHub',
+                'issuemodal.close': 'Fechar',
+                'js.milestone.saving': 'Salvando Meta...',
+                'js.milestone.saved': 'Meta atualizada!',
+                'js.priority.saving': 'Salvando Prioridade...',
+                'js.priority.saved': 'Prioridade salva!',
+                'js.save.error': 'Erro ao salvar',
+                'js.error': 'Erro',
+                'js.ai.regenerating': 'Regerando com IA...',
+                'js.ai.regen.error': 'Erro ao regerar via IA: {msg}',
+                'js.ai.summary.error': 'Não foi possível carregar a explicação no momento.',
+                'js.github.configured': 'Configurado',
+                'js.github.notconfigured': 'Não configurado',
+                'js.github.none.detected': 'Nenhum token detectado. Insira um token abaixo.',
+                'js.github.active.masked': 'Token ativo: {token} ({source})',
+                'js.github.source.panel': 'Painel',
+                'js.github.source.env': '.env',
+                'js.github.source.cli': 'gh CLI',
+                'js.github.offline': 'Offline',
+                'js.github.clearconfirm': 'Deseja limpar o token manual e usar o fallback do ambiente?',
+                'js.github.validating': 'Validando permissões no repositório do GitHub...',
+                'js.github.saving': 'Salvando...',
+                'js.github.success': 'Sucesso!',
+                'js.github.fail': 'Falha:',
+                'js.github.network.error': 'Erro de rede:',
+                'js.github.testing': 'Testando...',
+                'js.github.querying': 'Consultando API do GitHub...',
+                'js.github.connactive': 'Conexão ativa!',
+                'js.github.user.repo': 'Usuário: @{user} • Repo: {repo} ({ms}ms)',
+                'js.github.testerror': 'Erro no teste:',
+                'js.ai.models.querying': 'Consultando modelos disponíveis...',
+                'js.ai.models.found': '✅ {count} modelos encontrados no servidor',
+                'js.ai.models.error': 'Erro: {msg}',
+                'js.ai.models.none': 'Nenhum modelo retornado.',
+                'js.ai.models.server.error': 'Erro ao consultar servidor.',
+                'js.regenall.confirm': 'Deseja limpar o cache e regerar resumos com os novos prompts?',
+                'js.regenall.success': 'Cache limpo com sucesso! As issues serão explicadas com os novos prompts ao serem abertas.',
+                'js.regenall.fail': 'Erro ao limpar cache:',
+                'js.regenall.conn.error': 'Erro de conexão ao regerar tudo:',
+                'js.ai.test.sending': 'Enviando mensagem de teste para o servidor de IA...',
+                'js.ai.test.success.default': 'Sucesso!',
+                'js.ai.test.latency.sample': 'Latência: {ms}ms • Resposta: "{sample}"',
+                'js.ai.test.fail': 'Falha no teste:',
+                'js.ai.test.fail.default': 'Não foi possível conectar.',
+                'js.ai.test.network.error': 'Erro de rede:',
+                'js.ai.save.error': 'Erro ao salvar configurações de IA.',
+                'js.ai.save.connerror': 'Erro de conexão ao salvar configurações.'
+            },
+            en: {
+                'nav.list': 'List',
+                'nav.kanban': 'Kanban (Priorities)',
+                'nav.milestones': 'Milestones',
+                'nav.dashboard': 'Manager Dashboard',
+                'nav.analytics': 'Charts & Metrics',
+                'nav.aiconfig': 'AI Settings',
+                'nav.aiconfig.title': 'Configure AI Server & Keys',
+                'nav.theme.title': 'Toggle Dark Mode',
+                'kanban.toolbar.order.label': 'Priority Order:',
+                'kanban.toolbar.order.sequence': 'P0 (Critical) → P1 → P2 → P3 (Low)',
+                'kanban.toggle.suggestedtitles': 'Show Suggested Titles (AI)',
+                'kanban.sync.btn': 'Sync AI Titles',
+                'kanban.sync.badge.default': 'Saved locally',
+                'kanban.sync.badge.generating': 'Generating titles with AI...',
+                'kanban.sync.badge.saved': 'Saved! ({count} titles)',
+                'kanban.sync.badge.fail': 'Failed to sync',
+                'kanban.sync.badge.connerror': 'Connection error',
+                'kanban.backlog.title': 'No Priority',
+                'kanban.backlog.search.placeholder': 'Search by title or #...',
+                'kanban.loading': 'Loading kanban board...',
+                'kanban.loading.error': 'Error loading issues.',
+                'kanban.card.ai.title.tooltip': 'Title optimized by AI',
+                'kanban.card.info.tooltip': 'Click for details and direction',
+                'kanban.card.milestone.tooltip': 'Milestone: {title}',
+                'kanban.drag.saving': 'Saving... ⏳',
+                'kanban.drag.saved': 'Saved! ✅',
+                'kanban.drag.error': 'Error ❌',
+                'priority.p0': 'P0 - Critical',
+                'priority.p1': 'P1 - High',
+                'priority.p2': 'P2 - Medium',
+                'priority.p3': 'P3 - Low',
+                'priority.p0.full': 'P0 - Critical',
+                'priority.p1.full': 'P1 - High',
+                'priority.p2.full': 'P2 - Medium',
+                'priority.p3.full': 'P3 - Low',
+                'priority.none': 'No Priority',
+                'modal.aiconfig.title': 'Settings & Connectivity',
+                'modal.aiconfig.subtitle': 'Manage the GitHub Token and AI Servers',
+                'github.token.label': 'GitHub Access Token',
+                'github.token.desc': 'Required to read and update issues and milestones (Classic or Fine-grained PAT)',
+                'github.token.checking': 'Checking...',
+                'github.token.placeholder': 'ghp_... or gho_... (paste a new token to update)',
+                'github.token.save': 'Save Token',
+                'github.token.active.none': 'Active token: None',
+                'github.token.test': 'Test Token',
+                'ai.active.label': 'AI Enabled',
+                'ai.active.desc': 'Enables issue explanations and suggested titles',
+                'ai.provider.label': 'Active Provider',
+                'ai.provider.ollama.sub': 'Private / Local',
+                'ai.provider.opencode.sub': 'OpenAI Compatible',
+                'ai.ollama.url.label': 'Ollama Server / Proxy URL',
+                'ai.ollama.url.placeholder': 'http://localhost:11434 or your own private server URL',
+                'ai.ollama.clientname.title': 'Client/project name sent in the X-Client-Name header for monitoring dashboards',
+                'ai.ollama.clientname.label': 'Client / Project Name',
+                'ai.ollama.clientname.placeholder': 'my-project',
+                'ai.model.label': 'Model',
+                'ai.fetchmodels': 'Fetch Models',
+                'ai.ollama.models.loading': 'Loading list...',
+                'ai.customModel.title': 'Type a custom model name',
+                'ai.authtype.label': 'Authentication Type',
+                'ai.authtype.bearer': 'Token (X-Ollama-Token / Bearer)',
+                'ai.authtype.basic': 'Basic Auth (Nginx Username/Password)',
+                'ai.authtype.none': 'No Authentication',
+                'ai.nginx.user.label': 'Nginx Username',
+                'ai.nginx.pass.label': 'Nginx Password',
+                'ai.bearer.token.label': 'Access Token (X-Ollama-Token / Bearer)',
+                'ai.gemini.key.label': 'Google Gemini API Key',
+                'ai.opencode.baseurl.label': 'Base URL',
+                'ai.opencode.key.label': 'API Key',
+                'ai.prompts.title': 'Custom AI Prompts',
+                'ai.prompts.restore': 'Restore Defaults',
+                'ai.prompts.explain.label': 'Prompt: Issue Summary (1 Paragraph)',
+                'ai.prompts.explain.placeholder': 'Instruction for the AI to summarize the issue...',
+                'ai.prompts.hours.label': 'Prompt: Hours Estimate (Dashboard)',
+                'ai.prompts.hours.placeholder': 'Instruction for the AI to estimate hours...',
+                'ai.regen.desc': 'Clears the cache and allows regenerating with the new prompts.',
+                'ai.regen.btn': 'Regenerate All with AI',
+                'footer.testconn': 'Test Connection',
+                'footer.cancel': 'Cancel',
+                'footer.save': 'Save',
+                'issuemodal.title.placeholder': 'Issue Title',
+                'issuemodal.summary.label': 'Summary',
+                'issuemodal.summary.loading': 'Loading summary...',
+                'issuemodal.summary.regen.title': 'Refresh Summary',
+                'issuemodal.direction.title': 'Demand Direction',
+                'issuemodal.saved': 'Saved successfully!',
+                'issuemodal.milestone.label': 'Milestone',
+                'issuemodal.milestone.none': 'No Milestone (Backlog)',
+                'issuemodal.priority.label': 'Priority',
+                'issuemodal.labels.title': 'Categorization & Labels',
+                'issuemodal.labels.none': 'No labels associated.',
+                'issuemodal.body.title': 'Original GitHub Description',
+                'issuemodal.body.expand': 'Expand',
+                'issuemodal.body.collapse': 'Collapse',
+                'issuemodal.body.none': 'No description provided on GitHub.',
+                'issuemodal.viewgithub': 'View Issue on GitHub',
+                'issuemodal.close': 'Close',
+                'js.milestone.saving': 'Saving Milestone...',
+                'js.milestone.saved': 'Milestone updated!',
+                'js.priority.saving': 'Saving Priority...',
+                'js.priority.saved': 'Priority saved!',
+                'js.save.error': 'Error saving',
+                'js.error': 'Error',
+                'js.ai.regenerating': 'Regenerating with AI...',
+                'js.ai.regen.error': 'Error regenerating via AI: {msg}',
+                'js.ai.summary.error': 'Could not load the explanation right now.',
+                'js.github.configured': 'Configured',
+                'js.github.notconfigured': 'Not configured',
+                'js.github.none.detected': 'No token detected. Enter a token below.',
+                'js.github.active.masked': 'Active token: {token} ({source})',
+                'js.github.source.panel': 'Panel',
+                'js.github.source.env': '.env',
+                'js.github.source.cli': 'gh CLI',
+                'js.github.offline': 'Offline',
+                'js.github.clearconfirm': 'Clear the manual token and use the environment fallback?',
+                'js.github.validating': 'Validating repository permissions on GitHub...',
+                'js.github.saving': 'Saving...',
+                'js.github.success': 'Success!',
+                'js.github.fail': 'Failed:',
+                'js.github.network.error': 'Network error:',
+                'js.github.testing': 'Testing...',
+                'js.github.querying': 'Querying GitHub API...',
+                'js.github.connactive': 'Active connection!',
+                'js.github.user.repo': 'User: @{user} • Repo: {repo} ({ms}ms)',
+                'js.github.testerror': 'Test error:',
+                'js.ai.models.querying': 'Querying available models...',
+                'js.ai.models.found': '✅ {count} models found on server',
+                'js.ai.models.error': 'Error: {msg}',
+                'js.ai.models.none': 'No model returned.',
+                'js.ai.models.server.error': 'Error querying server.',
+                'js.regenall.confirm': 'Clear the cache and regenerate summaries with the new prompts?',
+                'js.regenall.success': 'Cache cleared successfully! Issues will be explained with the new prompts when opened.',
+                'js.regenall.fail': 'Error clearing cache:',
+                'js.regenall.conn.error': 'Connection error while regenerating everything:',
+                'js.ai.test.sending': 'Sending test message to the AI server...',
+                'js.ai.test.success.default': 'Success!',
+                'js.ai.test.latency.sample': 'Latency: {ms}ms • Response: "{sample}"',
+                'js.ai.test.fail': 'Connection test failed:',
+                'js.ai.test.fail.default': 'Could not connect.',
+                'js.ai.test.network.error': 'Network error:',
+                'js.ai.save.error': 'Error saving AI settings.',
+                'js.ai.save.connerror': 'Connection error while saving settings.'
+            }
+        };
+    </script>
+    <script src="/js/i18n.js"></script>
     <script>
         // Tema Dark/Light Seguro
         function initTheme() {
@@ -609,6 +908,11 @@
         }
 
         initTheme();
+        I18N.init();
+        document.addEventListener('i18nchange', () => {
+            renderKanbanBoard();
+            filterNoneCol();
+        });
 
         // Estado Global
         let allIssuesData = [];
@@ -666,7 +970,7 @@
                 checkAIStatusInNav();
             } catch (error) {
                 console.error(error);
-                document.getElementById('loading').innerText = 'Erro ao carregar issues.';
+                document.getElementById('loading').innerText = I18N.t('kanban.loading.error');
                 document.getElementById('loading').className = 'text-red-500 font-semibold mb-4';
             }
         }
@@ -699,7 +1003,7 @@
                 const displayTitle = (showSuggestedTitles && hasSuggested) ? cachedTitleObj.suggestedTitle : issue.title;
 
                 const card = document.createElement('div');
-                card.className = 'kanban-card bg-white dark:bg-gray-800 p-2 rounded-lg shadow-2xs border border-gray-200 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-500 cursor-pointer transition-all hover:shadow-xs group select-none ' + 
+                card.className = 'kanban-card bg-white dark:bg-gray-800 p-2 rounded-lg shadow-2xs border border-gray-200 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-500 cursor-pointer transition-all hover:shadow-xs group select-none ' +
                     (typeStr === 'bug' ? 'border-l-3 border-l-red-500' : 'border-l-3 border-l-blue-500');
                 card.dataset.id = issue.number;
                 card.dataset.search = `${issue.number} ${issue.title} ${displayTitle}`.toLowerCase();
@@ -715,11 +1019,11 @@
                         <div class="flex items-center gap-1.5 overflow-hidden">
                             <span class="font-mono text-[11px] font-bold text-blue-600 dark:text-blue-400">#${issue.number}</span>
                             ${typeDisplay ? `<span class="text-[9px] px-1.5 py-0.2 rounded font-bold bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 truncate max-w-[110px]" title="${escapeHtml(transType?.description || typeDisplay)}">${escapeHtml(typeDisplay)}</span>` : ''}
-                            ${(showSuggestedTitles && hasSuggested) ? `<span class="text-[9px] px-1 py-0.2 rounded bg-purple-100 dark:bg-purple-900/60 text-purple-700 dark:text-purple-300 font-bold" title="Título otimizado pela IA"><i class="fa-solid fa-wand-magic-sparkles text-[8px]"></i> IA</span>` : ''}
+                            ${(showSuggestedTitles && hasSuggested) ? `<span class="text-[9px] px-1 py-0.2 rounded bg-purple-100 dark:bg-purple-900/60 text-purple-700 dark:text-purple-300 font-bold" title="${I18N.t('kanban.card.ai.title.tooltip')}"><i class="fa-solid fa-wand-magic-sparkles text-[8px]"></i> IA</span>` : ''}
                         </div>
                         <div class="flex items-center gap-1 flex-shrink-0">
-                            ${milestoneTitle ? `<span class="text-[9px] px-1.5 py-0.2 rounded bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-300 font-semibold truncate max-w-[85px]" title="Meta: ${escapeHtml(milestoneTitle)}"><i class="fa-solid fa-flag text-[8px] mr-0.5"></i>${escapeHtml(milestoneTitle)}</span>` : ''}
-                            <i class="fa-solid fa-circle-info text-[10px] text-gray-300 dark:text-gray-600 group-hover:text-blue-500 transition-colors" title="Clique para detalhes e direcionamento"></i>
+                            ${milestoneTitle ? `<span class="text-[9px] px-1.5 py-0.2 rounded bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-300 font-semibold truncate max-w-[85px]" title="${escapeHtml(I18N.t('kanban.card.milestone.tooltip', { title: milestoneTitle }))}"><i class="fa-solid fa-flag text-[8px] mr-0.5"></i>${escapeHtml(milestoneTitle)}</span>` : ''}
+                            <i class="fa-solid fa-circle-info text-[10px] text-gray-300 dark:text-gray-600 group-hover:text-blue-500 transition-colors" title="${I18N.t('kanban.card.info.tooltip')}"></i>
                         </div>
                     </div>
                     <p class="text-[11px] font-semibold text-gray-800 dark:text-gray-200 leading-tight line-clamp-2 pointer-events-none" title="${escapeHtml(issue.title)}">
@@ -755,7 +1059,8 @@
 
             btn.disabled = true;
             icon.className = 'fa-solid fa-spinner fa-spin';
-            badge.innerText = 'Gerando títulos com IA...';
+            badge.removeAttribute('data-i18n');
+            badge.innerText = I18N.t('kanban.sync.badge.generating');
             badge.className = 'text-[11px] text-blue-500 dark:text-blue-400 font-semibold';
 
             try {
@@ -763,15 +1068,15 @@
                 if (res.ok) {
                     const data = await res.json();
                     suggestedTitlesMap = data.titles || {};
-                    badge.innerText = `Salvo! (${data.count} títulos)`;
+                    badge.innerText = I18N.t('kanban.sync.badge.saved', { count: data.count });
                     badge.className = 'text-[11px] text-emerald-500 dark:text-emerald-400 font-semibold';
                     renderKanbanBoard();
                 } else {
-                    badge.innerText = 'Falha ao sincronizar';
+                    badge.innerText = I18N.t('kanban.sync.badge.fail');
                     badge.className = 'text-[11px] text-red-500 font-semibold';
                 }
             } catch (e) {
-                badge.innerText = 'Erro de conexão';
+                badge.innerText = I18N.t('kanban.sync.badge.connerror');
                 badge.className = 'text-[11px] text-red-500 font-semibold';
             } finally {
                 btn.disabled = false;
@@ -817,7 +1122,7 @@
 
                         if (evt.from === evt.to) return;
 
-                        statusEl.innerText = 'Salvando... ⏳';
+                        statusEl.innerText = I18N.t('kanban.drag.saving');
                         statusEl.className = 'mt-1 text-[10px] text-blue-500 font-semibold';
 
                         try {
@@ -828,16 +1133,16 @@
                             });
 
                             if (res.ok) {
-                                statusEl.innerText = 'Salvo! ✅';
+                                statusEl.innerText = I18N.t('kanban.drag.saved');
                                 statusEl.className = 'mt-1 text-[10px] text-green-500 font-semibold';
                                 setTimeout(() => statusEl.innerText = '', 2000);
                                 updateCounters();
                             } else {
-                                statusEl.innerText = 'Erro ❌';
+                                statusEl.innerText = I18N.t('kanban.drag.error');
                                 statusEl.className = 'mt-1 text-[10px] text-red-500 font-semibold';
                             }
                         } catch (err) {
-                            statusEl.innerText = 'Erro ❌';
+                            statusEl.innerText = I18N.t('kanban.drag.error');
                             statusEl.className = 'mt-1 text-[10px] text-red-500 font-semibold';
                         }
                     }
@@ -870,7 +1175,7 @@
             const accIcon = document.getElementById('accordion-icon');
             if (accIcon) accIcon.className = 'fa-solid fa-chevron-down text-xs';
             const accLabel = document.getElementById('accordion-label');
-            if (accLabel) accLabel.innerText = 'Expandir';
+            if (accLabel) accLabel.innerText = I18N.t('issuemodal.body.expand');
 
             const issueObj = allIssuesData.find(i => i.number == issueNumber);
             if (issueObj) {
@@ -878,7 +1183,7 @@
                 document.getElementById('modal-title').innerText = issueObj.title;
                 document.getElementById('modal-github-link').href = issueObj.html_url;
 
-                bodyContainer.innerText = issueObj.body ? issueObj.body.trim() : 'Sem descrição fornecida no GitHub.';
+                bodyContainer.innerText = issueObj.body ? issueObj.body.trim() : I18N.t('issuemodal.body.none');
 
                 const priorityLabel = (issueObj.labels || []).find(l => (typeof l === 'string' ? l : l.name).startsWith('priority:'));
                 const pVal = priorityLabel ? (typeof priorityLabel === 'string' ? priorityLabel : priorityLabel.name) : 'none';
@@ -897,7 +1202,7 @@
                 // Direcionamento da Demanda: Popular Select de Metas (Milestones)
                 const msSelect = document.getElementById('modal-select-milestone');
                 if (msSelect) {
-                    msSelect.innerHTML = '<option value="null">Sem Meta (Backlog)</option>';
+                    msSelect.innerHTML = `<option value="null">${I18N.t('issuemodal.milestone.none')}</option>`;
                     allMilestonesData.forEach(m => {
                         const opt = document.createElement('option');
                         opt.value = String(m.number);
@@ -917,7 +1222,7 @@
                 const labelsBox = document.getElementById('modal-labels');
                 const rawLabels = issueObj.labels || [];
                 if (rawLabels.length === 0) {
-                    labelsBox.innerHTML = '<span class="text-xs text-gray-400">Nenhuma label associada.</span>';
+                    labelsBox.innerHTML = `<span class="text-xs text-gray-400">${I18N.t('issuemodal.labels.none')}</span>`;
                 } else {
                     labelsBox.innerHTML = rawLabels.map(l => {
                         const rawName = typeof l === 'string' ? l : l.name;
@@ -956,7 +1261,7 @@
                 aiSummary.innerText = data.summary;
 
                 const resolvedBody = data.body || data.issue?.body || (issueObj && issueObj.body) || '';
-                bodyContainer.innerText = resolvedBody ? resolvedBody.trim() : 'Sem descrição fornecida no GitHub.';
+                bodyContainer.innerText = resolvedBody ? resolvedBody.trim() : I18N.t('issuemodal.body.none');
 
                 aiLoading.style.display = 'none';
                 aiSummary.style.display = 'block';
@@ -965,7 +1270,7 @@
                 console.error(err);
                 aiLoading.style.display = 'none';
                 aiSummary.style.display = 'block';
-                aiSummary.innerText = 'Não foi possível carregar a explicação no momento.';
+                aiSummary.innerText = I18N.t('js.ai.summary.error');
             }
         }
 
@@ -974,7 +1279,7 @@
             const ind = document.getElementById('modal-save-indicator');
             if (ind) {
                 ind.style.display = 'inline-block';
-                ind.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-0.5"></i> Salvando Meta...';
+                ind.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-0.5"></i> ${I18N.t('js.milestone.saving')}`;
             }
 
             const msValue = newMilestone === 'null' ? null : parseInt(newMilestone);
@@ -985,12 +1290,12 @@
                     body: JSON.stringify({ milestone: msValue })
                 });
                 if (res.ok) {
-                    if (ind) ind.innerHTML = '<i class="fa-solid fa-check mr-0.5"></i> Meta atualizada!';
+                    if (ind) ind.innerHTML = `<i class="fa-solid fa-check mr-0.5"></i> ${I18N.t('js.milestone.saved')}`;
                     const issueObj = allIssuesData.find(i => i.number == activeModalIssueNumber);
                     if (issueObj) {
                         const matchedMs = allMilestonesData.find(m => m.number == msValue);
                         issueObj.milestone = matchedMs ? { id: matchedMs.id, number: matchedMs.number, title: matchedMs.title } : null;
-                        
+
                         const mPill = document.getElementById('modal-milestone-pill');
                         if (issueObj.milestone) {
                             mPill.innerText = `🏁 ${issueObj.milestone.title}`;
@@ -1002,10 +1307,10 @@
                     }
                     setTimeout(() => { if (ind) ind.style.display = 'none'; }, 2000);
                 } else {
-                    if (ind) ind.innerHTML = '<span class="text-red-500"><i class="fa-solid fa-xmark"></i> Erro ao salvar</span>';
+                    if (ind) ind.innerHTML = `<span class="text-red-500"><i class="fa-solid fa-xmark"></i> ${I18N.t('js.save.error')}</span>`;
                 }
             } catch (e) {
-                if (ind) ind.innerHTML = '<span class="text-red-500"><i class="fa-solid fa-xmark"></i> Erro</span>';
+                if (ind) ind.innerHTML = `<span class="text-red-500"><i class="fa-solid fa-xmark"></i> ${I18N.t('js.error')}</span>`;
             }
         }
 
@@ -1014,7 +1319,7 @@
             const ind = document.getElementById('modal-save-indicator');
             if (ind) {
                 ind.style.display = 'inline-block';
-                ind.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-0.5"></i> Salvando Prioridade...';
+                ind.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-0.5"></i> ${I18N.t('js.priority.saving')}`;
             }
 
             try {
@@ -1024,7 +1329,7 @@
                     body: JSON.stringify({ newPriority })
                 });
                 if (res.ok) {
-                    if (ind) ind.innerHTML = '<i class="fa-solid fa-check mr-0.5"></i> Prioridade salva!';
+                    if (ind) ind.innerHTML = `<i class="fa-solid fa-check mr-0.5"></i> ${I18N.t('js.priority.saved')}`;
                     const issueObj = allIssuesData.find(i => i.number == activeModalIssueNumber);
                     if (issueObj) {
                         let currentLabels = (issueObj.labels || []).filter(l => !(typeof l === 'string' ? l : l.name).startsWith('priority:'));
@@ -1041,10 +1346,10 @@
                     }
                     setTimeout(() => { if (ind) ind.style.display = 'none'; }, 2000);
                 } else {
-                    if (ind) ind.innerHTML = '<span class="text-red-500"><i class="fa-solid fa-xmark"></i> Erro ao salvar</span>';
+                    if (ind) ind.innerHTML = `<span class="text-red-500"><i class="fa-solid fa-xmark"></i> ${I18N.t('js.save.error')}</span>`;
                 }
             } catch (e) {
-                if (ind) ind.innerHTML = '<span class="text-red-500"><i class="fa-solid fa-xmark"></i> Erro</span>';
+                if (ind) ind.innerHTML = `<span class="text-red-500"><i class="fa-solid fa-xmark"></i> ${I18N.t('js.error')}</span>`;
             }
         }
 
@@ -1065,7 +1370,7 @@
             icon.className = 'fa-solid fa-arrows-rotate fa-spin text-[9px]';
             aiLoading.style.display = 'flex';
             aiSummary.style.display = 'none';
-            aiProvider.innerText = 'Regerando com IA...';
+            aiProvider.innerText = I18N.t('js.ai.regenerating');
 
             try {
                 const res = await fetch(`/api/issues/${activeModalIssueNumber}/explain?force=true`);
@@ -1079,7 +1384,7 @@
             } catch (err) {
                 aiLoading.style.display = 'none';
                 aiSummary.style.display = 'block';
-                aiSummary.innerText = 'Erro ao regerar via IA: ' + err.message;
+                aiSummary.innerText = I18N.t('js.ai.regen.error', { msg: err.message });
             } finally {
                 btn.disabled = false;
                 icon.className = 'fa-solid fa-arrows-rotate text-[9px]';
@@ -1093,11 +1398,11 @@
             if (body.style.display === 'none') {
                 body.style.display = 'block';
                 if (icon) icon.className = 'fa-solid fa-chevron-up text-xs';
-                if (label) label.innerText = 'Recolher';
+                if (label) label.innerText = I18N.t('issuemodal.body.collapse');
             } else {
                 body.style.display = 'none';
                 if (icon) icon.className = 'fa-solid fa-chevron-down text-xs';
-                if (label) label.innerText = 'Expandir';
+                if (label) label.innerText = I18N.t('issuemodal.body.expand');
             }
         }
 
@@ -1170,7 +1475,7 @@
             if (icon) icon.className = 'fa-solid fa-arrows-rotate fa-spin text-[9px]';
             if (statusSpan) {
                 statusSpan.className = 'block text-[10px] text-blue-500 font-medium mt-1';
-                statusSpan.innerText = 'Consultando modelos disponíveis...';
+                statusSpan.innerText = I18N.t('js.ai.models.querying');
             }
 
             const payload = getFormAIConfig();
@@ -1211,18 +1516,18 @@
 
                     if (statusSpan) {
                         statusSpan.className = 'block text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold mt-1';
-                        statusSpan.innerText = `✅ ${data.models.length} modelos encontrados no servidor`;
+                        statusSpan.innerText = I18N.t('js.ai.models.found', { count: data.models.length });
                     }
                 } else {
                     if (statusSpan) {
                         statusSpan.className = 'block text-[10px] text-red-500 font-medium mt-1';
-                        statusSpan.innerText = data.error ? `Erro: ${data.error}` : 'Nenhum modelo retornado.';
+                        statusSpan.innerText = data.error ? I18N.t('js.ai.models.error', { msg: data.error }) : I18N.t('js.ai.models.none');
                     }
                 }
             } catch (e) {
                 if (statusSpan) {
                     statusSpan.className = 'block text-[10px] text-red-500 font-medium mt-1';
-                    statusSpan.innerText = 'Erro ao consultar servidor.';
+                    statusSpan.innerText = I18N.t('js.ai.models.server.error');
                 }
             } finally {
                 if (btn) btn.disabled = false;
@@ -1269,7 +1574,7 @@ Commits ({commitsCount}):
             const btn = document.getElementById('btn-regen-all');
             const icon = document.getElementById('icon-regen-all');
 
-            if (!confirm('Deseja limpar o cache e regerar resumos com os novos prompts?')) return;
+            if (!confirm(I18N.t('js.regenall.confirm'))) return;
 
             btn.disabled = true;
             icon.className = 'fa-solid fa-spinner fa-spin text-[10px]';
@@ -1281,12 +1586,12 @@ Commits ({commitsCount}):
                 const res = await fetch('/api/ai/regenerate-all', { method: 'POST' });
                 const data = await res.json();
                 if (data.success) {
-                    alert('Cache limpo com sucesso! As issues serão explicadas com os novos prompts ao serem abertas.');
+                    alert(I18N.t('js.regenall.success'));
                 } else {
-                    alert('Erro ao limpar cache: ' + (data.error || 'Erro desconhecido'));
+                    alert(I18N.t('js.regenall.fail') + ' ' + (data.error || 'Erro desconhecido'));
                 }
             } catch (err) {
-                alert('Erro de conexão ao regerar tudo: ' + err.message);
+                alert(I18N.t('js.regenall.conn.error') + ' ' + err.message);
             } finally {
                 btn.disabled = false;
                 icon.className = 'fa-solid fa-arrows-rotate text-[10px]';
@@ -1307,23 +1612,23 @@ Commits ({commitsCount}):
         async function loadGitHubConfig() {
             const badge = document.getElementById('github-token-badge');
             const statusText = document.getElementById('github-token-current-status');
-            const input = document.getElementById('github-token-input');
             try {
                 const res = await fetch('/api/github/config');
                 if (res.ok) {
                     const data = await res.json();
                     if (data.configured) {
                         badge.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800';
-                        badge.innerHTML = '<i class="fa-solid fa-check mr-1"></i> Configurado';
-                        statusText.innerHTML = `Token ativo: <span class="font-mono text-gray-700 dark:text-gray-300">${data.maskedToken}</span> (${data.source === 'dashboard_config' ? 'Painel' : (data.source === 'env_variable' ? '.env' : 'gh CLI')})`;
+                        badge.innerHTML = `<i class="fa-solid fa-check mr-1"></i> ${I18N.t('js.github.configured')}`;
+                        const sourceLabel = data.source === 'dashboard_config' ? I18N.t('js.github.source.panel') : (data.source === 'env_variable' ? I18N.t('js.github.source.env') : I18N.t('js.github.source.cli'));
+                        statusText.innerHTML = I18N.t('js.github.active.masked', { token: `<span class="font-mono text-gray-700 dark:text-gray-300">${data.maskedToken}</span>`, source: sourceLabel });
                     } else {
                         badge.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-800';
-                        badge.innerHTML = '<i class="fa-solid fa-triangle-exclamation mr-1"></i> Não configurado';
-                        statusText.innerText = 'Nenhum token detectado. Insira um token abaixo.';
+                        badge.innerHTML = `<i class="fa-solid fa-triangle-exclamation mr-1"></i> ${I18N.t('js.github.notconfigured')}`;
+                        statusText.innerText = I18N.t('js.github.none.detected');
                     }
                 }
             } catch (e) {
-                badge.innerText = 'Offline';
+                badge.innerText = I18N.t('js.github.offline');
             }
         }
 
@@ -1333,13 +1638,13 @@ Commits ({commitsCount}):
             const msg = document.getElementById('github-token-msg');
             const token = input.value.trim();
 
-            if (!token && !confirm('Deseja limpar o token manual e usar o fallback do ambiente?')) return;
+            if (!token && !confirm(I18N.t('js.github.clearconfirm'))) return;
 
             btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-[10px]"></i> Salvando...';
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-[10px]"></i> ${I18N.t('js.github.saving')}`;
             msg.style.display = 'block';
             msg.className = 'text-[11px] p-2 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-900';
-            msg.innerText = 'Validando permissões no repositório do GitHub...';
+            msg.innerText = I18N.t('js.github.validating');
 
             try {
                 const res = await fetch('/api/github/config', {
@@ -1351,21 +1656,21 @@ Commits ({commitsCount}):
 
                 if (data.success) {
                     msg.className = 'text-[11px] p-2 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800';
-                    msg.innerHTML = `<strong><i class="fa-solid fa-circle-check text-emerald-500 mr-1"></i> Sucesso!</strong> ${data.message}`;
+                    msg.innerHTML = `<strong><i class="fa-solid fa-circle-check text-emerald-500 mr-1"></i> ${I18N.t('js.github.success')}</strong> ${data.message}`;
                     input.value = '';
                     await loadGitHubConfig();
                     // Recarrega issues com o novo token
                     loadIssues();
                 } else {
                     msg.className = 'text-[11px] p-2 rounded-lg bg-red-50 dark:bg-red-950/60 text-red-800 dark:text-red-300 border border-red-200 dark:border-red-800';
-                    msg.innerHTML = `<strong><i class="fa-solid fa-circle-xmark text-red-500 mr-1"></i> Falha:</strong> ${data.error || 'Erro ao validar token.'}`;
+                    msg.innerHTML = `<strong><i class="fa-solid fa-circle-xmark text-red-500 mr-1"></i> ${I18N.t('js.github.fail')}</strong> ${data.error || 'Erro ao validar token.'}`;
                 }
             } catch (err) {
                 msg.className = 'text-[11px] p-2 rounded-lg bg-red-50 dark:bg-red-950/60 text-red-800 dark:text-red-300 border border-red-200 dark:border-red-800';
-                msg.innerHTML = `<strong><i class="fa-solid fa-circle-xmark text-red-500 mr-1"></i> Erro de rede:</strong> ${err.message}`;
+                msg.innerHTML = `<strong><i class="fa-solid fa-circle-xmark text-red-500 mr-1"></i> ${I18N.t('js.github.network.error')}</strong> ${err.message}`;
             } finally {
                 btn.disabled = false;
-                btn.innerHTML = '<i class="fa-solid fa-floppy-disk text-[10px]"></i> <span>Salvar Token</span>';
+                btn.innerHTML = `<i class="fa-solid fa-floppy-disk text-[10px]"></i> <span>${I18N.t('github.token.save')}</span>`;
             }
         }
 
@@ -1376,10 +1681,10 @@ Commits ({commitsCount}):
             const token = input.value.trim();
 
             btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-[9px]"></i> Testando...';
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-[9px]"></i> ${I18N.t('js.github.testing')}`;
             msg.style.display = 'block';
             msg.className = 'text-[11px] p-2 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-900';
-            msg.innerText = 'Consultando API do GitHub...';
+            msg.innerText = I18N.t('js.github.querying');
 
             try {
                 const res = await fetch('/api/github/test', {
@@ -1391,17 +1696,17 @@ Commits ({commitsCount}):
 
                 if (data.success) {
                     msg.className = 'text-[11px] p-2 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800';
-                    msg.innerHTML = `<strong><i class="fa-solid fa-circle-check text-emerald-500 mr-1"></i> Conexão ativa!</strong> Usuário: <strong>@${data.user}</strong> • Repo: <strong>${data.repository}</strong> (${data.latencyMs}ms)`;
+                    msg.innerHTML = `<strong><i class="fa-solid fa-circle-check text-emerald-500 mr-1"></i> ${I18N.t('js.github.connactive')}</strong> ${I18N.t('js.github.user.repo', { user: data.user, repo: data.repository, ms: data.latencyMs })}`;
                 } else {
                     msg.className = 'text-[11px] p-2 rounded-lg bg-red-50 dark:bg-red-950/60 text-red-800 dark:text-red-300 border border-red-200 dark:border-red-800';
-                    msg.innerHTML = `<strong><i class="fa-solid fa-circle-xmark text-red-500 mr-1"></i> Erro no teste:</strong> ${data.error}`;
+                    msg.innerHTML = `<strong><i class="fa-solid fa-circle-xmark text-red-500 mr-1"></i> ${I18N.t('js.github.testerror')}</strong> ${data.error}`;
                 }
             } catch (err) {
                 msg.className = 'text-[11px] p-2 rounded-lg bg-red-50 dark:bg-red-950/60 text-red-800 dark:text-red-300 border border-red-200 dark:border-red-800';
-                msg.innerHTML = `<strong><i class="fa-solid fa-circle-xmark text-red-500 mr-1"></i> Erro:</strong> ${err.message}`;
+                msg.innerHTML = `<strong><i class="fa-solid fa-circle-xmark text-red-500 mr-1"></i> ${I18N.t('js.error')}:</strong> ${err.message}`;
             } finally {
                 btn.disabled = false;
-                btn.innerHTML = '<i class="fa-solid fa-vial text-[9px]"></i> Testar Token';
+                btn.innerHTML = `<i class="fa-solid fa-vial text-[9px]"></i> ${I18N.t('github.token.test')}`;
             }
         }
 
@@ -1431,8 +1736,8 @@ Commits ({commitsCount}):
                     }
 
                     if (cfg.ollama) {
-                        document.getElementById('ai-ollama-url').value = cfg.ollama.url || 'https://ollama.ambialles.com';
-                        document.getElementById('ai-ollama-client-name').value = cfg.ollama.clientName || 'meu-projeto';
+                        document.getElementById('ai-ollama-url').value = cfg.ollama.url || 'http://localhost:11434';
+                        document.getElementById('ai-ollama-client-name').value = cfg.ollama.clientName || 'my-project';
                         setSelectedModel('ollama', cfg.ollama.model || 'gemma3:12b');
                         document.getElementById('ai-ollama-auth-type').value = cfg.ollama.authType || 'bearer';
                         document.getElementById('ai-ollama-user').value = cfg.ollama.user || '';
@@ -1503,7 +1808,7 @@ Commits ({commitsCount}):
                 },
                 ollama: {
                     url: document.getElementById('ai-ollama-url').value.trim(),
-                    clientName: document.getElementById('ai-ollama-client-name').value.trim() || 'meu-projeto',
+                    clientName: document.getElementById('ai-ollama-client-name').value.trim() || 'my-project',
                     model: getSelectedModel('ollama') || 'gemma3:12b',
                     authType: document.getElementById('ai-ollama-auth-type').value,
                     user: document.getElementById('ai-ollama-user').value.trim(),
@@ -1531,7 +1836,7 @@ Commits ({commitsCount}):
             icon.className = 'fa-solid fa-spinner fa-spin';
             resultBox.style.display = 'block';
             resultBox.className = 'p-3 rounded-lg text-xs leading-relaxed bg-blue-50 dark:bg-blue-950 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-900';
-            resultBox.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Enviando mensagem de teste para o servidor de IA...';
+            resultBox.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i> ${I18N.t('js.ai.test.sending')}`;
 
             const payload = getFormAIConfig();
 
@@ -1545,16 +1850,16 @@ Commits ({commitsCount}):
 
                 if (data.success) {
                     resultBox.className = 'p-3 rounded-lg text-xs leading-relaxed bg-emerald-50 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800';
-                    resultBox.innerHTML = `<strong><i class="fa-solid fa-circle-check text-emerald-500 mr-1"></i> Sucesso!</strong> ${data.message} <span class="block text-[11px] opacity-80 mt-1">Latência: ${data.latencyMs}ms • Resposta: "${data.responseSample || 'OK'}"</span>`;
+                    resultBox.innerHTML = `<strong><i class="fa-solid fa-circle-check text-emerald-500 mr-1"></i> ${I18N.t('js.ai.test.success.default')}</strong> ${data.message} <span class="block text-[11px] opacity-80 mt-1">${I18N.t('js.ai.test.latency.sample', { ms: data.latencyMs, sample: data.responseSample || 'OK' })}</span>`;
                     updateNavDot(true);
                 } else {
                     resultBox.className = 'p-3 rounded-lg text-xs leading-relaxed bg-red-50 dark:bg-red-950 text-red-800 dark:text-red-300 border border-red-200 dark:border-red-800';
-                    resultBox.innerHTML = `<strong><i class="fa-solid fa-circle-xmark text-red-500 mr-1"></i> Falha no teste:</strong> ${data.error || 'Não foi possível conectar.'}`;
+                    resultBox.innerHTML = `<strong><i class="fa-solid fa-circle-xmark text-red-500 mr-1"></i> ${I18N.t('js.ai.test.fail')}</strong> ${data.error || I18N.t('js.ai.test.fail.default')}`;
                     updateNavDot(false);
                 }
             } catch (err) {
                 resultBox.className = 'p-3 rounded-lg text-xs leading-relaxed bg-red-50 dark:bg-red-950 text-red-800 dark:text-red-300 border border-red-200 dark:border-red-800';
-                resultBox.innerHTML = `<strong><i class="fa-solid fa-circle-xmark text-red-500 mr-1"></i> Erro de rede:</strong> ${err.message}`;
+                resultBox.innerHTML = `<strong><i class="fa-solid fa-circle-xmark text-red-500 mr-1"></i> ${I18N.t('js.ai.test.network.error')}</strong> ${err.message}`;
                 updateNavDot(false);
             } finally {
                 btn.disabled = false;
@@ -1565,7 +1870,7 @@ Commits ({commitsCount}):
         async function saveAIConfiguration(closeOnSave = true) {
             const btn = document.getElementById('btn-save-ai');
             btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Salvando...';
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> ${I18N.t('js.github.saving')}`;
 
             const payload = getFormAIConfig();
 
@@ -1580,13 +1885,13 @@ Commits ({commitsCount}):
                     if (closeOnSave) closeAIConfigModal();
                     checkAIStatusInNav();
                 } else {
-                    alert('Erro ao salvar configurações de IA.');
+                    alert(I18N.t('js.ai.save.error'));
                 }
             } catch (e) {
-                alert('Erro de conexão ao salvar configurações.');
+                alert(I18N.t('js.ai.save.connerror'));
             } finally {
                 btn.disabled = false;
-                btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Salvar';
+                btn.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> ${I18N.t('footer.save')}`;
             }
         }
 
