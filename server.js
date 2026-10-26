@@ -559,8 +559,8 @@ Regras:
     return heuristicCleanTitle(issue.title);
 }
 
-// Sincroniza e salva localmente os títulos sugeridos
-async function syncAllSuggestedTitles() {
+// Sincroniza e salva localmente os títulos sugeridos (suporta limite por chamada para evitar timeout)
+async function syncAllSuggestedTitles(maxBatch = 5) {
     const titlesCache = loadJsonFile(SUGGESTED_TITLES_FILE, {});
     const allIssues = await getAllIssues();
     const aiConfig = getAIConfig();
@@ -575,13 +575,19 @@ async function syncAllSuggestedTitles() {
         } catch (e) {}
     }
 
+    let processedCount = 0;
     // Para as issues abertas (foco operacional)
     for (const issue of allIssues) {
+        if (issue.state !== 'open') continue;
         const id = String(issue.number);
-        if (!titlesCache[id] || titlesCache[id].originalTitle !== issue.title) {
+        if (!titlesCache[id] || titlesCache[id].originalTitle !== issue.title || !titlesCache[id].suggestedTitle) {
             let suggested;
-            if (aiWorking && issue.state === 'open') {
-                suggested = await generateSuggestedTitle(issue);
+            if (aiWorking) {
+                try {
+                    suggested = await generateSuggestedTitle(issue);
+                } catch (e) {
+                    suggested = heuristicCleanTitle(issue.title);
+                }
             } else {
                 suggested = heuristicCleanTitle(issue.title);
             }
@@ -593,6 +599,11 @@ async function syncAllSuggestedTitles() {
                 status: 'suggested',
                 updatedAt: new Date().toISOString()
             };
+
+            processedCount++;
+            if (maxBatch && processedCount >= maxBatch) {
+                break;
+            }
         }
     }
 
@@ -1240,9 +1251,136 @@ app.get('/api/ai/titles', (req, res) => {
     res.json(titles);
 });
 
+// Iniciar fila de sincronização de títulos (retorna lista de issues pendentes)
+app.post('/api/ai/sync-titles/start', async (req, res) => {
+    try {
+        const titlesCache = loadJsonFile(SUGGESTED_TITLES_FILE, {});
+        const allIssues = await getAllIssues();
+        
+        const openIssues = allIssues.filter(i => i.state === 'open');
+        const pendingIssues = [];
+        let alreadyUpToDate = 0;
+
+        for (const issue of openIssues) {
+            const id = String(issue.number);
+            if (!titlesCache[id] || titlesCache[id].originalTitle !== issue.title || !titlesCache[id].suggestedTitle) {
+                pendingIssues.push({
+                    number: issue.number,
+                    title: issue.title
+                });
+            } else {
+                alreadyUpToDate++;
+            }
+        }
+
+        res.json({
+            success: true,
+            totalOpen: openIssues.length,
+            pendingCount: pendingIssues.length,
+            alreadyUpToDate,
+            pendingIssues: pendingIssues.map(i => i.number),
+            titles: titlesCache
+        });
+    } catch (e) {
+        console.error('Erro ao iniciar fila de títulos:', e.message);
+        res.status(500).json({ error: 'Erro ao inicializar fila de títulos: ' + e.message });
+    }
+});
+
+// Processar um passo da fila de títulos (1 issue por vez para evitar timeout de serverless)
+app.post('/api/ai/sync-titles/step', async (req, res) => {
+    try {
+        const issueNumber = req.body?.issueNumber ? Number(req.body.issueNumber) : null;
+        const titlesCache = loadJsonFile(SUGGESTED_TITLES_FILE, {});
+        const allIssues = await getAllIssues();
+
+        let targetIssues = [];
+        if (issueNumber) {
+            const found = allIssues.find(i => i.number === issueNumber);
+            if (found) targetIssues.push(found);
+        } else {
+            const batchSize = Math.min(Number(req.body?.batchSize) || 1, 3);
+            for (const issue of allIssues) {
+                if (issue.state !== 'open') continue;
+                const id = String(issue.number);
+                if (!titlesCache[id] || titlesCache[id].originalTitle !== issue.title || !titlesCache[id].suggestedTitle) {
+                    targetIssues.push(issue);
+                    if (targetIssues.length >= batchSize) break;
+                }
+            }
+        }
+
+        if (targetIssues.length === 0) {
+            return res.json({
+                success: true,
+                done: true,
+                processedCount: 0,
+                message: 'Nenhuma issue pendente na fila.',
+                titles: titlesCache
+            });
+        }
+
+        const processed = [];
+        for (const issue of targetIssues) {
+            const id = String(issue.number);
+            let suggested;
+            try {
+                suggested = await generateSuggestedTitle(issue);
+            } catch (err) {
+                console.error(`Erro ao gerar título para issue #${issue.number}:`, err.message);
+                suggested = heuristicCleanTitle(issue.title);
+            }
+
+            titlesCache[id] = {
+                number: issue.number,
+                originalTitle: issue.title,
+                suggestedTitle: suggested,
+                status: 'suggested',
+                updatedAt: new Date().toISOString()
+            };
+
+            processed.push(titlesCache[id]);
+        }
+
+        // Salva incrementalmente para não perder progresso
+        saveJsonFile(SUGGESTED_TITLES_FILE, titlesCache);
+
+        res.json({
+            success: true,
+            done: false,
+            processedCount: processed.length,
+            processed,
+            titles: titlesCache
+        });
+    } catch (e) {
+        console.error('Erro no passo da fila de títulos:', e.message);
+        res.status(500).json({ error: 'Erro no processamento da fila de títulos: ' + e.message });
+    }
+});
+
+// Endpoint legado/direto com salvaguarda contra timeout
 app.post('/api/ai/sync-titles', async (req, res) => {
     try {
-        const titles = await syncAllSuggestedTitles();
+        const issueNumber = req.body?.issueNumber ? Number(req.body.issueNumber) : null;
+        if (issueNumber || req.body?.step || req.query?.step) {
+            const titlesCache = loadJsonFile(SUGGESTED_TITLES_FILE, {});
+            const allIssues = await getAllIssues();
+            const issue = allIssues.find(i => i.number === issueNumber);
+            if (issue) {
+                const suggested = await generateSuggestedTitle(issue);
+                titlesCache[String(issue.number)] = {
+                    number: issue.number,
+                    originalTitle: issue.title,
+                    suggestedTitle: suggested,
+                    status: 'suggested',
+                    updatedAt: new Date().toISOString()
+                };
+                saveJsonFile(SUGGESTED_TITLES_FILE, titlesCache);
+                return res.json({ success: true, processed: [titlesCache[String(issue.number)]], titles: titlesCache });
+            }
+        }
+        // Limita a no máximo 5 issues por chamada direta para evitar 504 Gateway Timeout
+        const titles = await syncAllSuggestedTitles(5);
         res.json({ success: true, count: Object.keys(titles).length, titles });
     } catch (e) {
         res.status(500).json({ error: 'Erro ao sincronizar títulos com IA: ' + e.message });

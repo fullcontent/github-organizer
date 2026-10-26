@@ -955,9 +955,15 @@
 
         async function loadSuggestedTitles() {
             try {
+                const local = localStorage.getItem('suggested_titles');
+                if (local) {
+                    try { suggestedTitlesMap = JSON.parse(local); } catch (e) {}
+                }
                 const res = await fetch('/api/ai/titles');
                 if (res.ok) {
-                    suggestedTitlesMap = await res.json();
+                    const serverTitles = await res.json();
+                    suggestedTitlesMap = { ...suggestedTitlesMap, ...serverTitles };
+                    localStorage.setItem('suggested_titles', JSON.stringify(suggestedTitlesMap));
                 }
             } catch (e) {}
         }
@@ -1064,35 +1070,94 @@
             renderKanbanBoard();
         }
 
+                let isSyncingTitlesQueue = false;
+
         async function syncSuggestedTitles() {
             const btn = document.getElementById('btn-sync-titles');
             const icon = document.getElementById('sync-titles-icon');
             const badge = document.getElementById('titles-sync-badge');
 
-            btn.disabled = true;
-            icon.className = 'fa-solid fa-spinner fa-spin';
+            if (isSyncingTitlesQueue) {
+                // Clique para pausar/interromper
+                isSyncingTitlesQueue = false;
+                badge.innerText = 'Pausando fila...';
+                return;
+            }
+
+            isSyncingTitlesQueue = true;
+            btn.disabled = false;
+            icon.className = 'fa-solid fa-spinner fa-spin text-indigo-500';
             badge.removeAttribute('data-i18n');
-            badge.innerText = I18N.t('kanban.sync.badge.generating');
-            badge.className = 'text-[11px] text-blue-500 dark:text-blue-400 font-semibold';
+            badge.innerText = 'Iniciando fila de títulos...';
+            badge.className = 'text-[11px] text-indigo-600 dark:text-indigo-400 font-semibold inline-flex items-center gap-1';
 
             try {
-                const res = await fetch('/api/ai/sync-titles', { method: 'POST' });
-                if (res.ok) {
-                    const data = await res.json();
-                    suggestedTitlesMap = data.titles || {};
-                    badge.innerText = I18N.t('kanban.sync.badge.saved', { count: data.count });
-                    badge.className = 'text-[11px] text-emerald-500 dark:text-emerald-400 font-semibold';
+                // 1. Inicia a fila e obtém a lista de pendências
+                const startRes = await fetch('/api/ai/sync-titles/start', { method: 'POST' });
+                if (!startRes.ok) throw new Error('Falha ao iniciar fila.');
+                const startData = await startRes.json();
+
+                if (startData.titles) {
+                    suggestedTitlesMap = { ...suggestedTitlesMap, ...startData.titles };
+                    localStorage.setItem('suggested_titles', JSON.stringify(suggestedTitlesMap));
+                }
+
+                const pendingList = startData.pendingIssues || [];
+                const totalPending = pendingList.length;
+
+                if (totalPending === 0) {
+                    badge.innerHTML = `<i class="fa-solid fa-check text-emerald-500"></i> Todos os títulos estão sincronizados (${startData.alreadyUpToDate || Object.keys(suggestedTitlesMap).length})!`;
+                    badge.className = 'text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold';
+                    isSyncingTitlesQueue = false;
                     renderKanbanBoard();
-                } else {
-                    badge.innerText = I18N.t('kanban.sync.badge.fail');
-                    badge.className = 'text-[11px] text-red-500 font-semibold';
+                    return;
+                }
+
+                let processedCount = 0;
+                for (let i = 0; i < totalPending; i++) {
+                    if (!isSyncingTitlesQueue) {
+                        badge.innerText = `Fila pausada (${processedCount}/${totalPending} processados).`;
+                        badge.className = 'text-[11px] text-amber-500 font-semibold';
+                        break;
+                    }
+
+                    const issueNum = pendingList[i];
+                    const percent = Math.round(((i + 1) / totalPending) * 100);
+                    badge.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles fa-spin text-indigo-500"></i> Fila: #${issueNum} (${i + 1}/${totalPending} - ${percent}%)...`;
+
+                    try {
+                        const stepRes = await fetch('/api/ai/sync-titles/step', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ issueNumber: issueNum })
+                        });
+                        if (stepRes.ok) {
+                            const stepData = await stepRes.json();
+                            if (stepData.titles) {
+                                suggestedTitlesMap = { ...suggestedTitlesMap, ...stepData.titles };
+                                localStorage.setItem('suggested_titles', JSON.stringify(suggestedTitlesMap));
+                                // Renderização progressiva em tempo real no quadro
+                                renderKanbanBoard();
+                            }
+                            processedCount++;
+                        }
+                    } catch (stepErr) {
+                        console.warn(`Erro na issue #${issueNum}, prosseguindo fila...`, stepErr);
+                    }
+                }
+
+                if (isSyncingTitlesQueue) {
+                    badge.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-500"></i> Fila concluída! ${processedCount} títulos sincronizados com IA.`;
+                    badge.className = 'text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold';
                 }
             } catch (e) {
-                badge.innerText = I18N.t('kanban.sync.badge.connerror');
+                console.error('Erro na fila de títulos:', e);
+                badge.innerText = I18N.t('kanban.sync.badge.connerror') + ' (' + e.message + ')';
                 badge.className = 'text-[11px] text-red-500 font-semibold';
             } finally {
-                btn.disabled = false;
+                isSyncingTitlesQueue = false;
                 icon.className = 'fa-solid fa-wand-magic-sparkles';
+                renderKanbanBoard();
             }
         }
 
