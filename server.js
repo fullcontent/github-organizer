@@ -315,7 +315,7 @@ async function callAI(prompt, systemInstruction = '', overrideConfig = null) {
         const clientName = ollama.clientName || process.env.OLLAMA_CLIENT_NAME || 'github-organizer';
         
         let reqConfig = { 
-            timeout: 120000, 
+            timeout: process.env.VERCEL ? 8500 : 30000, 
             headers: {
                 'X-Client-Name': clientName
             } 
@@ -370,7 +370,7 @@ async function callAI(prompt, systemInstruction = '', overrideConfig = null) {
                     contents: [{
                         parts: [{ text: (systemInstruction ? systemInstruction + '\n\n' : '') + prompt }]
                     }]
-                }, { timeout: 15000 });
+                }, { timeout: process.env.VERCEL ? 8500 : 15000 });
 
                 const text = response.data?.candidates?.[0]?.content?.parts?.[0]?.text;
                 if (text) {
