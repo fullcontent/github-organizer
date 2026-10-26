@@ -1,3 +1,34 @@
+
+// Interceptor global do fetch para passar credenciais de GitHub (token e repo) salvas no cliente
+(function() {
+    const originalFetch = window.fetch;
+    window.fetch = function(input, init) {
+        let url = typeof input === 'string' ? input : (input && input.url ? input.url : '');
+        if (url && (url.startsWith('/api/') || url.includes('/api/'))) {
+            init = init || {};
+            let headers = init.headers;
+            const token = localStorage.getItem('github_token');
+            const repo = localStorage.getItem('github_repo');
+
+            if (token || repo) {
+                if (!headers) headers = {};
+                if (typeof Headers !== 'undefined' && headers instanceof Headers) {
+                    if (token && !headers.has('x-github-token')) headers.set('x-github-token', token);
+                    if (repo && !headers.has('x-github-repo')) headers.set('x-github-repo', repo);
+                } else if (Array.isArray(headers)) {
+                    if (token) headers.push(['x-github-token', token]);
+                    if (repo) headers.push(['x-github-repo', repo]);
+                } else {
+                    if (token && !headers['x-github-token']) headers['x-github-token'] = token;
+                    if (repo && !headers['x-github-repo']) headers['x-github-repo'] = repo;
+                }
+                init.headers = headers;
+            }
+        }
+        return originalFetch.call(this, input, init);
+    };
+})();
+
 /**
  * Shared i18n engine for GitHub Organizer.
  * Each page defines window.PAGE_I18N = { pt: {...}, en: {...} } BEFORE loading this script,

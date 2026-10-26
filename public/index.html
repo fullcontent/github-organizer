@@ -160,21 +160,31 @@
                     <div class="space-y-1.5">
                         <div class="flex items-center gap-1.5">
                             <div class="relative flex-1">
-                                <input type="password" id="github-token-input" data-i18n-ph="github.token.placeholder" placeholder="ghp_... or gho_... (paste a new token to update)" class="w-full text-xs p-2 pr-8 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 font-mono">
-                                <button type="button" onclick="toggleGithubTokenVisibility()" class="absolute right-2.5 top-2.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 text-xs" title="Show token">
+                                <input type="password" id="github-token-input" data-i18n-ph="github.token.placeholder" placeholder="ghp_... ou gho_... (cole um novo token para atualizar)" class="w-full text-xs p-2 pr-8 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 font-mono">
+                                <button type="button" onclick="toggleGithubTokenVisibility()" class="absolute right-2.5 top-2.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 text-xs" title="Ver token">
                                     <i id="github-token-eye" class="fa-regular fa-eye"></i>
                                 </button>
                             </div>
-                            <button type="button" onclick="saveGitHubToken()" id="btn-save-gh-token" class="px-3 py-2 rounded-lg bg-gray-900 hover:bg-black dark:bg-gray-600 dark:hover:bg-gray-500 text-white text-xs font-semibold flex items-center gap-1 transition-colors whitespace-nowrap shadow-2xs">
+                        </div>
+
+                        <div class="pt-1">
+                            <label class="block text-[10px] font-semibold text-gray-600 dark:text-gray-300 mb-1" data-i18n="github.repo.label">Repositório GitHub (owner/repo)</label>
+                            <input type="text" id="github-repo-input" placeholder="ex: fullcontent/sistemacelic" class="w-full text-xs p-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 font-mono">
+                        </div>
+
+                        <div class="flex items-center gap-2 pt-1">
+                            <button type="button" onclick="saveGitHubConfig()" id="btn-save-gh-token" class="flex-1 px-3 py-2 rounded-lg bg-gray-900 hover:bg-black dark:bg-gray-600 dark:hover:bg-gray-500 text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors whitespace-nowrap shadow-2xs">
                                 <i class="fa-solid fa-floppy-disk text-[10px]"></i>
-                                <span data-i18n="github.token.save">Save Token</span>
+                                <span data-i18n="github.token.save">Salvar Configurações</span>
+                            </button>
+                            <button type="button" onclick="testGitHubToken()" id="btn-test-gh-token" class="px-3 py-2 rounded-lg bg-blue-50 dark:bg-blue-900/40 hover:bg-blue-100 dark:hover:bg-blue-900/60 text-blue-700 dark:text-blue-300 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors border border-blue-200 dark:border-blue-800">
+                                <i class="fa-solid fa-vial text-[10px]"></i>
+                                <span data-i18n="github.token.test">Testar</span>
                             </button>
                         </div>
-                        <div class="flex items-center justify-between text-[10px] text-gray-500 dark:text-gray-400">
-                            <span id="github-token-current-status" data-i18n="github.token.active.none">Active token: None</span>
-                            <button type="button" onclick="testGitHubToken()" id="btn-test-gh-token" class="text-blue-600 dark:text-blue-400 hover:underline font-semibold flex items-center gap-1">
-                                <i class="fa-solid fa-vial text-[9px]"></i> <span data-i18n="github.token.test">Test Token</span>
-                            </button>
+                        <div class="flex items-center justify-between text-[10px] text-gray-500 dark:text-gray-400 pt-1">
+                            <span id="github-token-current-status" data-i18n="github.token.active.none">Token ativo: Nenhum</span>
+                            <span id="github-repo-current-status" class="font-mono text-gray-600 dark:text-gray-300"></span>
                         </div>
                         <div id="github-token-msg" class="text-[11px] p-2 rounded-lg" style="display: none;"></div>
                     </div>
@@ -571,7 +581,8 @@
                 'github.token.desc': 'Necessário para ler e atualizar issues e metas (PAT Classic ou Fine-grained)',
                 'github.token.checking': 'Verificando...',
                 'github.token.placeholder': 'ghp_... ou gho_... (cole um novo token para atualizar)',
-                'github.token.save': 'Salvar Token',
+                'github.repo.label': 'Repositório GitHub (owner/repo)',
+                'github.token.save': 'Salvar Configurações',
                 'github.token.active.none': 'Token ativo: Nenhum',
                 'github.token.test': 'Testar Token',
                 'ai.active.label': 'Inteligência Artificial Ativa',
@@ -716,7 +727,8 @@
                 'github.token.desc': 'Required to read and update issues and milestones (Classic or Fine-grained PAT)',
                 'github.token.checking': 'Checking...',
                 'github.token.placeholder': 'ghp_... or gho_... (paste a new token to update)',
-                'github.token.save': 'Save Token',
+                'github.repo.label': 'GitHub Repository (owner/repo)',
+                'github.token.save': 'Save Settings',
                 'github.token.active.none': 'Active token: None',
                 'github.token.test': 'Test Token',
                 'ai.active.label': 'AI Enabled',
@@ -1557,9 +1569,17 @@ Commits ({commitsCount}):
             eye.className = isGithubTokenVisible ? 'fa-regular fa-eye-slash' : 'fa-regular fa-eye';
         }
 
-        async function loadGitHubConfig() {
+                async function loadGitHubConfig() {
             const badge = document.getElementById('github-token-badge');
             const statusText = document.getElementById('github-token-current-status');
+            const repoStatus = document.getElementById('github-repo-current-status');
+            const repoInput = document.getElementById('github-repo-input');
+
+            const savedLocalRepo = localStorage.getItem('github_repo');
+            if (savedLocalRepo && repoInput && !repoInput.value) {
+                repoInput.value = savedLocalRepo;
+            }
+
             try {
                 const res = await fetch('/api/github/config');
                 if (res.ok) {
@@ -1567,26 +1587,36 @@ Commits ({commitsCount}):
                     if (data.configured) {
                         badge.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800';
                         badge.innerHTML = `<i class="fa-solid fa-check mr-1"></i> ${I18N.t('js.github.configured')}`;
-                        const sourceLabel = data.source === 'dashboard_config' ? I18N.t('js.github.source.panel') : (data.source === 'env_variable' ? I18N.t('js.github.source.env') : I18N.t('js.github.source.cli'));
+                        const sourceLabel = data.source === 'client_header' ? 'Browser Storage' : (data.source === 'dashboard_config' ? I18N.t('js.github.source.panel') : (data.source === 'env_variable' ? I18N.t('js.github.source.env') : I18N.t('js.github.source.cli')));
                         statusText.innerHTML = I18N.t('js.github.active.masked', { token: `<span class="font-mono text-gray-700 dark:text-gray-300">${data.maskedToken}</span>`, source: sourceLabel });
                     } else {
                         badge.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-800';
                         badge.innerHTML = `<i class="fa-solid fa-triangle-exclamation mr-1"></i> ${I18N.t('js.github.notconfigured')}`;
                         statusText.innerText = I18N.t('js.github.none.detected');
                     }
+
+                    if (data.repository) {
+                        if (repoInput && !repoInput.value) repoInput.value = data.repository;
+                        if (repoStatus) repoStatus.innerText = data.repository;
+                        if (!savedLocalRepo) localStorage.setItem('github_repo', data.repository);
+                        const repoEl = document.getElementById('repo-name');
+                        if (repoEl) repoEl.innerText = data.repository;
+                    }
                 }
             } catch (e) {
-                badge.innerText = I18N.t('js.github.offline');
+                if (badge) badge.innerText = I18N.t('js.github.offline');
             }
         }
 
-        async function saveGitHubToken() {
+        async function saveGitHubConfig() {
             const input = document.getElementById('github-token-input');
+            const repoInput = document.getElementById('github-repo-input');
             const btn = document.getElementById('btn-save-gh-token');
             const msg = document.getElementById('github-token-msg');
-            const token = input.value.trim();
+            const token = input ? input.value.trim() : '';
+            const repository = repoInput ? repoInput.value.trim() : '';
 
-            if (!token && !confirm(I18N.t('js.github.clearconfirm'))) return;
+            if (!token && !repository && !confirm(I18N.t('js.github.clearconfirm'))) return;
 
             btn.disabled = true;
             btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-[10px]"></i> ${I18N.t('js.github.saving')}`;
@@ -1595,22 +1625,30 @@ Commits ({commitsCount}):
             msg.innerText = I18N.t('js.github.validating');
 
             try {
+                const payload = {};
+                if (token) payload.token = token;
+                if (repository) payload.repository = repository;
+
                 const res = await fetch('/api/github/config', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ token })
+                    body: JSON.stringify(payload)
                 });
                 const data = await res.json();
 
                 if (data.success) {
+                    if (token) localStorage.setItem('github_token', token);
+                    if (repository) localStorage.setItem('github_repo', repository);
+
                     msg.className = 'text-[11px] p-2 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800';
                     msg.innerHTML = `<strong><i class="fa-solid fa-circle-check text-emerald-500 mr-1"></i> ${I18N.t('js.github.success')}</strong> ${data.message}`;
-                    input.value = '';
+                    if (input) input.value = '';
                     await loadGitHubConfig();
-                    loadIssues();
+                    if (typeof loadIssues === 'function') loadIssues();
+                    if (typeof loadKanbanIssues === 'function') loadKanbanIssues();
                 } else {
                     msg.className = 'text-[11px] p-2 rounded-lg bg-red-50 dark:bg-red-950/60 text-red-800 dark:text-red-300 border border-red-200 dark:border-red-800';
-                    msg.innerHTML = `<strong><i class="fa-solid fa-circle-xmark text-red-500 mr-1"></i> ${I18N.t('js.github.fail')}</strong> ${data.error || 'Erro ao validar token.'}`;
+                    msg.innerHTML = `<strong><i class="fa-solid fa-circle-xmark text-red-500 mr-1"></i> ${I18N.t('js.github.fail')}</strong> ${data.error || 'Erro ao validar configuração.'}`;
                 }
             } catch (err) {
                 msg.className = 'text-[11px] p-2 rounded-lg bg-red-50 dark:bg-red-950/60 text-red-800 dark:text-red-300 border border-red-200 dark:border-red-800';
@@ -1620,12 +1658,15 @@ Commits ({commitsCount}):
                 btn.innerHTML = `<i class="fa-solid fa-floppy-disk text-[10px]"></i> <span>${I18N.t('github.token.save')}</span>`;
             }
         }
+        window.saveGitHubToken = saveGitHubConfig;
 
         async function testGitHubToken() {
             const input = document.getElementById('github-token-input');
+            const repoInput = document.getElementById('github-repo-input');
             const btn = document.getElementById('btn-test-gh-token');
             const msg = document.getElementById('github-token-msg');
-            const token = input.value.trim();
+            const token = input ? input.value.trim() : '';
+            const repository = repoInput ? repoInput.value.trim() : '';
 
             btn.disabled = true;
             btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-[9px]"></i> ${I18N.t('js.github.testing')}`;
@@ -1634,23 +1675,27 @@ Commits ({commitsCount}):
             msg.innerText = I18N.t('js.github.querying');
 
             try {
+                const payload = {};
+                if (token) payload.token = token;
+                if (repository) payload.repository = repository;
+
                 const res = await fetch('/api/github/test', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ token })
+                    body: JSON.stringify(payload)
                 });
                 const data = await res.json();
 
                 if (data.success) {
                     msg.className = 'text-[11px] p-2 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800';
-                    msg.innerHTML = `<strong><i class="fa-solid fa-circle-check text-emerald-500 mr-1"></i> ${I18N.t('js.github.connactive')}</strong> ${I18N.t('js.github.user.repo', { user: data.user, repo: data.repository, ms: data.latencyMs })}`;
+                    msg.innerHTML = `<strong><i class="fa-solid fa-circle-check text-emerald-500 mr-1"></i> ${I18N.t('js.github.connactive')}</strong> @${data.user} em <strong>${data.repository}</strong> (${data.latencyMs}ms)`;
                 } else {
                     msg.className = 'text-[11px] p-2 rounded-lg bg-red-50 dark:bg-red-950/60 text-red-800 dark:text-red-300 border border-red-200 dark:border-red-800';
-                    msg.innerHTML = `<strong><i class="fa-solid fa-circle-xmark text-red-500 mr-1"></i> ${I18N.t('js.github.testerror')}</strong> ${data.error}`;
+                    msg.innerHTML = `<strong><i class="fa-solid fa-circle-xmark text-red-500 mr-1"></i> ${I18N.t('js.github.fail')}</strong> ${data.error}`;
                 }
             } catch (err) {
                 msg.className = 'text-[11px] p-2 rounded-lg bg-red-50 dark:bg-red-950/60 text-red-800 dark:text-red-300 border border-red-200 dark:border-red-800';
-                msg.innerHTML = `<strong><i class="fa-solid fa-circle-xmark text-red-500 mr-1"></i> ${I18N.t('js.error')}:</strong> ${err.message}`;
+                msg.innerHTML = `<strong><i class="fa-solid fa-circle-xmark text-red-500 mr-1"></i> ${I18N.t('js.github.network.error')}</strong> ${err.message}`;
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = `<i class="fa-solid fa-vial text-[9px]"></i> ${I18N.t('github.token.test')}`;

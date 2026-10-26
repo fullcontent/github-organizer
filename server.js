@@ -5,16 +5,29 @@ const path = require('path');
 const fs = require('fs');
 const { execSync } = require('child_process');
 
+const { AsyncLocalStorage } = require('async_hooks');
+
 const app = express();
+const requestContext = new AsyncLocalStorage();
+
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-const REPO = process.env.GITHUB_REPO || 'owner/repo';
+// Middleware para capturar credenciais dinâmicas do cliente (headers ou query)
+app.use((req, res, next) => {
+    const clientToken = (req.headers['x-github-token'] || req.query.gh_token || '').toString().trim();
+    const clientRepo = (req.headers['x-github-repo'] || req.query.gh_repo || '').toString().trim();
+    requestContext.run({ token: clientToken, repo: clientRepo }, next);
+});
 
-// Diretório local para persistência de dados e cache
-const DATA_DIR = path.join(__dirname, 'data');
-if (!fs.existsSync(DATA_DIR)) {
-    fs.mkdirSync(DATA_DIR, { recursive: true });
+// Diretório local para persistência de dados e cache (suporte seguro ao Vercel Serverless /tmp)
+const DATA_DIR = process.env.VERCEL ? path.join('/tmp', 'data') : path.join(__dirname, 'data');
+try {
+    if (!fs.existsSync(DATA_DIR)) {
+        fs.mkdirSync(DATA_DIR, { recursive: true });
+    }
+} catch (e) {
+    console.warn('Aviso ao inicializar DATA_DIR:', e.message);
 }
 const DASHBOARD_CACHE_FILE = path.join(DATA_DIR, 'dashboard_cache.json');
 const SUMMARIES_CACHE_FILE = path.join(DATA_DIR, 'issue_summaries.json');
@@ -121,14 +134,30 @@ function saveAIConfig(newConfig) {
 
 const GITHUB_CONFIG_FILE = path.join(DATA_DIR, 'github_config.json');
 
-// Obtém o token do GitHub disponível (ordem de prioridade: arquivo local seguro, variáveis de ambiente, ou GitHub CLI)
-function getGitHubToken() {
-    // 1. Token salvo via painel de configurações
+// Obtém o repositório do GitHub (ordem: header do cliente, arquivo local salvo, env var, ou fallback padrão)
+function getRepo(req = null) {
+    const store = requestContext.getStore();
+    if (store && store.repo) return store.repo;
+    if (req && req.headers && req.headers['x-github-repo']) return req.headers['x-github-repo'].trim();
+    const localGithub = loadJsonFile(GITHUB_CONFIG_FILE, {});
+    if (localGithub && localGithub.repository && localGithub.repository.trim()) {
+        return localGithub.repository.trim();
+    }
+    if (process.env.GITHUB_REPO && process.env.GITHUB_REPO.trim()) {
+        return process.env.GITHUB_REPO.trim();
+    }
+    return 'fullcontent/sistemacelic';
+}
+
+// Obtém o token do GitHub disponível (ordem: header do cliente, arquivo local seguro, variáveis de ambiente, ou GitHub CLI)
+function getGitHubToken(req = null) {
+    const store = requestContext.getStore();
+    if (store && store.token) return store.token;
+    if (req && req.headers && req.headers['x-github-token']) return req.headers['x-github-token'].trim();
     const localGithub = loadJsonFile(GITHUB_CONFIG_FILE, {});
     if (localGithub && localGithub.token && localGithub.token.trim()) {
         return localGithub.token.trim();
     }
-    // 2. Variáveis de ambiente
     if (process.env.GITHUB_TOKEN && process.env.GITHUB_TOKEN.trim()) {
         return process.env.GITHUB_TOKEN.trim();
     }
@@ -138,9 +167,8 @@ function getGitHubToken() {
     if (process.env.GITHUB_TOKEN_FINE && process.env.GITHUB_TOKEN_FINE.trim()) {
         return process.env.GITHUB_TOKEN_FINE.trim();
     }
-    // 3. GitHub CLI local
     try {
-        const token = execSync('gh auth token', { encoding: 'utf-8', stdio: ['pipe', 'pipe', 'ignore'] }).trim();
+        const token = execSync('gh auth token', { encoding: 'utf-8', stdio: ['pipe', 'pipe', 'ignore'], timeout: 3000 }).trim();
         if (token) return token;
     } catch (e) {
         // gh CLI não disponível ou não autenticado
@@ -155,28 +183,54 @@ function maskToken(token) {
     return `${prefix}••••••••••••••••${suffix}`;
 }
 
-function getHeaders() {
-    const token = getGitHubToken();
-    return {
-        'Authorization': `Bearer ${token}`,
+function getHeaders(req = null) {
+    const token = getGitHubToken(req);
+    const headers = {
         'Accept': 'application/vnd.github.v3+json',
         'User-Agent': 'github-organizer'
     };
+    if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+    }
+    return headers;
 }
 
-const api = axios.create({
-    baseURL: `https://api.github.com/repos/${REPO}`
-});
+const api = axios.create();
 
 api.interceptors.request.use(config => {
-    config.headers = { ...config.headers, ...getHeaders() };
+    const currentRepo = getRepo();
+    config.baseURL = `https://api.github.com/repos/${currentRepo}`;
+    const token = getGitHubToken();
+    config.headers = {
+        'Accept': 'application/vnd.github.v3+json',
+        'User-Agent': 'github-organizer',
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+        ...config.headers
+    };
     return config;
 });
 
-// Cache em memória para evitar chamadas redundantes ao GitHub
+// Cache em memória por repositório
+let issuesCacheByRepo = new Map();
 let issuesCache = {
-    data: null,
-    timestamp: 0
+    get data() {
+        const item = issuesCacheByRepo.get(getRepo());
+        return item ? item.data : null;
+    },
+    set data(val) {
+        const repo = getRepo();
+        const existing = issuesCacheByRepo.get(repo) || {};
+        issuesCacheByRepo.set(repo, { ...existing, data: val });
+    },
+    get timestamp() {
+        const item = issuesCacheByRepo.get(getRepo());
+        return item ? item.timestamp : 0;
+    },
+    set timestamp(val) {
+        const repo = getRepo();
+        const existing = issuesCacheByRepo.get(repo) || {};
+        issuesCacheByRepo.set(repo, { ...existing, timestamp: val });
+    }
 };
 
 let commitsCache = {
@@ -844,97 +898,120 @@ app.patch('/api/issues/:number/milestone', async (req, res) => {
 // ROTAS DE CONFIGURAÇÃO DO GITHUB (TOKEN SEGURO)
 // -------------------------------------------------------------
 app.get('/api/github/config', (req, res) => {
-    const currentToken = getGitHubToken();
+    const currentToken = getGitHubToken(req);
+    const currentRepo = getRepo(req);
     let source = 'none';
-    const localGithub = loadJsonFile(GITHUB_CONFIG_FILE, {});
+    const store = requestContext.getStore();
 
-    if (localGithub && localGithub.token && localGithub.token.trim()) {
-        source = 'dashboard_config';
-    } else if (process.env.GITHUB_TOKEN || process.env.GITHUB_TOKEN_CLASSIC || process.env.GITHUB_TOKEN_FINE) {
-        source = 'env_variable';
-    } else if (currentToken) {
-        source = 'gh_cli';
+    if (store && store.token) {
+        source = 'client_header';
+    } else {
+        const localGithub = loadJsonFile(GITHUB_CONFIG_FILE, {});
+        if (localGithub && localGithub.token && localGithub.token.trim()) {
+            source = 'dashboard_config';
+        } else if (process.env.GITHUB_TOKEN || process.env.GITHUB_TOKEN_CLASSIC || process.env.GITHUB_TOKEN_FINE) {
+            source = 'env_variable';
+        } else if (currentToken) {
+            source = 'gh_cli';
+        }
     }
 
     res.json({
         configured: Boolean(currentToken),
         maskedToken: maskToken(currentToken),
         source: source,
-        repository: REPO
+        repository: currentRepo
     });
 });
 
 app.post('/api/github/config', async (req, res) => {
     try {
-        const { token } = req.body;
-        
-        // Se vier vazio, remove a customização manual e volta para o fallback
-        if (!token || !token.trim()) {
+        const { token, repository } = req.body;
+        let localGithub = loadJsonFile(GITHUB_CONFIG_FILE, {});
+
+        let currentToken = (token !== undefined && token !== null && token.trim() !== '') 
+            ? token.trim() 
+            : (localGithub.token || getGitHubToken(req));
+
+        let currentRepo = (repository !== undefined && repository !== null && repository.trim() !== '') 
+            ? repository.trim() 
+            : (localGithub.repository || getRepo(req));
+
+        // Se pediu para limpar tudo explicitamente
+        if (token === '' && repository === '') {
             saveJsonFile(GITHUB_CONFIG_FILE, {});
-            issuesCache.timestamp = 0;
-            const fallbackToken = getGitHubToken();
+            issuesCacheByRepo.clear();
+            const fallbackToken = getGitHubToken(req);
+            const fallbackRepo = getRepo(req);
             return res.json({ 
                 success: true, 
-                message: 'Token manual removido. Utilizando fallback do ambiente/CLI.',
+                message: 'Configurações manuais removidas. Utilizando fallback do ambiente/CLI.',
                 configured: Boolean(fallbackToken),
-                maskedToken: maskToken(fallbackToken)
+                maskedToken: maskToken(fallbackToken),
+                repository: fallbackRepo
             });
         }
 
-        const trimmed = token.trim();
-        // Testa o token antes de salvar
-        const testRes = await axios.get(`https://api.github.com/user`, {
-            headers: {
-                'Authorization': `Bearer ${trimmed}`,
-                'Accept': 'application/vnd.github.v3+json',
-                'User-Agent': 'github-organizer'
-            },
-            timeout: 10000
-        });
+        let userLogin = '';
+        if (currentToken) {
+            const testRes = await axios.get('https://api.github.com/user', {
+                headers: {
+                    'Authorization': `Bearer ${currentToken}`,
+                    'Accept': 'application/vnd.github.v3+json',
+                    'User-Agent': 'github-organizer'
+                },
+                timeout: 10000
+            });
+            userLogin = testRes.data.login;
+        }
 
-        // Testa permissão de acesso ao repositório
-        await axios.get(`https://api.github.com/repos/${REPO}`, {
-            headers: {
-                'Authorization': `Bearer ${trimmed}`,
-                'Accept': 'application/vnd.github.v3+json',
-                'User-Agent': 'github-organizer'
-            },
-            timeout: 10000
-        });
+        if (currentRepo && currentRepo !== 'owner/repo') {
+            await axios.get(`https://api.github.com/repos/${currentRepo}`, {
+                headers: {
+                    ...(currentToken ? { 'Authorization': `Bearer ${currentToken}` } : {}),
+                    'Accept': 'application/vnd.github.v3+json',
+                    'User-Agent': 'github-organizer'
+                },
+                timeout: 10000
+            });
+        }
 
-        // Salva com segurança no arquivo local não versionado
-        saveJsonFile(GITHUB_CONFIG_FILE, { 
-            token: trimmed,
-            updatedAt: new Date().toISOString(),
-            login: testRes.data.login
-        });
-
-        issuesCache.timestamp = 0;
+        localGithub = {
+            ...localGithub,
+            ...(currentToken ? { token: currentToken, login: userLogin } : {}),
+            ...(currentRepo ? { repository: currentRepo } : {}),
+            updatedAt: new Date().toISOString()
+        };
+        saveJsonFile(GITHUB_CONFIG_FILE, localGithub);
+        issuesCacheByRepo.clear();
 
         res.json({
             success: true,
-            message: `Token validado com sucesso! Autenticado como ${testRes.data.login}.`,
-            user: testRes.data.login,
-            maskedToken: maskToken(trimmed)
+            message: `Configurações salvas com sucesso!${userLogin ? ' Autenticado como @' + userLogin + '.' : ''}${currentRepo ? ' Repositório: ' + currentRepo : ''}`,
+            user: userLogin,
+            repository: currentRepo,
+            maskedToken: maskToken(currentToken)
         });
     } catch (err) {
-        console.error('Erro ao validar token do GitHub:', err.response?.data || err.message);
+        console.error('Erro ao validar token/repositório do GitHub:', err.response?.data || err.message);
         const errMsg = err.response?.status === 401 
             ? 'Token inválido ou expirado (Bad credentials).'
-            : (err.response?.status === 404 ? `Token sem acesso ao repositório ${REPO}.` : (err.response?.data?.message || err.message));
+            : (err.response?.status === 404 ? 'Sem acesso ao repositório informado ou recurso não encontrado (404).' : (err.response?.data?.message || err.message));
         res.status(400).json({ success: false, error: errMsg });
     }
 });
 
 app.post('/api/github/test', async (req, res) => {
     try {
-        const token = (req.body?.token && req.body.token.trim()) || getGitHubToken();
+        const token = (req.body?.token && req.body.token.trim()) || getGitHubToken(req);
+        const targetRepo = (req.body?.repository && req.body.repository.trim()) || getRepo(req);
+
         if (!token) {
             return res.status(400).json({ success: false, error: 'Nenhum token fornecido ou configurado.' });
         }
 
         const t0 = Date.now();
-        const userRes = await axios.get(`https://api.github.com/user`, {
+        const userRes = await axios.get('https://api.github.com/user', {
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Accept': 'application/vnd.github.v3+json',
@@ -943,27 +1020,31 @@ app.post('/api/github/test', async (req, res) => {
             timeout: 10000
         });
 
-        const repoRes = await axios.get(`https://api.github.com/repos/${REPO}`, {
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Accept': 'application/vnd.github.v3+json',
-                'User-Agent': 'github-organizer'
-            },
-            timeout: 10000
-        });
+        let repoRes = null;
+        if (targetRepo && targetRepo !== 'owner/repo') {
+            repoRes = await axios.get(`https://api.github.com/repos/${targetRepo}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Accept': 'application/vnd.github.v3+json',
+                    'User-Agent': 'github-organizer'
+                },
+                timeout: 10000
+            });
+        }
         const latencyMs = Date.now() - t0;
 
         res.json({
             success: true,
             user: userRes.data.login,
-            repository: repoRes.data.full_name,
-            permissions: repoRes.data.permissions || {},
+            repository: repoRes ? repoRes.data.full_name : targetRepo,
+            permissions: repoRes ? (repoRes.data.permissions || {}) : {},
             latencyMs
         });
     } catch (err) {
+        console.error('Erro ao testar token:', err.response?.data || err.message);
         const errMsg = err.response?.status === 401 
             ? 'Token inválido ou expirado.'
-            : (err.response?.status === 404 ? `Repositório ${REPO} não encontrado ou sem permissão de acesso.` : err.message);
+            : (err.response?.status === 404 ? `Repositório ${req.body?.repository || getRepo(req)} não encontrado ou sem permissão de acesso.` : err.message);
         res.status(400).json({ success: false, error: errMsg });
     }
 });
@@ -1501,7 +1582,7 @@ app.get('/api/analytics', async (req, res) => {
         }));
 
         res.json({
-            repository: REPO,
+            repository: getRepo(req),
             periodInfo: { period, groupBy, startDate: startDate.toISOString().slice(0, 10), endDate: endDate.toISOString().slice(0, 10), diffDays },
             summary: {
                 totalIssuesCreated: totalCreated,
